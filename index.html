@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>HR Decision Tool</title>
+  <style>
+    body { font-family: Arial; max-width: 600px; margin: 40px auto; }
+    button { margin: 5px; padding: 10px; }
+  </style>
+</head>
+<body>
+
+<h2>Manager Discipline Decision Tool</h2>
+<div id="app"></div>
+
+<script>
+let app = document.getElementById("app");
+
+function start() {
+  app.innerHTML = `
+    <p>What type of issue is this?</p>
+    <button onclick="performance()">Performance</button>
+    <button onclick="attendance()">Attendance</button>
+    <button onclick="misconduct()">Misconduct</button>
+  `;
+}
+
+function performance() {
+  app.innerHTML = `
+    <p>Is this the first issue?</p>
+    <button onclick="output('Coaching recommended')">Yes</button>
+    <button onclick="output('Written warning recommended')">No</button>
+  `;
+}
+
+function attendance() {
+  app.innerHTML = `
+    <p>Repeated attendance issue?</p>
+    <button onclick="output('Coaching recommended')">No</button>
+    <button onclick="output('Written warning recommended')">Yes</button>
+  `;
+}
+
+function misconduct() {
+  app.innerHTML = `
+    <p>Severity?</p>
+    <button onclick="output('Warning recommended')">Minor</button>
+    <button onclick="output('HR review before termination')">Serious</button>
+  `;
+}
+
+function output(text) {
+  app.innerHTML = `
+    <h3>Recommendation:</h3>
+    <p>${text}</p>
+    <br>
+    <p><b>Check:</b> Any medical issue, leave, complaint, or accommodation involved?</p>
+    <button onclick="risk()">Yes</button>
+    <button onclick="restart()">No</button>
+  `;
+}
+
+function risk() {
+  app.innerHTML = `
+    <h3>⚠️ STOP</h3>
+    <p>HR review required before any disciplinary action.</p>
+    <button onclick="restart()">Restart</button>
+  `;
+}
+
+function restart() {
+  start();
+}
+
+start();
+</script>
+
+</body>
+</html>
