@@ -1,78 +1,112 @@
-<!DOCTYPE html> 
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <title>HR Decision Tool</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manager Discipline Decision Tool</title>
   <style>
-    body { font-family: Arial; max-width: 600px; margin: 40px auto; }
-    button { margin: 5px; padding: 10px; }
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 700px;
+      margin: 40px auto;
+      padding: 20px;
+      line-height: 1.5;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    button {
+      margin: 6px 6px 0 0;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #111827;
+      color: white;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    .secondary {
+      background: #6b7280;
+    }
+    .result {
+      margin-top: 18px;
+      padding: 14px;
+      border-radius: 8px;
+      background: #f3f4f6;
+    }
   </style>
 </head>
 <body>
+  <h1>Manager Discipline Decision Tool</h1>
+  <p>Prototype for coaching, corrective action, and HR escalation guidance.</p>
 
-<h2>Manager Discipline Decision Tool</h2>
-<div id="app"></div>
+  <div class="card">
+    <div id="app"></div>
+  </div>
 
-<script>
-let app = document.getElementById("app");
+  <script>
+    const app = document.getElementById("app");
 
-function start() {
-  app.innerHTML = `
-    <p>What type of issue is this?</p>
-    <button onclick="performance()">Performance</button>
-    <button onclick="attendance()">Attendance</button>
-    <button onclick="misconduct()">Misconduct</button>
-  `;
-}
+    function start() {
+      app.innerHTML = `
+        <p><strong>What type of issue is this?</strong></p>
+        <button onclick="performance()">Performance</button>
+        <button onclick="attendance()">Attendance</button>
+        <button onclick="misconduct()">Misconduct</button>
+      `;
+    }
 
-function performance() {
-  app.innerHTML = `
-    <p>Is this the first issue?</p>
-    <button onclick="output('Coaching recommended')">Yes</button>
-    <button onclick="output('Written warning recommended')">No</button>
-  `;
-}
+    function performance() {
+      app.innerHTML = `
+        <p><strong>Is this the first documented issue?</strong></p>
+        <button onclick="showResult('Coaching or documented counseling is likely the next step.')">Yes</button>
+        <button onclick="showResult('Written warning may be appropriate if expectations were already communicated.')">No</button>
+        <br><br>
+        <button class="secondary" onclick="start()">Back</button>
+      `;
+    }
 
-function attendance() {
-  app.innerHTML = `
-    <p>Repeated attendance issue?</p>
-    <button onclick="output('Coaching recommended')">No</button>
-    <button onclick="output('Written warning recommended')">Yes</button>
-  `;
-}
+    function attendance() {
+      app.innerHTML = `
+        <p><strong>Is this repeated attendance/tardiness after prior notice?</strong></p>
+        <button onclick="showResult('Coaching and expectation-setting may be appropriate.')">No</button>
+        <button onclick="showResult('Written warning may be appropriate if prior coaching already occurred.')">Yes</button>
+        <br><br>
+        <button class="secondary" onclick="start()">Back</button>
+      `;
+    }
 
-function misconduct() {
-  app.innerHTML = `
-    <p>Severity?</p>
-    <button onclick="output('Warning recommended')">Minor</button>
-    <button onclick="output('HR review before termination')">Serious</button>
-  `;
-}
+    function misconduct() {
+      app.innerHTML = `
+        <p><strong>How serious is the issue?</strong></p>
+        <button onclick="showResult('Corrective action or warning may be appropriate depending on policy and prior history.')">Minor</button>
+        <button onclick="showResult('HR review is recommended before any final disciplinary decision.')">Serious</button>
+        <br><br>
+        <button class="secondary" onclick="start()">Back</button>
+      `;
+    }
 
-function output(text) {
-  app.innerHTML = `
-    <h3>Recommendation:</h3>
-    <p>${text}</p>
-    <br>
-    <p><b>Check:</b> Any medical issue, leave, complaint, or accommodation involved?</p>
-    <button onclick="risk()">Yes</button>
-    <button onclick="restart()">No</button>
-  `;
-}
+    function showResult(message) {
+      app.innerHTML = `
+        <div class="result">
+          <strong>Recommendation:</strong>
+          <p>${message}</p>
+          <p><strong>Risk check:</strong> If medical issues, leave, complaints, accommodations, or retaliation concerns may be involved, pause and escalate to HR before proceeding.</p>
+        </div>
+        <br>
+        <button onclick="start()">Start Over</button>
+      `;
+    }
 
-function risk() {
-  app.innerHTML = `
-    <h3>⚠️ STOP</h3>
-    <p>HR review required before any disciplinary action.</p>
-    <button onclick="restart()">Restart</button>
-  `;
-}
-
-function restart() {
-  start();
-}
-
-start();
-</script>
-
+    start();
+  </script>
 </body>
 </html>
