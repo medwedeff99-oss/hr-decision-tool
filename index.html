@@ -1,133 +1,315 @@
-<!-- force deploy -->
-<!-- update -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Manager Discipline Decision Tool</title>
+  <title>HR Decision Tree Demo</title>
   <style>
     :root {
-      --bg: #f6f7fb;
+      --bg-1: #0b1020;
+      --bg-2: #131a31;
+      --panel: rgba(255, 255, 255, 0.08);
+      --panel-strong: rgba(255, 255, 255, 0.12);
       --card: #ffffff;
-      --text: #111827;
-      --muted: #6b7280;
-      --primary: #0f172a;
-      --secondary: #64748b;
-      --border: #dbe1ea;
+      --text: #edf2ff;
+      --text-dark: #111827;
+      --muted: #a5b4d4;
+      --border: rgba(255,255,255,0.12);
+      --accent: #7c3aed;
+      --accent-2: #06b6d4;
+      --success: #e0f2fe;
+      --success-border: #7dd3fc;
       --warn: #fff7ed;
       --warn-border: #fdba74;
       --danger: #fef2f2;
       --danger-border: #fca5a5;
-      --ok: #eff6ff;
-      --ok-border: #93c5fd;
+      --purple: #f3e8ff;
+      --purple-border: #c084fc;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --radius-sm: 12px;
+      --max: 1120px;
     }
 
     * { box-sizing: border-box; }
 
-    body {
+    html, body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: var(--bg);
+      padding: 0;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(124,58,237,0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(6,182,212,0.18), transparent 24%),
+        linear-gradient(160deg, var(--bg-1), var(--bg-2));
       color: var(--text);
-      padding: 32px 18px 60px;
+      min-height: 100%;
     }
 
-    .container {
-      max-width: 980px;
+    body {
+      padding: 22px;
+    }
+
+    .shell {
+      max-width: var(--max);
       margin: 0 auto;
     }
 
     .hero {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 22px;
+      align-items: stretch;
       margin-bottom: 24px;
     }
 
-    h1 {
-      font-size: 2.4rem;
-      margin: 0 0 10px;
-      line-height: 1.1;
-    }
-
-    .subtitle {
-      font-size: 1.05rem;
-      color: var(--text);
-      margin: 0;
-    }
-
-    .disclaimer {
-      margin-top: 14px;
-      padding: 14px 16px;
-      background: #fff;
+    .hero-left, .hero-right {
       border: 1px solid var(--border);
-      border-radius: 12px;
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-left {
+      padding: 30px;
+    }
+
+    .hero-right {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #d8b4fe;
+      background: rgba(124, 58, 237, 0.16);
+      border: 1px solid rgba(216, 180, 254, 0.22);
+      padding: 8px 12px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(2.15rem, 4vw, 4rem);
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+
+    .hero p {
+      margin: 0;
       color: var(--muted);
-      font-size: 0.96rem;
+      line-height: 1.6;
+      font-size: 1rem;
+    }
+
+    .hero-cta-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-size: 0.98rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.08s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn:hover {
+      opacity: 0.96;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.16);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      border: 1px solid var(--border);
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .mini-card {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px;
+    }
+
+    .mini-card strong {
+      display: block;
+      font-size: 0.95rem;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+
+    .mini-card span {
+      font-size: 0.92rem;
+      color: var(--muted);
       line-height: 1.45;
     }
 
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
+    .tool-shell {
+      display: grid;
+      grid-template-columns: 1fr 310px;
+      gap: 22px;
+      align-items: start;
     }
 
-    .step {
-      display: inline-block;
-      margin-bottom: 10px;
-      font-size: 0.88rem;
-      color: var(--muted);
-      background: #f8fafc;
+    .tool-card, .sidebar {
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .tool-card {
+      background: var(--card);
+      color: var(--text-dark);
+    }
+
+    .sidebar {
+      background: var(--panel);
       border: 1px solid var(--border);
-      padding: 6px 10px;
+      backdrop-filter: blur(18px);
+      padding: 20px;
+      color: var(--text);
+      position: sticky;
+      top: 18px;
+    }
+
+    .tool-top {
+      padding: 22px 22px 0;
+      background: linear-gradient(180deg, #f8faff 0%, #ffffff 100%);
+    }
+
+    .tool-body {
+      padding: 22px;
+    }
+
+    .progress-wrap {
+      margin-bottom: 18px;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.9rem;
+      color: #64748b;
+      margin-bottom: 10px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background: #e5e7eb;
       border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      transition: width 0.25s ease;
+      width: 0%;
+    }
+
+    .step-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #6d28d9;
+      background: #f5f3ff;
+      border: 1px solid #ddd6fe;
+      padding: 8px 11px;
+      border-radius: 999px;
+      margin-bottom: 14px;
     }
 
     .question {
-      font-size: 1.7rem;
       margin: 0 0 8px;
+      font-size: clamp(1.5rem, 2vw, 2rem);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
     }
 
     .helper {
-      color: var(--muted);
-      margin: 0 0 22px;
-      line-height: 1.45;
+      margin: 0 0 20px;
+      color: #64748b;
+      line-height: 1.55;
+      font-size: 0.98rem;
     }
 
-    .btn-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 10px;
+    .option-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 6px;
     }
 
-    button {
-      border: none;
-      border-radius: 12px;
-      padding: 13px 18px;
+    .option-btn {
+      width: 100%;
+      text-align: left;
+      border: 1px solid #e5e7eb;
+      background: #fff;
+      border-radius: 18px;
+      padding: 16px 16px;
       cursor: pointer;
+      transition: 0.16s ease;
+      font-size: 0.98rem;
+      color: #111827;
+      box-shadow: 0 6px 22px rgba(15, 23, 42, 0.04);
+    }
+
+    .option-btn:hover {
+      transform: translateY(-1px);
+      border-color: #c4b5fd;
+      box-shadow: 0 12px 26px rgba(124, 58, 237, 0.10);
+    }
+
+    .option-title {
+      display: block;
+      font-weight: 800;
+      margin-bottom: 6px;
       font-size: 1rem;
-      font-weight: 600;
-      transition: transform 0.04s ease, opacity 0.15s ease;
     }
 
-    button:hover { opacity: 0.95; }
-    button:active { transform: translateY(1px); }
-
-    .primary-btn {
-      background: var(--primary);
-      color: white;
-    }
-
-    .secondary-btn {
-      background: var(--secondary);
-      color: white;
-    }
-
-    .light-btn {
-      background: #e2e8f0;
-      color: var(--text);
+    .option-sub {
+      display: block;
+      color: #6b7280;
+      line-height: 1.45;
+      font-size: 0.92rem;
     }
 
     .nav-row {
@@ -137,826 +319,992 @@
       margin-top: 24px;
     }
 
-    .result-box,
-    .flag-box,
-    .notes-box {
-      border-radius: 14px;
-      padding: 18px;
-      margin-top: 18px;
-      line-height: 1.5;
-    }
-
-    .result-box {
-      background: var(--ok);
-      border: 1px solid var(--ok-border);
-    }
-
-    .flag-box {
-      background: var(--danger);
-      border: 1px solid var(--danger-border);
-    }
-
-    .notes-box {
-      background: var(--warn);
-      border: 1px solid var(--warn-border);
-    }
-
-    .label {
-      display: inline-block;
-      font-size: 0.85rem;
+    .nav-btn {
+      border-radius: 12px;
+      border: 1px solid #dbe1ea;
+      background: #f8fafc;
+      color: #0f172a;
+      padding: 12px 16px;
       font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      margin-bottom: 8px;
+      cursor: pointer;
     }
 
-    ul {
-      padding-left: 20px;
-      margin: 10px 0 0;
+    .sidebar h3 {
+      margin: 0 0 10px;
+      font-size: 1.05rem;
     }
 
-    li { margin-bottom: 8px; }
-
-    .footer-note {
-      margin-top: 20px;
+    .sidebar p {
       color: var(--muted);
-      font-size: 0.93rem;
+      line-height: 1.55;
+      font-size: 0.94rem;
     }
 
-    @media (max-width: 640px) {
-      h1 { font-size: 2rem; }
-      .question { font-size: 1.35rem; }
-      .card { padding: 18px; }
-      button { width: 100%; }
-      .btn-grid, .nav-row { flex-direction: column; }
+    .side-list {
+      margin: 16px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
+    .side-list li {
+      padding: 12px 12px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.08);
+      color: #e5ecff;
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    .result-card {
+      display: grid;
+      gap: 14px;
+    }
+
+    .result-head {
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid #ddd6fe;
+      background: linear-gradient(180deg, #faf5ff, #ffffff);
+    }
+
+    .result-head h3 {
+      margin: 0 0 8px;
+      font-size: 1.45rem;
+      line-height: 1.2;
+    }
+
+    .result-head p {
+      margin: 0;
+      color: #6b7280;
+      line-height: 1.55;
+    }
+
+    .badge-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 6px 0 0;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .badge-purple { background: #f3e8ff; color: #6b21a8; }
+    .badge-blue { background: #eff6ff; color: #1d4ed8; }
+    .badge-amber { background: #fffbeb; color: #b45309; }
+    .badge-orange { background: #fff7ed; color: #c2410c; }
+    .badge-red { background: #fef2f2; color: #b91c1c; }
+
+    .panel {
+      border-radius: 18px;
+      padding: 18px;
+      border: 1px solid #e5e7eb;
+      background: #fff;
+    }
+
+    .panel h4 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+    }
+
+    .panel ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #374151;
+      line-height: 1.6;
+    }
+
+    .panel li { margin-bottom: 8px; }
+
+    .panel-purple {
+      background: var(--purple);
+      border-color: var(--purple-border);
+    }
+
+    .panel-blue {
+      background: var(--success);
+      border-color: var(--success-border);
+    }
+
+    .panel-orange {
+      background: var(--warn);
+      border-color: var(--warn-border);
+    }
+
+    .panel-red {
+      background: var(--danger);
+      border-color: var(--danger-border);
+    }
+
+    .lead-form {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 12px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field label {
+      font-size: 0.9rem;
+      color: #475569;
+      font-weight: 700;
+    }
+
+    .field input, .field select, .field textarea {
+      border: 1px solid #dbe1ea;
+      border-radius: 14px;
+      padding: 13px 14px;
+      font: inherit;
+      width: 100%;
+      background: #fff;
+    }
+
+    .field textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .small-note {
+      font-size: 0.88rem;
+      color: #64748b;
+      line-height: 1.5;
+      margin-top: 10px;
+    }
+
+    .thanks-box {
+      border-radius: 18px;
+      padding: 18px;
+      background: linear-gradient(180deg, #ecfeff, #ffffff);
+      border: 1px solid #a5f3fc;
+    }
+
+    .footer {
+      margin-top: 22px;
+      text-align: center;
+      color: #a5b4d4;
+      font-size: 0.88rem;
+      line-height: 1.55;
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .tool-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+      }
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding: 14px;
+      }
+
+      .hero-left, .hero-right, .tool-body, .tool-top {
+        padding: 18px;
+      }
+
+      .option-grid,
+      .lead-form,
+      .mini-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-row,
+      .hero-cta-row {
+        flex-direction: column;
+      }
+
+      .btn, .nav-btn {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="hero">
-      <h1>Manager Discipline Decision Tool</h1>
-      <p class="subtitle">Prototype for coaching, corrective action, documentation, and HR escalation guidance.</p>
-      <div class="disclaimer">
-        This prototype is a manager guidance tool only. It does not replace Human Resources review, handbook interpretation,
-        legal advice, or leadership approval. Use it to help structure facts, spot risk, and guide next-step conversations.
+  <div class="shell">
+    <section class="hero">
+      <div class="hero-left">
+        <div class="eyebrow">HR Tech Demo</div>
+        <h1>Stop guessing on employee discipline decisions.</h1>
+        <p>
+          A fast, mobile-friendly HR decision tree for managers. Screen attendance, performance,
+          misconduct, safety, and protected-risk issues in under a minute.
+        </p>
+        <div class="hero-cta-row">
+          <button class="btn btn-primary" onclick="jumpToTool()">Try the Demo</button>
+          <button class="btn btn-secondary" onclick="showBuyerMessage()">Request Early Access</button>
+        </div>
       </div>
-    </div>
 
-    <div class="card">
-      <div id="app"></div>
+      <div class="hero-right">
+        <div>
+          <h3 style="margin:0 0 10px; font-size:1.2rem;">Built to feel fast, not legal-heavy.</h3>
+          <p>
+            Managers answer a few questions, HR/legal risk gets flagged early, and the tool points
+            them toward coaching, written warning, final warning, termination review, or HR investigation.
+          </p>
+        </div>
+
+        <div class="mini-grid">
+          <div class="mini-card">
+            <strong>Fast on mobile</strong>
+            <span>Large tap targets, one flow, no messy policy hunting.</span>
+          </div>
+          <div class="mini-card">
+            <strong>Lead capture built in</strong>
+            <span>Collect demo interest before unlocking full guidance.</span>
+          </div>
+          <div class="mini-card">
+            <strong>Manager-friendly</strong>
+            <span>Clear recommendations, not long HR essays.</span>
+          </div>
+          <div class="mini-card">
+            <strong>Sellable later</strong>
+            <span>Easy to position as a handbook-aware company tool.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tool-shell" id="toolArea">
+      <div class="tool-card">
+        <div class="tool-top">
+          <div class="progress-wrap">
+            <div class="progress-meta">
+              <span id="progressLabel">Step 1 of 5</span>
+              <span id="progressPercent">20%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+          </div>
+        </div>
+        <div class="tool-body">
+          <div id="app"></div>
+        </div>
+      </div>
+
+      <aside class="sidebar">
+        <h3>Why buyers care</h3>
+        <p>
+          This is more than a flowchart. It can be positioned as a manager guidance tool that helps
+          companies act faster, more consistently, and with better HR escalation discipline.
+        </p>
+
+        <ul class="side-list">
+          <li>Attendance, misconduct, performance, complaint, safety, and protected issue routing</li>
+          <li>Built-in “stop and call HR” logic before ordinary discipline</li>
+          <li>Easy to demo, brand, and later customize to company handbook rules</li>
+        </ul>
+
+        <div style="margin-top:18px;">
+          <button class="btn btn-primary" style="width:100%;" onclick="showLeadCaptureOnly()">
+            Bring This to My Company
+          </button>
+        </div>
+      </aside>
+    </section>
+
+    <div class="footer">
+      Demo guidance tool only. Final employment decisions should still be reviewed through appropriate HR and leadership channels.
     </div>
   </div>
 
   <script>
     const app = document.getElementById("app");
-    const historyStack = [];
+    const progressLabel = document.getElementById("progressLabel");
+    const progressPercent = document.getElementById("progressPercent");
+    const progressFill = document.getElementById("progressFill");
+
+    const totalSteps = 5;
+
+    const state = {
+      step: 1,
+      history: [],
+      issueType: "",
+      severity: "",
+      prior: "",
+      legal: "",
+      detail: "",
+      leadUnlocked: false,
+      lead: {
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        company: "",
+        employees: "",
+        notes: ""
+      }
+    };
+
+    const issueDetails = {
+      attendance: [
+        ["absence_tardy", "Absence / tardy", "Late arrival, missed shift, early departure"],
+        ["no_call", "No-call / no-show", "Missed work without proper notice"],
+        ["schedule", "Failure to follow schedule", "Repeated failure to follow assigned hours"]
+      ],
+      performance: [
+        ["quality", "Work quality issue", "Errors, missed standards, incomplete work"],
+        ["productivity", "Productivity issue", "Output too low or deadlines missed"],
+        ["followthrough", "Failure to follow through", "Incomplete tasks or repeated gaps"]
+      ],
+      conduct: [
+        ["insubordination", "Insubordination", "Refusal to follow direction"],
+        ["sleeping", "Sleeping on duty", "Observed asleep during work time"],
+        ["disrespect", "Disrespect / unprofessional conduct", "Tone, behavior, or conflict"],
+        ["dishonesty", "Dishonesty / timecard issue", "Potential falsification or misleading info"],
+        ["other_conduct", "Other conduct issue", "General misconduct concern"]
+      ],
+      safety: [
+        ["unsafe", "Unsafe practice", "Created or ignored a safety risk"],
+        ["violence", "Threat / violence concern", "Threats, intimidation, physical conduct"],
+        ["substance", "Drug / alcohol concern", "Impairment or use on duty"],
+        ["weapons", "Weapons concern", "Possession or credible report"]
+      ],
+      complaint: [
+        ["harassment", "Harassment / discrimination complaint", "Protected complaint issue"],
+        ["retaliation", "Retaliation concern", "Adverse action concern after complaint"],
+        ["policy_complaint", "General complaint / whistleblower concern", "Reported misconduct or policy concern"]
+      ],
+      protected: [
+        ["medical", "Medical condition / doctor note", "Potential medical issue"],
+        ["leave", "Leave / accommodation issue", "CFRA/FMLA/accommodation overlap"],
+        ["pregnancy", "Pregnancy-related issue", "Pregnancy or related condition"],
+        ["privacy", "Medical privacy concern", "Sensitive medical information concern"]
+      ],
+      other: [
+        ["other", "Other workplace issue", "General manager concern"]
+      ]
+    };
+
+    function updateProgress(stepNumber) {
+      state.step = stepNumber;
+      const pct = Math.round((stepNumber / totalSteps) * 100);
+      progressLabel.textContent = `Step ${stepNumber} of ${totalSteps}`;
+      progressPercent.textContent = `${pct}%`;
+      progressFill.style.width = `${pct}%`;
+    }
 
     function setView(html) {
       app.innerHTML = html;
     }
 
-    function goTo(renderer) {
-      historyStack.push(renderer);
-      renderer();
+    function pushHistory(fnName) {
+      state.history.push(fnName);
+    }
+
+    function goTo(fn) {
+      pushHistory(fn.name);
+      fn();
     }
 
     function back() {
-      if (historyStack.length > 1) {
-        historyStack.pop();
-        const previous = historyStack[historyStack.length - 1];
-        previous();
-      } else {
+      if (state.history.length <= 1) {
         start();
+        return;
       }
+      state.history.pop();
+      const previousName = state.history[state.history.length - 1];
+      window[previousName]();
     }
 
     function restart() {
-      historyStack.length = 0;
+      state.history = [];
+      state.issueType = "";
+      state.severity = "";
+      state.prior = "";
+      state.legal = "";
+      state.detail = "";
+      state.leadUnlocked = false;
       start();
     }
 
-    function navButtons(includeStartOver = true) {
+    function navRow(showBack = true) {
       return `
         <div class="nav-row">
-          <button class="secondary-btn" onclick="back()">Back</button>
-          ${includeStartOver ? `<button class="light-btn" onclick="restart()">Start Over</button>` : ""}
+          ${showBack ? `<button class="nav-btn" onclick="back()">Back</button>` : ``}
+          <button class="nav-btn" onclick="restart()">Start Over</button>
         </div>
       `;
     }
 
-    function resultCard(title, recommendation, flags = [], managerNotes = []) {
-      const flagsHtml = flags.length
-        ? `
-          <div class="flag-box">
-            <div class="label">HR Review / Risk Flags</div>
-            <ul>${flags.map(f => `<li>${f}</li>`).join("")}</ul>
-          </div>
-        `
-        : "";
+    function jumpToTool() {
+      document.getElementById("toolArea").scrollIntoView({ behavior: "smooth", block: "start" });
+      start();
+    }
 
-      const notesHtml = managerNotes.length
-        ? `
-          <div class="notes-box">
-            <div class="label">Manager Next Steps</div>
-            <ul>${managerNotes.map(n => `<li>${n}</li>`).join("")}</ul>
-          </div>
-        `
-        : "";
+    function showBuyerMessage() {
+      showLeadCaptureOnly();
+      document.getElementById("toolArea").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
 
-      setView(`
-        <div class="step">Recommendation</div>
-        <h2 class="question">${title}</h2>
-        <p class="helper">Use this as a guide, then align with HR before final action if risk is elevated.</p>
+    function getIssueLabel(key) {
+      const labels = {
+        attendance: "Attendance",
+        performance: "Performance",
+        conduct: "Conduct / Misconduct",
+        safety: "Safety",
+        complaint: "Complaint / Harassment / Retaliation",
+        protected: "Medical / Leave / Accommodation",
+        other: "Other"
+      };
+      return labels[key] || key;
+    }
 
-        <div class="result-box">
-          <div class="label">Recommended Direction</div>
-          <div>${recommendation}</div>
-        </div>
-
-        ${flagsHtml}
-        ${notesHtml}
-
-        <div class="footer-note">
-          Suggested output language should stay neutral and fact-based. Avoid emotional or conclusory wording.
-        </div>
-
-        ${navButtons(true)}
-      `);
+    function getDetailMeta(issueType, detailKey) {
+      const found = (issueDetails[issueType] || []).find(item => item[0] === detailKey);
+      return found || [detailKey, detailKey, ""];
     }
 
     function start() {
-      historyStack.length = 0;
-      historyStack.push(start);
-
+      state.history = ["start"];
+      updateProgress(1);
       setView(`
-        <div class="step">Start</div>
-        <h2 class="question">What type of issue is this?</h2>
+        <div class="step-pill">Quick Manager Intake</div>
+        <h2 class="question">What happened?</h2>
         <p class="helper">
-          Choose the path that best matches the situation. If more than one applies, start with the highest-risk issue first.
+          Start with the main issue type. If more than one applies, choose the highest-risk concern first.
         </p>
 
-        <div class="btn-grid">
-          <button class="primary-btn" onclick="goTo(attendanceStart)">Attendance / Tardiness</button>
-          <button class="primary-btn" onclick="goTo(performanceStart)">Performance</button>
-          <button class="primary-btn" onclick="goTo(misconductStart)">Misconduct / Conduct</button>
-          <button class="primary-btn" onclick="goTo(medicalStart)">Medical / Leave / Accommodation</button>
-          <button class="primary-btn" onclick="goTo(complaintStart)">Complaint / Harassment / Retaliation</button>
-          <button class="primary-btn" onclick="goTo(safetyStart)">Safety / Policy Violation</button>
+        <div class="option-grid">
+          ${issueOption("attendance", "Attendance issue", "Tardy, absence, no-call/no-show, schedule problem")}
+          ${issueOption("performance", "Performance issue", "Quality, productivity, missed expectations")}
+          ${issueOption("conduct", "Conduct / behavior", "Insubordination, disrespect, sleeping on duty")}
+          ${issueOption("safety", "Safety issue", "Unsafe practice, violence, drugs/alcohol, weapons")}
+          ${issueOption("complaint", "Complaint / harassment", "Harassment, retaliation, whistleblower concern")}
+          ${issueOption("protected", "Leave / medical issue", "Medical, accommodation, pregnancy, protected leave")}
         </div>
+
+        ${navRow(false)}
       `);
     }
 
-    // ATTENDANCE
-    function attendanceStart() {
+    function issueOption(value, title, sub) {
+      return `
+        <button class="option-btn" onclick="selectIssueType('${value}')">
+          <span class="option-title">${title}</span>
+          <span class="option-sub">${sub}</span>
+        </button>
+      `;
+    }
+
+    function selectIssueType(value) {
+      state.issueType = value;
+      goTo(severityStep);
+    }
+
+    function severityStep() {
+      updateProgress(2);
       setView(`
-        <div class="step">Attendance Path</div>
-        <h2 class="question">What attendance issue best describes the situation?</h2>
-        <p class="helper">Choose the closest match.</p>
+        <div class="step-pill">Issue Type: ${getIssueLabel(state.issueType)}</div>
+        <h2 class="question">How serious is it?</h2>
+        <p class="helper">
+          Pick the option that best matches impact and urgency.
+        </p>
 
-        <div class="btn-grid">
-          <button class="primary-btn" onclick="goTo(attendanceAbsentTardy)">Absence / Tardy</button>
-          <button class="primary-btn" onclick="goTo(attendanceNoCall)}>No-Call / No-Show</button>
-          <button class="primary-btn" onclick="goTo(attendanceScheduleCompliance)">Failure to follow schedule</button>
+        <div class="option-grid">
+          ${answerCard("minor", "Minor / first-time", "Low impact, isolated, early-stage issue")}
+          ${answerCard("repeated", "Repeated / pattern", "Ongoing concern or similar issue happening again")}
+          ${answerCard("serious", "Serious impact", "Clear disruption, stronger corrective action may be needed")}
+          ${answerCard("severe", "Severe / immediate risk", "Safety issue, major misconduct, or high business risk")}
         </div>
 
-        ${navButtons(true)}
+        ${navRow(true)}
       `);
     }
 
-    function attendanceAbsentTardy() {
+    function answerCard(value, title, sub) {
+      return `
+        <button class="option-btn" onclick="selectSeverity('${value}')">
+          <span class="option-title">${title}</span>
+          <span class="option-sub">${sub}</span>
+        </button>
+      `;
+    }
+
+    function selectSeverity(value) {
+      state.severity = value;
+      goTo(priorStep);
+    }
+
+    function priorStep() {
+      updateProgress(3);
       setView(`
-        <div class="step">Attendance Path</div>
-        <h2 class="question">Is this the first documented attendance issue?</h2>
-        <p class="helper">Think documented coaching, prior email, prior verbal counseling, or prior write-up.</p>
+        <div class="step-pill">Discipline History</div>
+        <h2 class="question">Has this been documented before?</h2>
+        <p class="helper">
+          Think coaching, verbal counseling, written warning, or final warning.
+        </p>
 
-        <div class="btn-grid">
-          <button class="primary-btn" onclick="goTo(attendanceFirstIssueProtected)">Yes</button>
-          <button class="primary-btn" onclick="goTo(attendanceRepeatIssueProtected)">No</button>
+        <div class="option-grid">
+          ${priorCard("none", "No prior documentation", "No known prior discipline on this issue")}
+          ${priorCard("coaching", "Coaching / verbal", "Manager has already addressed it informally")}
+          ${priorCard("written", "Written warning", "Formal written discipline already issued")}
+          ${priorCard("final", "Final warning", "Already at a high corrective action level")}
         </div>
 
-        ${navButtons(true)}
+        ${navRow(true)}
       `);
     }
 
-    function attendanceFirstIssueProtected() {
+    function priorCard(value, title, sub) {
+      return `
+        <button class="option-btn" onclick="selectPrior('${value}')">
+          <span class="option-title">${title}</span>
+          <span class="option-sub">${sub}</span>
+        </button>
+      `;
+    }
+
+    function selectPrior(value) {
+      state.prior = value;
+      goTo(legalStep);
+    }
+
+    function legalStep() {
+      updateProgress(4);
       setView(`
-        <div class="step">Attendance Path</div>
-        <h2 class="question">Is there any medical, leave, disability, pregnancy, or accommodation angle?</h2>
-        <p class="helper">Examples: illness pattern, doctor note, FMLA/CFRA request, pregnancy-related issue, accommodation request.</p>
+        <div class="step-pill">Risk Check</div>
+        <h2 class="question">Any legal or protected stop signs?</h2>
+        <p class="helper">
+          This is the override screen. If a protected-risk issue exists, the manager should pause and route to HR first.
+        </p>
 
-        <div class="btn-grid">
-          <button class="primary-btn" onclick="attendanceProtectedResult()">Yes</button>
-          <button class="primary-btn" onclick="attendanceFirstIssueResult()">No</button>
+        <div class="option-grid">
+          <button class="option-btn" onclick="selectLegal('yes')">
+            <span class="option-title">Yes — possible protected risk</span>
+            <span class="option-sub">Medical issue, leave, disability, complaint, retaliation, pregnancy, or similar concern</span>
+          </button>
+
+          <button class="option-btn" onclick="selectLegal('no')">
+            <span class="option-title">No — no protected risk identified</span>
+            <span class="option-sub">No clear leave, medical, retaliation, complaint, or other stop-sign issue</span>
+          </button>
         </div>
 
-        ${navButtons(true)}
+        ${navRow(true)}
       `);
     }
 
-    function attendanceRepeatIssueProtected() {
+    function selectLegal(value) {
+      state.legal = value;
+      goTo(detailStep);
+    }
+
+    function detailStep() {
+      updateProgress(5);
+      const items = issueDetails[state.issueType] || issueDetails.other;
+
       setView(`
-        <div class="step">Attendance Path</div>
-        <h2 class="question">Did the employee personally notify the supervisor appropriately?</h2>
-        <p class="helper">If not, risk is higher under the attendance and call-in expectations.</p>
+        <div class="step-pill">Specific Issue Detail</div>
+        <h2 class="question">What best describes the issue?</h2>
+        <p class="helper">
+          Choose the closest fit. This helps the tool map a cleaner recommendation.
+        </p>
 
-        <div class="btn-grid">
-          <button class="primary-btn" onclick="goTo(attendanceRepeatProtectedFinal)">Yes</button>
-          <button class="primary-btn" onclick="attendanceRepeatNoNoticeResult()">No</button>
+        <div class="option-grid">
+          ${items.map(item => `
+            <button class="option-btn" onclick="selectDetail('${item[0]}')">
+              <span class="option-title">${item[1]}</span>
+              <span class="option-sub">${item[2]}</span>
+            </button>
+          `).join("")}
         </div>
 
-        ${navButtons(true)}
+        ${navRow(true)}
       `);
     }
 
-    function attendanceRepeatProtectedFinal() {
+    function selectDetail(value) {
+      state.detail = value;
+
+      if (!state.leadUnlocked) {
+        goTo(leadGateStep);
+      } else {
+        showResult();
+      }
+    }
+
+    function showLeadCaptureOnly() {
+      updateProgress(5);
+      state.history = ["showLeadCaptureOnly"];
       setView(`
-        <div class="step">Attendance Path</div>
-        <h2 class="question">Is there any medical, leave, disability, pregnancy, or accommodation angle?</h2>
+        <div class="step-pill">Request Early Access</div>
+        <h2 class="question">Bring this decision tool to your company</h2>
+        <p class="helper">
+          Leave your info and I’ll unlock the full recommendation demo flow here while also capturing buyer interest.
+        </p>
 
-        <div class="btn-grid">
-          <button class="primary-btn" onclick="attendanceProtectedResult()">Yes</button>
-          <button class="primary-btn" onclick="attendanceRepeatResult()">No</button>
-        </div>
-
-        ${navButtons(true)}
+        ${leadFormHtml("submitLeadOnly()")}
+        ${navRow(false)}
       `);
     }
 
-    function attendanceNoCall() {
+    function leadGateStep() {
+      updateProgress(5);
       setView(`
-        <div class="step">Attendance Path</div>
-        <h2 class="question">How many consecutive workdays has the employee missed without notice?</h2>
-        <p class="helper">This matters because 3 consecutive workdays may be treated differently.</p>
+        <div class="step-pill">Unlock Full Recommendation</div>
+        <h2 class="question">Your result is ready.</h2>
+        <p class="helper">
+          Enter your info to unlock the full recommendation, policy direction, risk flags, and manager next steps.
+        </p>
 
-        <div class="btn-grid">
-          <button class="primary-btn" onclick="attendanceNoCallShortResult()">1 day</button>
-          <button class="primary-btn" onclick="attendanceNoCallShortResult()">2 days</button>
-          <button class="primary-btn" onclick="attendanceThreeDayResult()">3 or more days</button>
-        </div>
-
-        ${navButtons(true)}
+        ${leadFormHtml("submitLeadThenResult()")}
+        ${navRow(true)}
       `);
     }
 
-    function attendanceScheduleCompliance() {
-      resultCard(
-        "Possible Coaching or Written Warning Review",
-        "Document the schedule expectation, confirm the employee understood it, and consider coaching or documented counseling first if this is an early-stage issue. If repeated after clear notice, written warning review may be appropriate.",
-        [
-          "Escalate to HR before discipline if a medical, leave, pregnancy, accommodation, or retaliation issue may be involved."
-        ],
-        [
-          "Confirm the exact schedule expectation and whether it was clearly communicated.",
-          "Document dates, times, and prior conversations.",
-          "Keep wording factual: missed schedule, late arrival, or early departure."
-        ]
-      );
+    function leadFormHtml(submitFn) {
+      return `
+        <div class="panel panel-purple">
+          <h4>Demo interest form</h4>
+          <div class="lead-form">
+            <div class="field">
+              <label>First name</label>
+              <input id="firstName" type="text" placeholder="Brad" />
+            </div>
+            <div class="field">
+              <label>Last name</label>
+              <input id="lastName" type="text" placeholder="Medwedeff" />
+            </div>
+            <div class="field">
+              <label>Work email</label>
+              <input id="email" type="email" placeholder="name@company.com" />
+            </div>
+            <div class="field">
+              <label>Phone</label>
+              <input id="phone" type="tel" placeholder="(555) 555-5555" />
+            </div>
+            <div class="field">
+              <label>Company</label>
+              <input id="company" type="text" placeholder="Company name" />
+            </div>
+            <div class="field">
+              <label>Employees</label>
+              <select id="employees">
+                <option value="">Select</option>
+                <option>1-25</option>
+                <option>26-100</option>
+                <option>101-250</option>
+                <option>251-1000</option>
+                <option>1000+</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label>Biggest HR challenge</label>
+              <textarea id="notes" placeholder="Attendance consistency, manager write-ups, misconduct calls, leave issues, etc."></textarea>
+            </div>
+          </div>
+
+          <div class="small-note">
+            Demo only. You can later wire this form to Formspree, HubSpot, Zapier, Airtable, Sheets, or your backend.
+          </div>
+
+          <div class="nav-row" style="margin-top:16px;">
+            <button class="btn btn-primary" onclick="${submitFn}">
+              Unlock Full Demo
+            </button>
+          </div>
+        </div>
+      `;
     }
 
-    function attendanceProtectedResult() {
-      resultCard(
-        "Immediate HR Review Recommended",
-        "Pause manager-led discipline and route to HR review first. Attendance issues can overlap with medical leave, disability accommodation, pregnancy-related protections, or other protected leave rights.",
-        [
-          "Potential medical or privacy issue.",
-          "Potential CFRA/FMLA, pregnancy disability, or accommodation issue.",
-          "Manager should avoid medical probing beyond business necessity."
-        ],
-        [
-          "Document only objective facts: date, time, call-in status, and operational impact.",
-          "Do not label the issue as misconduct until HR reviews the protected-risk angle.",
-          "Coordinate with HR before any written warning or termination discussion."
-        ]
-      );
+    function captureLeadFields() {
+      state.lead.firstName = document.getElementById("firstName")?.value.trim() || "";
+      state.lead.lastName = document.getElementById("lastName")?.value.trim() || "";
+      state.lead.email = document.getElementById("email")?.value.trim() || "";
+      state.lead.phone = document.getElementById("phone")?.value.trim() || "";
+      state.lead.company = document.getElementById("company")?.value.trim() || "";
+      state.lead.employees = document.getElementById("employees")?.value.trim() || "";
+      state.lead.notes = document.getElementById("notes")?.value.trim() || "";
     }
 
-    function attendanceFirstIssueResult() {
-      resultCard(
-        "Coaching / Documented Counseling Recommended",
-        "For a first documented attendance or tardiness issue without a protected-risk angle, coaching or documented counseling is likely the best starting point.",
-        [],
-        [
-          "State the expectation clearly.",
-          "Document dates, times, and whether notice was provided.",
-          "Explain that future occurrences may lead to stronger corrective action."
-        ]
-      );
+    function validateLeadBasic() {
+      captureLeadFields();
+      if (!state.lead.firstName || !state.lead.email || !state.lead.company) {
+        alert("Please enter at least first name, work email, and company.");
+        return false;
+      }
+      return true;
     }
 
-    function attendanceRepeatResult() {
-      resultCard(
-        "Written Warning Review May Be Appropriate",
-        "Because this appears to be a repeated attendance issue after prior notice, written warning review may be appropriate.",
-        [],
-        [
-          "Confirm prior coaching or warnings are documented.",
-          "List each occurrence with date and time.",
-          "State the impact on operations and the required improvement going forward."
-        ]
-      );
-    }
+    function submitLeadOnly() {
+      if (!validateLeadBasic()) return;
+      state.leadUnlocked = true;
 
-    function attendanceRepeatNoNoticeResult() {
-      resultCard(
-        "Escalated Corrective Action Review Recommended",
-        "Repeated attendance issues combined with failure to notify the supervisor appropriately may support stronger corrective action review, potentially including written warning or final warning review depending on history.",
-        [
-          "Still stop and consult HR if any leave, medical, pregnancy, disability, or retaliation concern exists."
-        ],
-        [
-          "Document the call-in expectation and how it was not followed.",
-          "List prior notice or counseling already given.",
-          "Keep the write-up focused on facts, not assumptions."
-        ]
-      );
-    }
-
-    function attendanceNoCallShortResult() {
-      resultCard(
-        "Serious Attendance Review Recommended",
-        "A no-call/no-show is more serious than ordinary tardiness or absence. Document the missed shift(s), outreach attempts, and any response. HR-supported corrective action review is recommended.",
-        [
-          "Check for emergency, hospitalization, protected leave, or other extenuating circumstances before final action."
-        ],
-        [
-          "Record dates and attempts to contact the employee.",
-          "Confirm whether policy expectations were communicated.",
-          "Loop HR in before any final employment decision."
-        ]
-      );
-    }
-
-    function attendanceThreeDayResult() {
-      resultCard(
-        "Possible Voluntary Resignation Review",
-        "Three consecutive workdays without reporting to work may be reviewed as a voluntary resignation issue under the handbook, subject to HR confirmation and any accepted reasonable excuse.",
-        [
-          "HR should confirm no protected leave, medical emergency, or accepted reasonable excuse applies before finalizing."
-        ],
-        [
-          "Document all missed days and all attempts to contact the employee.",
-          "Confirm the exact dates and whether any response was received.",
-          "Do not finalize status without HR review."
-        ]
-      );
-    }
-
-    // PERFORMANCE
-    function performanceStart() {
       setView(`
-        <div class="step">Performance Path</div>
-        <h2 class="question">Was the expectation clearly communicated to the employee?</h2>
-        <p class="helper">Think job expectations, deadlines, quality standards, prior meetings, or written guidance.</p>
-
-        <div class="btn-grid">
-          <button class="primary-btn" onclick="goTo(performancePriorCoaching)">Yes</button>
-          <button class="primary-btn" onclick="performanceClarifyExpectationsResult()">No</button>
+        <div class="thanks-box">
+          <h2 class="question" style="margin-bottom:8px;">Thanks — demo interest captured.</h2>
+          <p class="helper" style="margin-bottom:0;">
+            You can now use the decision tool flow and unlock full recommendation results on this page.
+          </p>
         </div>
-
-        ${navButtons(true)}
+        <div class="nav-row">
+          <button class="btn btn-primary" onclick="start()">Start the Tool</button>
+        </div>
       `);
+
+      console.log("Lead captured:", state.lead);
     }
 
-    function performancePriorCoaching() {
+    function submitLeadThenResult() {
+      if (!validateLeadBasic()) return;
+      state.leadUnlocked = true;
+      console.log("Lead captured:", state.lead);
+      showResult();
+    }
+
+    function showResult() {
+      const recommendation = getRecommendation();
+      const detailMeta = getDetailMeta(state.issueType, state.detail);
+
       setView(`
-        <div class="step">Performance Path</div>
-        <h2 class="question">Has the employee already received coaching or documented counseling on this issue?</h2>
+        <div class="result-card">
+          <div class="result-head">
+            <div class="badge-row">
+              ${recommendation.levelBadge}
+              <span class="badge badge-blue">${getIssueLabel(state.issueType)}</span>
+              <span class="badge badge-purple">${detailMeta[1]}</span>
+            </div>
+            <h3>${recommendation.title}</h3>
+            <p>${recommendation.summary}</p>
+          </div>
 
-        <div class="btn-grid">
-          <button class="primary-btn" onclick="goTo(performanceProtectedRisk)">Yes</button>
-          <button class="primary-btn" onclick="goTo(performanceProtectedRiskFirst)">No</button>
+          <div class="panel panel-blue">
+            <h4>Recommended next step</h4>
+            <ul>
+              <li>${recommendation.primaryAction}</li>
+              <li>Policy area potentially involved: <strong>${recommendation.policyArea}</strong></li>
+              <li>HR review needed: <strong>${recommendation.hrReview}</strong></li>
+            </ul>
+          </div>
+
+          ${recommendation.flags.length ? `
+            <div class="panel panel-red">
+              <h4>Risk flags</h4>
+              <ul>${recommendation.flags.map(f => `<li>${f}</li>`).join("")}</ul>
+            </div>
+          ` : ""}
+
+          <div class="panel panel-orange">
+            <h4>Manager next steps</h4>
+            <ul>${recommendation.managerSteps.map(s => `<li>${s}</li>`).join("")}</ul>
+          </div>
+
+          <div class="panel panel-purple">
+            <h4>Lead/demo follow-up</h4>
+            <ul>
+              <li>Interested company: <strong>${escapeHtml(state.lead.company || "Not provided")}</strong></li>
+              <li>Contact: <strong>${escapeHtml([state.lead.firstName, state.lead.lastName].filter(Boolean).join(" ") || "Not provided")}</strong></li>
+              <li>Email: <strong>${escapeHtml(state.lead.email || "Not provided")}</strong></li>
+              <li>Employees: <strong>${escapeHtml(state.lead.employees || "Not provided")}</strong></li>
+            </ul>
+          </div>
+
+          <div class="nav-row">
+            <button class="btn btn-primary" onclick="restart()">Run Another Scenario</button>
+            <button class="btn btn-secondary" onclick="showLeadCaptureOnly()">Request Company Demo</button>
+          </div>
         </div>
-
-        ${navButtons(true)}
       `);
     }
 
-    function performanceProtectedRiskFirst() {
-      setView(`
-        <div class="step">Performance Path</div>
-        <h2 class="question">Is there any indication the issue could relate to a medical condition, leave, or accommodation?</h2>
+    function getRecommendation() {
+      if (state.legal === "yes" || state.issueType === "complaint" || state.issueType === "protected") {
+        return {
+          title: "HR Review Required Before Ordinary Discipline",
+          levelBadge: `<span class="badge badge-purple">HR Review Required</span>`,
+          summary: "A protected-risk or complaint-related issue was identified. Pause manager-led discipline and route this through HR first.",
+          primaryAction: "Do not move straight to a write-up or termination discussion until HR reviews the facts.",
+          policyArea: protectedPolicyArea(),
+          hrReview: "Yes",
+          flags: [
+            "Possible medical, leave, accommodation, retaliation, complaint, or protected issue overlap.",
+            "Managers should document facts only and avoid conclusions, diagnosis, or speculation."
+          ],
+          managerSteps: [
+            "Document objective facts: dates, times, observations, and business impact.",
+            "Limit discussion to those who need to know.",
+            "Coordinate with HR before written warning, final warning, or termination-level action."
+          ]
+        };
+      }
 
-        <div class="btn-grid">
-          <button class="primary-btn" onclick="performanceProtectedResult()">Yes</button>
-          <button class="primary-btn" onclick="performanceCoachingResult()">No</button>
-        </div>
+      if (state.issueType === "safety" || severeDetailOverride()) {
+        return {
+          title: "Termination Review or Immediate Higher-Level Review",
+          levelBadge: `<span class="badge badge-red">Termination Review</span>`,
+          summary: "This issue looks severe enough to skip lower steps and move to HR/leadership review quickly.",
+          primaryAction: "Escalate immediately for higher-level review, including possible final warning or termination review depending on facts.",
+          policyArea: safetyOrConductPolicy(),
+          hrReview: "Yes",
+          flags: [
+            "Potential safety, misconduct, or evidence preservation concern.",
+            "Consistency and documentation should be checked before final action."
+          ],
+          managerSteps: [
+            "Preserve records, witness notes, screenshots, or other evidence.",
+            "Document exactly what was observed and by whom.",
+            "Avoid emotional or accusatory wording; stick to facts."
+          ]
+        };
+      }
 
-        ${navButtons(true)}
-      `);
-    }
+      if (state.severity === "minor" && state.prior === "none") {
+        return {
+          title: "Coaching Recommended",
+          levelBadge: `<span class="badge badge-blue">Coaching</span>`,
+          summary: "This looks like an early-stage issue without prior documented discipline.",
+          primaryAction: "Start with coaching or documented counseling.",
+          policyArea: mapPolicyArea(),
+          hrReview: "Not usually, unless additional risk emerges",
+          flags: [],
+          managerSteps: [
+            "State the expectation clearly and factually.",
+            "Document dates, examples, and the improvement expected.",
+            "Explain that continued issues may lead to stronger corrective action."
+          ]
+        };
+      }
 
-    function performanceProtectedRisk() {
-      setView(`
-        <div class="step">Performance Path</div>
-        <h2 class="question">Is there any indication the issue could relate to a medical condition, leave, or accommodation?</h2>
+      if (
+        (state.severity === "minor" && state.prior === "coaching") ||
+        (state.severity === "repeated" && (state.prior === "none" || state.prior === "coaching"))
+      ) {
+        return {
+          title: "Written Warning Recommended",
+          levelBadge: `<span class="badge badge-amber">Written Warning</span>`,
+          summary: "This appears to be repeated or documented enough to move beyond simple coaching.",
+          primaryAction: "A first written warning is likely the appropriate next step.",
+          policyArea: mapPolicyArea(),
+          hrReview: "Recommended if manager is unsure or if consistency concerns exist",
+          flags: [],
+          managerSteps: [
+            "List specific examples and dates.",
+            "Reference prior coaching if applicable.",
+            "State clear improvement expectations and timeline."
+          ]
+        };
+      }
 
-        <div class="btn-grid">
-          <button class="primary-btn" onclick="performanceProtectedResult()">Yes</button>
-          <button class="primary-btn" onclick="goTo(performanceSeverity)">No</button>
-        </div>
+      if (
+        state.prior === "written" ||
+        (state.severity === "serious" && (state.prior === "coaching" || state.prior === "written")) ||
+        (state.severity === "repeated" && state.prior === "written")
+      ) {
+        return {
+          title: "Final Warning Review Recommended",
+          levelBadge: `<span class="badge badge-orange">Final Warning</span>`,
+          summary: "This looks beyond early corrective action and may justify a final warning level review.",
+          primaryAction: "Review for final warning, with HR alignment before any next-level action.",
+          policyArea: mapPolicyArea(),
+          hrReview: "Yes, recommended",
+          flags: [
+            "Check consistency with how similar cases have been handled.",
+            "Ensure prior documentation is complete and accurate."
+          ],
+          managerSteps: [
+            "Compile prior coaching and written warning history.",
+            "Describe ongoing impact on operations, team, or service.",
+            "Avoid exaggeration; keep it specific and defensible."
+          ]
+        };
+      }
 
-        ${navButtons(true)}
-      `);
-    }
+      if (state.prior === "final" || state.severity === "serious" || state.severity === "severe") {
+        return {
+          title: "Termination Review Recommended",
+          levelBadge: `<span class="badge badge-red">Termination Review</span>`,
+          summary: "This situation may justify a termination-level review depending on facts, policy fit, and prior history.",
+          primaryAction: "Route through HR/leadership review before any final employment decision.",
+          policyArea: mapPolicyArea(),
+          hrReview: "Yes",
+          flags: [
+            "Review for consistency, protected activity, and documentation completeness.",
+            "Avoid moving too fast without confirming the record."
+          ],
+          managerSteps: [
+            "Gather facts, prior discipline, and witness documentation.",
+            "Confirm no protected-risk issue has been missed.",
+            "Use neutral language and coordinate final communication through proper channels."
+          ]
+        };
+      }
 
-    function performanceSeverity() {
-      setView(`
-        <div class="step">Performance Path</div>
-        <h2 class="question">How serious is the performance issue right now?</h2>
-        <p class="helper">Choose the option that best fits the operational impact.</p>
-
-        <div class="btn-grid">
-          <button class="primary-btn" onclick="performanceWrittenWarningResult()">Ongoing but correctable</button>
-          <button class="primary-btn" onclick="performanceFinalReviewResult()">Severe / repeated / significant impact</button>
-        </div>
-
-        ${navButtons(true)}
-      `);
-    }
-
-    function performanceClarifyExpectationsResult() {
-      resultCard(
-        "Clarify Expectations First",
-        "If the expectation was not clearly communicated, start with expectation-setting and documented coaching before moving into formal discipline.",
-        [],
-        [
-          "Define the expected result, deadline, standard, or behavior.",
-          "Document the conversation in clear, measurable terms.",
-          "Set a follow-up date."
+      return {
+        title: "Case-by-Case HR Review Recommended",
+        levelBadge: `<span class="badge badge-purple">HR Review</span>`,
+        summary: "The issue does not fit a simple early-stage recommendation and should be reviewed with HR.",
+        primaryAction: "Use HR to confirm the appropriate corrective action level.",
+        policyArea: mapPolicyArea(),
+        hrReview: "Yes",
+        flags: [],
+        managerSteps: [
+          "Document facts objectively.",
+          "Avoid assumptions about motive or intent.",
+          "Confirm expectations, history, and business impact."
         ]
-      );
+      };
     }
 
-    function performanceProtectedResult() {
-      resultCard(
-        "Immediate HR Review Recommended",
-        "Do not move straight into manager-only discipline when performance concerns may overlap with medical condition, disability, leave, or accommodation issues.",
-        [
-          "Potential disability or accommodation issue.",
-          "Potential protected leave overlap.",
-          "Manager should stay focused on observable performance facts."
-        ],
-        [
-          "Document the job issue factually.",
-          "Avoid diagnosing or speculating.",
-          "Route to HR before issuing a warning."
-        ]
-      );
+    function severeDetailOverride() {
+      const severeDetails = ["sleeping", "dishonesty", "violence", "substance", "weapons"];
+      return severeDetails.includes(state.detail);
     }
 
-    function performanceCoachingResult() {
-      resultCard(
-        "Coaching / Documented Counseling Recommended",
-        "For an early-stage performance issue where expectations were known but prior coaching has not yet occurred, coaching or documented counseling is likely the next step.",
-        [],
-        [
-          "Describe the gap between expected and actual performance.",
-          "Set measurable improvement expectations.",
-          "Set a reasonable review date."
-        ]
-      );
+    function protectedPolicyArea() {
+      if (state.issueType === "complaint") return "Anti-harassment / retaliation / complaint handling";
+      if (state.issueType === "protected") return "Leave / accommodation / medical privacy";
+      return "Protected-risk review";
     }
 
-    function performanceWrittenWarningResult() {
-      resultCard(
-        "Written Warning Review May Be Appropriate",
-        "Where expectations were clearly communicated and prior coaching has already occurred, written warning review may be appropriate.",
-        [],
-        [
-          "Summarize prior counseling and dates.",
-          "List objective examples of performance deficiency.",
-          "State clear improvement expectations and timing."
-        ]
-      );
+    function safetyOrConductPolicy() {
+      if (state.issueType === "safety") return "Safety / workplace violence / drug-free workplace";
+      return "Standards of conduct";
     }
 
-    function performanceFinalReviewResult() {
-      resultCard(
-        "Final Warning / HR Review Recommended",
-        "If the performance problem is severe, repeated, and has continued after prior coaching, final warning or higher-level HR review may be appropriate before any final employment decision.",
-        [
-          "Use HR review before any termination-level step."
-        ],
-        [
-          "Confirm documentation is complete and consistent.",
-          "Check whether similarly situated employees were handled consistently.",
-          "Avoid exaggerated or emotional language."
-        ]
-      );
+    function mapPolicyArea() {
+      const map = {
+        attendance: "Attendance / call-in expectations",
+        performance: "Performance expectations",
+        conduct: "Standards of conduct",
+        safety: "Safety / workplace conduct",
+        complaint: "Complaint handling / retaliation prevention",
+        protected: "Leave / accommodation / protected issue review",
+        other: "Manager guidance / policy review"
+      };
+      return map[state.issueType] || "General policy review";
     }
 
-    // MISCONDUCT
-    function misconductStart() {
-      setView(`
-        <div class="step">Misconduct Path</div>
-        <h2 class="question">What type of misconduct or conduct issue is involved?</h2>
-        <p class="helper">Choose the closest match.</p>
-
-        <div class="btn-grid">
-          <button class="primary-btn" onclick="sleepingOnDutyResult()">Sleeping on duty</button>
-          <button class="primary-btn" onclick="insubordinationFlow()">Insubordination / refusal</button>
-          <button class="primary-btn" onclick="disrespectFlow()">Disrespect / unprofessional conduct</button>
-          <button class="primary-btn" onclick="timecardFlow()">Timecard falsification</button>
-          <button class="primary-btn" onclick="harassmentResult()">Harassment / discrimination / retaliation issue</button>
-          <button class="primary-btn" onclick="theftViolenceResult()">Theft / violence / threats / drugs / weapons</button>
-          <button class="primary-btn" onclick="generalMisconductFlow()">Other misconduct</button>
-        </div>
-
-        ${navButtons(true)}
-      `);
-    }
-
-    function sleepingOnDutyResult() {
-      resultCard(
-        "Immediate HR Review Recommended",
-        "Sleeping on duty is listed in the handbook as prohibited conduct and should be escalated to HR-supported review rather than handled casually.",
-        [
-          "Before final action, check for possible medical, fatigue-related, disability, or leave-related context that may require HR review."
-        ],
-        [
-          "Document date, time, location, who observed it, and what was observed.",
-          "Record whether the employee was awakened and what response was given.",
-          "Do not speculate; stick to observable facts."
-        ]
-      );
-    }
-
-    function insubordinationFlow() {
-      setView(`
-        <div class="step">Misconduct Path</div>
-        <h2 class="question">Was this a serious refusal or improper conduct toward a supervisor?</h2>
-        <p class="helper">Think direct refusal, defiance, or inappropriate conduct in response to direction.</p>
-
-        <div class="btn-grid">
-          <button class="primary-btn" onclick="insubordinationSeriousResult()">Yes</button>
-          <button class="primary-btn" onclick="insubordinationMinorResult()">No / lower-level issue</button>
-        </div>
-
-        ${navButtons(true)}
-      `);
-    }
-
-    function disrespectFlow() {
-      setView(`
-        <div class="step">Misconduct Path</div>
-        <h2 class="question">Is this a first documented conduct issue?</h2>
-
-        <div class="btn-grid">
-          <button class="primary-btn" onclick="disrespectFirstResult()">Yes</button>
-          <button class="primary-btn" onclick="disrespectRepeatResult()">No</button>
-        </div>
-
-        ${navButtons(true)}
-      `);
-    }
-
-    function timecardFlow() {
-      resultCard(
-        "Immediate HR Review Recommended",
-        "Altering or falsifying timekeeping records is specifically listed as prohibited conduct and should go directly to HR-supported review.",
-        [
-          "High-risk misconduct issue.",
-          "Check evidence carefully before concluding falsification."
-        ],
-        [
-          "Preserve records and screenshots.",
-          "Document who found the issue and when.",
-          "Do not accuse without confirming the facts."
-        ]
-      );
-    }
-
-    function harassmentResult() {
-      resultCard(
-        "Immediate HR Investigation Path Required",
-        "Potential harassment, discrimination, complaint, or retaliation issues should not be handled as an ordinary manager discipline matter. Route immediately to HR.",
-        [
-          "Protected complaint issue.",
-          "Retaliation risk.",
-          "Confidential handling required."
-        ],
-        [
-          "Document who reported what and when.",
-          "Avoid discussing widely.",
-          "Do not retaliate or appear to retaliate."
-        ]
-      );
-    }
-
-    function theftViolenceResult() {
-      resultCard(
-        "Immediate HR / Leadership Review Recommended",
-        "Theft, threats, violence, drugs/alcohol on duty, or weapons issues are serious misconduct concerns that may support immediate higher-level review, including possible termination review depending on facts.",
-        [
-          "Potential safety or law-enforcement implications.",
-          "Potential need for immediate interim action."
-        ],
-        [
-          "Preserve evidence.",
-          "Notify HR immediately.",
-          "Coordinate with leadership/security as appropriate."
-        ]
-      );
-    }
-
-    function generalMisconductFlow() {
-      setView(`
-        <div class="step">Misconduct Path</div>
-        <h2 class="question">Is this a repeated issue after prior coaching or warning?</h2>
-
-        <div class="btn-grid">
-          <button class="primary-btn" onclick="generalMisconductRepeatResult()">Yes</button>
-          <button class="primary-btn" onclick="generalMisconductFirstResult()">No</button>
-        </div>
-
-        ${navButtons(true)}
-      `);
-    }
-
-    function insubordinationSeriousResult() {
-      resultCard(
-        "HR Review Recommended Before Final Discipline",
-        "Serious insubordination may warrant escalated corrective action review, potentially including final warning or termination review depending on the facts and prior history.",
-        [
-          "Check for protected complaint, safety refusal, accommodation issue, or misunderstanding before final action."
-        ],
-        [
-          "Document the direction given, by whom, when, and the employee's exact response.",
-          "Separate tone issues from refusal issues.",
-          "Have HR review before any final step."
-        ]
-      );
-    }
-
-    function insubordinationMinorResult() {
-      resultCard(
-        "Written Warning or Coaching Review",
-        "Lower-level conduct or refusal issues may support documented counseling or written warning review depending on prior history and severity.",
-        [],
-        [
-          "Document the instruction, response, and impact.",
-          "State the expectation for respectful compliance going forward.",
-          "Escalate if repeated."
-        ]
-      );
-    }
-
-    function disrespectFirstResult() {
-      resultCard(
-        "Coaching / Documented Counseling Recommended",
-        "For a first documented disrespectful or unprofessional conduct issue, coaching or documented counseling may be appropriate if the conduct was not severe.",
-        [],
-        [
-          "Describe the behavior factually.",
-          "Do not label the employee personally; describe the conduct.",
-          "Explain the expected professional standard."
-        ]
-      );
-    }
-
-    function disrespectRepeatResult() {
-      resultCard(
-        "Written Warning Review May Be Appropriate",
-        "Repeated disrespectful or unprofessional conduct after prior notice may support written warning review.",
-        [],
-        [
-          "List prior incidents and prior counseling.",
-          "Focus on impact to coworkers, students, visitors, or operations.",
-          "State that continued conduct may lead to stronger corrective action."
-        ]
-      );
-    }
-
-    function generalMisconductFirstResult() {
-      resultCard(
-        "Case-by-Case Review: Coaching or Written Warning",
-        "If this is a first misconduct issue and not one of the more serious categories, case-by-case coaching or written warning review may be appropriate depending on severity.",
-        [],
-        [
-          "Document facts, witnesses, and policy involved.",
-          "Keep the recommendation proportionate to the conduct.",
-          "Loop in HR if you are unsure."
-        ]
-      );
-    }
-
-    function generalMisconductRepeatResult() {
-      resultCard(
-        "Escalated Corrective Action Review Recommended",
-        "Repeated misconduct after prior counseling or warning may support stronger discipline review, including final warning review and HR consultation before any termination-level step.",
-        [],
-        [
-          "Confirm the prior documentation exists.",
-          "Describe pattern and dates clearly.",
-          "Check consistency with prior cases."
-        ]
-      );
-    }
-
-    // MEDICAL / LEAVE / ACCOMMODATION
-    function medicalStart() {
-      setView(`
-        <div class="step">Protected Issue Path</div>
-        <h2 class="question">What type of protected issue may be involved?</h2>
-        <p class="helper">These issues should usually be routed to HR early, not handled as ordinary discipline.</p>
-
-        <div class="btn-grid">
-          <button class="primary-btn" onclick="medicalProtectedResult('Medical condition / doctor note')">Medical condition / doctor note</button>
-          <button class="primary-btn" onclick="medicalProtectedResult('FMLA / CFRA / other leave request')">FMLA / CFRA / leave</button>
-          <button class="primary-btn" onclick="medicalProtectedResult('Pregnancy / childbirth / related condition')">Pregnancy-related issue</button>
-          <button class="primary-btn" onclick="medicalProtectedResult('Disability / accommodation request')">Accommodation / disability</button>
-          <button class="primary-btn" onclick="medicalProtectedResult('Privacy / medical information concern')">Medical privacy concern</button>
-        </div>
-
-        ${navButtons(true)}
-      `);
-    }
-
-    function medicalProtectedResult(type) {
-      resultCard(
-        "Immediate HR Review Required",
-        `This appears to involve: <strong>${type}</strong>. Managers should pause discipline and route the matter to HR for leave, accommodation, privacy, and documentation review.`,
-        [
-          "Potential protected leave rights.",
-          "Potential disability/accommodation issue.",
-          "Potential medical privacy issue."
-        ],
-        [
-          "Document business facts only.",
-          "Avoid requesting unnecessary medical details.",
-          "Do not proceed with a write-up until HR reviews."
-        ]
-      );
-    }
-
-    // COMPLAINT / RETALIATION
-    function complaintStart() {
-      setView(`
-        <div class="step">Complaint Path</div>
-        <h2 class="question">What type of complaint issue is involved?</h2>
-        <p class="helper">These should generally go straight to HR.</p>
-
-        <div class="btn-grid">
-          <button class="primary-btn" onclick="complaintResult('Harassment or discrimination complaint')">Harassment / discrimination</button>
-          <button class="primary-btn" onclick="complaintResult('Retaliation concern')">Retaliation concern</button>
-          <button class="primary-btn" onclick="complaintResult('Whistleblower / policy complaint')">Whistleblower / policy complaint</button>
-          <button class="primary-btn" onclick="complaintResult('General complaint about treatment')">General complaint</button>
-        </div>
-
-        ${navButtons(true)}
-      `);
-    }
-
-    function complaintResult(type) {
-      resultCard(
-        "Immediate HR Review Required",
-        `This appears to involve: <strong>${type}</strong>. Managers should not treat this as ordinary discipline without HR review.`,
-        [
-          "Retaliation risk.",
-          "Need for neutral investigation/documentation.",
-          "Need for careful confidentiality handling."
-        ],
-        [
-          "Document the report, who received it, and when.",
-          "Do not take adverse action that could appear retaliatory without HR review.",
-          "Limit discussion to those who need to know."
-        ]
-      );
-    }
-
-    // SAFETY
-    function safetyStart() {
-      setView(`
-        <div class="step">Safety Path</div>
-        <h2 class="question">What safety issue best fits?</h2>
-
-        <div class="btn-grid">
-          <button class="primary-btn" onclick="safetyResult('Unsafe work practice or hazard creation')">Unsafe practice</button>
-          <button class="primary-btn" onclick="safetyResult('Failure to follow safety rules')">Failure to follow safety rules</button>
-          <button class="primary-btn" onclick="safetyResult('Violence / threat concern')">Violence / threat</button>
-          <button class="primary-btn" onclick="safetyResult('Drug / alcohol on duty concern')">Drug / alcohol concern</button>
-          <button class="primary-btn" onclick="safetyResult('Weapons concern')">Weapons concern</button>
-        </div>
-
-        ${navButtons(true)}
-      `);
-    }
-
-    function safetyResult(type) {
-      resultCard(
-        "Immediate HR / Leadership Review Recommended",
-        `This appears to involve: <strong>${type}</strong>. Safety-related issues should usually be escalated immediately for coordinated review.`,
-        [
-          "Potential immediate workplace risk.",
-          "May support immediate interim action depending on the facts."
-        ],
-        [
-          "Document who observed the issue and when.",
-          "Preserve evidence.",
-          "Coordinate quickly with HR and leadership."
-        ]
-      );
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
     }
 
     start();
