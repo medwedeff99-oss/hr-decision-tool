@@ -128,6 +128,10 @@
       font-weight: 700;
       cursor: pointer;
       transition: transform 0.08s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .btn:hover {
@@ -446,42 +450,6 @@
       border-color: var(--danger-border);
     }
 
-    .lead-form {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-      margin-top: 12px;
-    }
-
-    .field {
-      display: grid;
-      gap: 7px;
-    }
-
-    .field.full {
-      grid-column: 1 / -1;
-    }
-
-    .field label {
-      font-size: 0.9rem;
-      color: #475569;
-      font-weight: 700;
-    }
-
-    .field input, .field select, .field textarea {
-      border: 1px solid #dbe1ea;
-      border-radius: 14px;
-      padding: 13px 14px;
-      font: inherit;
-      width: 100%;
-      background: #fff;
-    }
-
-    .field textarea {
-      min-height: 110px;
-      resize: vertical;
-    }
-
     .small-note {
       font-size: 0.88rem;
       color: #64748b;
@@ -502,6 +470,23 @@
       color: #a5b4d4;
       font-size: 0.88rem;
       line-height: 1.55;
+    }
+
+    .form-embed-wrap {
+      width: 100%;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid #d8b4fe;
+      margin-top: 12px;
+    }
+
+    .form-embed-wrap iframe {
+      display: block;
+      width: 100%;
+      min-height: 980px;
+      border: 0;
+      background: #fff;
     }
 
     @media (max-width: 980px) {
@@ -525,7 +510,6 @@
       }
 
       .option-grid,
-      .lead-form,
       .mini-grid {
         grid-template-columns: 1fr;
       }
@@ -537,6 +521,10 @@
 
       .btn, .nav-btn {
         width: 100%;
+      }
+
+      .form-embed-wrap iframe {
+        min-height: 1100px;
       }
     }
   </style>
@@ -647,17 +635,11 @@
       prior: "",
       legal: "",
       detail: "",
-      leadUnlocked: false,
-      lead: {
-        firstName: "",
-        lastName: "",
-        email: "",
-        phone: "",
-        company: "",
-        employees: "",
-        notes: ""
-      }
+      leadUnlocked: false
     };
+
+    const googleFormEmbedUrl = "https://docs.google.com/forms/d/e/1FAIpQLScLJvO8W5KZ14_GoWXgK6otWdNMSebymZLu52qyvtpnmQRL7A/viewform?embedded=true";
+    const googleFormDirectUrl = "https://docs.google.com/forms/d/e/1FAIpQLScLJvO8W5KZ14_GoWXgK6otWdNMSebymZLu52qyvtpnmQRL7A/viewform";
 
     const issueDetails = {
       attendance: [
@@ -954,10 +936,10 @@
         <div class="step-pill">Request Early Access</div>
         <h2 class="question">Bring this decision tool to your company</h2>
         <p class="helper">
-          Leave your info and I’ll unlock the full recommendation demo flow here while also capturing buyer interest.
+          Submit the Google form below. Your responses will go directly into your Google Forms / Google Sheets setup.
         </p>
 
-        ${leadFormHtml("submitLeadOnly()")}
+        ${leadFormHtml(false)}
         ${navRow(false)}
       `);
     }
@@ -968,111 +950,71 @@
         <div class="step-pill">Unlock Full Recommendation</div>
         <h2 class="question">Your result is ready.</h2>
         <p class="helper">
-          Enter your info to unlock the full recommendation, policy direction, risk flags, and manager next steps.
+          First submit the real Google form below. Then click the unlock button.
         </p>
 
-        ${leadFormHtml("submitLeadThenResult()")}
+        ${leadFormHtml(true)}
         ${navRow(true)}
       `);
     }
 
-    function leadFormHtml(submitFn) {
+    function leadFormHtml(showUnlockButton) {
       return `
         <div class="panel panel-purple">
           <h4>Demo interest form</h4>
-          <div class="lead-form">
-            <div class="field">
-              <label>First name</label>
-              <input id="firstName" type="text" placeholder="Brad" />
-            </div>
-            <div class="field">
-              <label>Last name</label>
-              <input id="lastName" type="text" placeholder="Medwedeff" />
-            </div>
-            <div class="field">
-              <label>Work email</label>
-              <input id="email" type="email" placeholder="name@company.com" />
-            </div>
-            <div class="field">
-              <label>Phone</label>
-              <input id="phone" type="tel" placeholder="(555) 555-5555" />
-            </div>
-            <div class="field">
-              <label>Company</label>
-              <input id="company" type="text" placeholder="Company name" />
-            </div>
-            <div class="field">
-              <label>Employees</label>
-              <select id="employees">
-                <option value="">Select</option>
-                <option>1-25</option>
-                <option>26-100</option>
-                <option>101-250</option>
-                <option>251-1000</option>
-                <option>1000+</option>
-              </select>
-            </div>
-            <div class="field full">
-              <label>Biggest HR challenge</label>
-              <textarea id="notes" placeholder="Attendance consistency, manager write-ups, misconduct calls, leave issues, etc."></textarea>
-            </div>
+
+          <div class="form-embed-wrap">
+            <iframe
+              src="${googleFormEmbedUrl}"
+              width="100%"
+              height="980"
+              frameborder="0"
+              marginheight="0"
+              marginwidth="0">
+              Loading…
+            </iframe>
           </div>
 
           <div class="small-note">
-            Demo only. You can later wire this form to Formspree, HubSpot, Zapier, Airtable, Sheets, or your backend.
+            This is now a real Google Form. Submissions go to your Google Form responses and linked Google Sheet.
           </div>
 
           <div class="nav-row" style="margin-top:16px;">
-            <button class="btn btn-primary" onclick="${submitFn}">
-              Unlock Full Demo
-            </button>
+            <a class="btn btn-secondary" href="${googleFormDirectUrl}" target="_blank" rel="noopener noreferrer">
+              Open Form in New Tab
+            </a>
+            ${showUnlockButton ? `
+              <button class="btn btn-primary" onclick="submitLeadThenResult()">
+                I Submitted the Form — Unlock Full Demo
+              </button>
+            ` : `
+              <button class="btn btn-primary" onclick="submitLeadOnly()">
+                I Submitted the Form
+              </button>
+            `}
           </div>
         </div>
       `;
     }
 
-    function captureLeadFields() {
-      state.lead.firstName = document.getElementById("firstName")?.value.trim() || "";
-      state.lead.lastName = document.getElementById("lastName")?.value.trim() || "";
-      state.lead.email = document.getElementById("email")?.value.trim() || "";
-      state.lead.phone = document.getElementById("phone")?.value.trim() || "";
-      state.lead.company = document.getElementById("company")?.value.trim() || "";
-      state.lead.employees = document.getElementById("employees")?.value.trim() || "";
-      state.lead.notes = document.getElementById("notes")?.value.trim() || "";
-    }
-
-    function validateLeadBasic() {
-      captureLeadFields();
-      if (!state.lead.firstName || !state.lead.email || !state.lead.company) {
-        alert("Please enter at least first name, work email, and company.");
-        return false;
-      }
-      return true;
-    }
-
     function submitLeadOnly() {
-      if (!validateLeadBasic()) return;
       state.leadUnlocked = true;
 
       setView(`
         <div class="thanks-box">
-          <h2 class="question" style="margin-bottom:8px;">Thanks — demo interest captured.</h2>
+          <h2 class="question" style="margin-bottom:8px;">Thanks — form submitted.</h2>
           <p class="helper" style="margin-bottom:0;">
-            You can now use the decision tool flow and unlock full recommendation results on this page.
+            Your demo request should now be in Google Forms / Google Sheets. You can now use the decision tool flow.
           </p>
         </div>
         <div class="nav-row">
           <button class="btn btn-primary" onclick="start()">Start the Tool</button>
         </div>
       `);
-
-      console.log("Lead captured:", state.lead);
     }
 
     function submitLeadThenResult() {
-      if (!validateLeadBasic()) return;
       state.leadUnlocked = true;
-      console.log("Lead captured:", state.lead);
       showResult();
     }
 
@@ -1116,10 +1058,9 @@
           <div class="panel panel-purple">
             <h4>Lead/demo follow-up</h4>
             <ul>
-              <li>Interested company: <strong>${escapeHtml(state.lead.company || "Not provided")}</strong></li>
-              <li>Contact: <strong>${escapeHtml([state.lead.firstName, state.lead.lastName].filter(Boolean).join(" ") || "Not provided")}</strong></li>
-              <li>Email: <strong>${escapeHtml(state.lead.email || "Not provided")}</strong></li>
-              <li>Employees: <strong>${escapeHtml(state.lead.employees || "Not provided")}</strong></li>
+              <li>Lead capture method: <strong>Google Form submission</strong></li>
+              <li>Storage location: <strong>Google Forms / linked Google Sheet</strong></li>
+              <li>Status: <strong>Live</strong></li>
             </ul>
           </div>
 
@@ -1296,15 +1237,6 @@
         other: "Manager guidance / policy review"
       };
       return map[state.issueType] || "General policy review";
-    }
-
-    function escapeHtml(str) {
-      return String(str)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
     }
 
     start();
