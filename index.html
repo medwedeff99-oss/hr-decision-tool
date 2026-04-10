@@ -568,8 +568,8 @@
             <span>Clear recommendations, not long HR essays.</span>
           </div>
           <div class="mini-card">
-            <strong>Sellable later</strong>
-            <span>Easy to position as a handbook-aware company tool.</span>
+            <strong>Built for your organization</strong>
+            <span>Easily adaptable to your company’s policies, workflows, and HR processes.</span>
           </div>
         </div>
       </div>
@@ -596,14 +596,15 @@
       <aside class="sidebar">
         <h3>Why buyers care</h3>
         <p>
-          This is more than a flowchart. It can be positioned as a manager guidance tool that helps
-          companies act faster, more consistently, and with better HR escalation discipline.
+          This tool helps managers make faster, more consistent decisions while reducing HR risk.
+          It creates structure, improves documentation, and helps ensure issues are escalated
+          appropriately before they become bigger problems.
         </p>
 
         <ul class="side-list">
-          <li>Attendance, misconduct, performance, complaint, safety, and protected issue routing</li>
-          <li>Built-in “stop and call HR” logic before ordinary discipline</li>
-          <li>Easy to demo, brand, and later customize to company handbook rules</li>
+          <li>Reduce risk and inconsistency across managers and teams</li>
+          <li>Built-in HR escalation logic helps catch legal and protected risks early</li>
+          <li>Easily customized to reflect your company’s handbook, policies, and workflows</li>
         </ul>
 
         <div style="margin-top:18px;">
@@ -615,7 +616,7 @@
     </section>
 
     <div class="footer">
-      Demo guidance tool only. Final employment decisions should still be reviewed through appropriate HR and leadership channels.
+      Demo guidance tool only. Final employment decisions should be reviewed through appropriate HR, leadership, and legal counsel.
     </div>
   </div>
 
@@ -653,7 +654,10 @@
         ["followthrough", "Failure to follow through", "Incomplete tasks or repeated gaps"]
       ],
       conduct: [
-        ["insubordination", "Insubordination", "Refusal to follow direction"],
+        ["insubordination_pushback", "Pushback / questioning but complied", "Employee challenged direction but ultimately complied"],
+        ["insubordination_argumentative", "Argumentative / disrespectful but complied", "Conflict, tone, or resistance without outright refusal"],
+        ["insubordination_refusal", "Direct refusal of instruction", "Employee refused a lawful work direction"],
+        ["insubordination_public", "Public refusal / disruption", "Refusal in front of others or with operational disruption"],
         ["sleeping", "Sleeping on duty", "Observed asleep during work time"],
         ["disrespect", "Disrespect / unprofessional conduct", "Tone, behavior, or conflict"],
         ["dishonesty", "Dishonesty / timecard issue", "Potential falsification or misleading info"],
@@ -950,7 +954,7 @@
         <div class="step-pill">Unlock Full Recommendation</div>
         <h2 class="question">Your result is ready.</h2>
         <p class="helper">
-          First submit the real Google form below. Then click the unlock button.
+          Submit the form below, then continue to view the full recommendation.
         </p>
 
         ${leadFormHtml(true)}
@@ -985,7 +989,7 @@
             </a>
             ${showUnlockButton ? `
               <button class="btn btn-primary" onclick="submitLeadThenResult()">
-                I Submitted the Form — Unlock Full Demo
+                Continue to Full Recommendation
               </button>
             ` : `
               <button class="btn btn-primary" onclick="submitLeadOnly()">
@@ -1056,11 +1060,11 @@
           </div>
 
           <div class="panel panel-purple">
-            <h4>Lead/demo follow-up</h4>
+            <h4>Manager guidance</h4>
             <ul>
-              <li>Lead capture method: <strong>Google Form submission</strong></li>
-              <li>Storage location: <strong>Google Forms / linked Google Sheet</strong></li>
-              <li>Status: <strong>Live</strong></li>
+              <li>Approach the conversation professionally and objectively.</li>
+              <li>Focus on behavior and expectations — not personality.</li>
+              <li>Be clear, direct, and consistent in your message.</li>
             </ul>
           </div>
 
@@ -1077,18 +1081,18 @@
         return {
           title: "HR Review Required Before Ordinary Discipline",
           levelBadge: `<span class="badge badge-purple">HR Review Required</span>`,
-          summary: "A protected-risk or complaint-related issue was identified. Pause manager-led discipline and route this through HR first.",
-          primaryAction: "Do not move straight to a write-up or termination discussion until HR reviews the facts.",
+          summary: "A protected-risk or complaint-related issue may be involved. Pause ordinary discipline and route this through HR first.",
+          primaryAction: "Do not move straight to a write-up, suspension, or termination discussion until HR reviews the facts.",
           policyArea: protectedPolicyArea(),
           hrReview: "Yes",
           flags: [
-            "Possible medical, leave, accommodation, retaliation, complaint, or protected issue overlap.",
-            "Managers should document facts only and avoid conclusions, diagnosis, or speculation."
+            "Possible medical, leave, accommodation, pregnancy, retaliation, complaint, or other protected issue overlap.",
+            "Applicable laws and leave requirements can change over time and may require case-by-case review."
           ],
           managerSteps: [
-            "Document objective facts: dates, times, observations, and business impact.",
-            "Limit discussion to those who need to know.",
-            "Coordinate with HR before written warning, final warning, or termination-level action."
+            "Document objective facts only: dates, times, observations, and business impact.",
+            "Avoid conclusions, diagnosis, or speculation.",
+            "Coordinate with HR before any corrective action."
           ]
         };
       }
@@ -1097,18 +1101,149 @@
         return {
           title: "Termination Review or Immediate Higher-Level Review",
           levelBadge: `<span class="badge badge-red">Termination Review</span>`,
-          summary: "This issue looks severe enough to skip lower steps and move to HR/leadership review quickly.",
-          primaryAction: "Escalate immediately for higher-level review, including possible final warning or termination review depending on facts.",
+          summary: "This issue may be serious enough to skip lower corrective steps and move directly to HR or leadership review.",
+          primaryAction: "Escalate immediately for higher-level review, including possible suspension, final warning, or termination review depending on the facts.",
           policyArea: safetyOrConductPolicy(),
           hrReview: "Yes",
           flags: [
-            "Potential safety, misconduct, or evidence preservation concern.",
-            "Consistency and documentation should be checked before final action."
+            "Potential safety, misconduct, or evidence-preservation concern.",
+            "Check consistency with how similar cases have been handled before final action."
           ],
           managerSteps: [
             "Preserve records, witness notes, screenshots, or other evidence.",
             "Document exactly what was observed and by whom.",
-            "Avoid emotional or accusatory wording; stick to facts."
+            "Do not rush to final action before reviewing the facts."
+          ]
+        };
+      }
+
+      if (state.detail === "insubordination_public") {
+        return {
+          title: "Termination Review Recommended",
+          levelBadge: `<span class="badge badge-red">Termination Review</span>`,
+          summary: "Public refusal or disruptive insubordination may justify immediate higher-level review.",
+          primaryAction: "Route through HR or leadership review before any final employment decision.",
+          policyArea: "Standards of conduct",
+          hrReview: "Yes",
+          flags: [
+            "Serious insubordination may justify skipping lower discipline steps.",
+            "Check consistency, documentation, and any missed protected-risk issues."
+          ],
+          managerSteps: [
+            "Gather facts, witness statements, and business impact details.",
+            "Confirm the instruction was lawful, clear, and job-related.",
+            "Coordinate next steps through HR."
+          ]
+        };
+      }
+
+      if (state.detail === "insubordination_refusal") {
+        if (state.prior === "none" || state.prior === "coaching") {
+          return {
+            title: "Final Warning or Suspension Review Recommended",
+            levelBadge: `<span class="badge badge-orange">Final Warning Review</span>`,
+            summary: "Direct refusal of a lawful instruction is more serious than ordinary performance or attendance issues.",
+            primaryAction: "Review for final warning or suspension-level action with HR alignment.",
+            policyArea: "Standards of conduct",
+            hrReview: "Yes, recommended",
+            flags: [
+              "Direct refusal can justify skipping early corrective steps.",
+              "Confirm no safety, medical, leave, or complaint issue is involved."
+            ],
+            managerSteps: [
+              "Document the instruction given, the refusal, and any impact on operations.",
+              "Confirm expectations were clear.",
+              "Review with HR before issuing next-level discipline."
+            ]
+          };
+        }
+
+        return {
+          title: "Termination Review Recommended",
+          levelBadge: `<span class="badge badge-red">Termination Review</span>`,
+          summary: "Repeated or already-documented refusal of a lawful instruction may justify termination-level review.",
+          primaryAction: "Route through HR or leadership review before any final employment decision.",
+          policyArea: "Standards of conduct",
+          hrReview: "Yes",
+          flags: [
+            "Repeated insubordination may justify skipping lower steps.",
+            "Check consistency, documentation, and any missed protected-risk issues."
+          ],
+          managerSteps: [
+            "Gather prior discipline and current facts.",
+            "Confirm the instruction was lawful, clear, and job-related.",
+            "Coordinate final communication through HR."
+          ]
+        };
+      }
+
+      if (state.detail === "insubordination_argumentative") {
+        if (state.prior === "none" && state.severity === "minor") {
+          return {
+            title: "Written Warning Recommended",
+            levelBadge: `<span class="badge badge-amber">Written Warning</span>`,
+            summary: "Argumentative or disrespectful conduct may warrant formal corrective action even if the employee ultimately complied.",
+            primaryAction: "A written warning is likely the appropriate next step.",
+            policyArea: "Standards of conduct",
+            hrReview: "Recommended if manager is unsure or consistency concerns exist",
+            flags: [],
+            managerSteps: [
+              "Document specific statements, conduct, and dates.",
+              "Describe the impact on team, operations, or leadership.",
+              "State clear expectations for professional conduct going forward."
+            ]
+          };
+        }
+
+        return {
+          title: "Final Warning Review Recommended",
+          levelBadge: `<span class="badge badge-orange">Final Warning</span>`,
+          summary: "Repeated argumentative or disrespectful conduct may justify higher corrective action.",
+          primaryAction: "Review for final warning-level action with HR alignment.",
+          policyArea: "Standards of conduct",
+          hrReview: "Yes, recommended",
+          flags: [
+            "Check consistency with similar conduct cases.",
+            "Ensure documentation is complete and specific."
+          ],
+          managerSteps: [
+            "Compile prior coaching or warnings.",
+            "Describe the conduct and its impact clearly.",
+            "Keep language factual and defensible."
+          ]
+        };
+      }
+
+      if (state.detail === "insubordination_pushback") {
+        if (state.prior === "none" && state.severity === "minor") {
+          return {
+            title: "Coaching Recommended",
+            levelBadge: `<span class="badge badge-blue">Coaching</span>`,
+            summary: "This appears closer to pushback or questioning than direct refusal.",
+            primaryAction: "Start with coaching or documented counseling.",
+            policyArea: "Standards of conduct",
+            hrReview: "Not usually, unless additional risk emerges",
+            flags: [],
+            managerSteps: [
+              "Clarify expectations and communication standards.",
+              "Document the conversation and expected improvement.",
+              "Explain that repeated issues may lead to stronger corrective action."
+            ]
+          };
+        }
+
+        return {
+          title: "Written Warning Recommended",
+          levelBadge: `<span class="badge badge-amber">Written Warning</span>`,
+          summary: "Repeated pushback or questioning that disrupts workflow may justify written corrective action.",
+          primaryAction: "A written warning is likely the appropriate next step.",
+          policyArea: "Standards of conduct",
+          hrReview: "Recommended if manager is unsure or consistency concerns exist",
+          flags: [],
+          managerSteps: [
+            "Document dates, examples, and impact.",
+            "Reference prior coaching if applicable.",
+            "State clear expectations and next steps."
           ]
         };
       }
@@ -1178,13 +1313,13 @@
         return {
           title: "Termination Review Recommended",
           levelBadge: `<span class="badge badge-red">Termination Review</span>`,
-          summary: "This situation may justify a termination-level review depending on facts, policy fit, and prior history.",
-          primaryAction: "Route through HR/leadership review before any final employment decision.",
+          summary: "This situation may warrant a termination-level review depending on facts, policy fit, consistency, and prior history.",
+          primaryAction: "Route through HR or leadership review before any final employment decision.",
           policyArea: mapPolicyArea(),
           hrReview: "Yes",
           flags: [
             "Review for consistency, protected activity, and documentation completeness.",
-            "Avoid moving too fast without confirming the record."
+            "Do not move too fast without confirming the record."
           ],
           managerSteps: [
             "Gather facts, prior discipline, and witness documentation.",
