@@ -1,40 +1,1735 @@
-HR Tech Demo
-Stop guessing on employee discipline decisions.
-A fast, mobile-friendly HR decision tree for managers. Screen attendance, performance, misconduct, safety, and protected-risk issues in under a minute.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HR Decision Tree Demo</title>
+  <style>
+    :root {
+      --bg-1: #0b1020;
+      --bg-2: #131a31;
+      --panel: rgba(255, 255, 255, 0.08);
+      --panel-strong: rgba(255, 255, 255, 0.12);
+      --card: #ffffff;
+      --text: #edf2ff;
+      --text-dark: #111827;
+      --muted: #a5b4d4;
+      --border: rgba(255,255,255,0.12);
+      --accent: #7c3aed;
+      --accent-2: #06b6d4;
+      --success: #e0f2fe;
+      --success-border: #7dd3fc;
+      --warn: #fff7ed;
+      --warn-border: #fdba74;
+      --danger: #fef2f2;
+      --danger-border: #fca5a5;
+      --purple: #f3e8ff;
+      --purple-border: #c084fc;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --radius-sm: 12px;
+      --max: 1120px;
+    }
 
-Try the Demo
-Request Early Access
-Built to feel fast, not legal-heavy.
-Managers answer a few questions, HR/legal risk gets flagged early, and the tool points them toward coaching, written warning, final warning, termination review, or HR investigation.
+    * { box-sizing: border-box; }
 
-Fast on mobile
-Large tap targets, one flow, no messy policy hunting.
-Lead capture built in
-Collect demo interest before unlocking full guidance.
-Manager-friendly
-Clear recommendations, not long HR essays.
-Built for your organization
-Easily adaptable to your company’s policies, workflows, and HR processes.
-Step 5 of 5
-100%
-HR Review Required
-Complaint / Harassment / Retaliation
-Harassment / discrimination complaint
-HR Review Required Before Ordinary Discipline
-A protected-risk or complaint-related issue may be involved. Pause ordinary discipline and route this through HR first.
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(124,58,237,0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(6,182,212,0.18), transparent 24%),
+        linear-gradient(160deg, var(--bg-1), var(--bg-2));
+      color: var(--text);
+      min-height: 100%;
+    }
 
-Recommended next step
-Do not move straight to a write-up, suspension, or termination discussion until HR reviews the facts.
-Policy area potentially involved: Anti-harassment / retaliation / complaint handling
-HR review needed: Yes
-Risk flags
-Possible medical, leave, accommodation, pregnancy, retaliation, complaint, or other protected issue overlap.
-Applicable laws and leave requirements can change over time and may require case-by-case review.
-Manager next steps
-Document objective facts only: dates, times, observations, and business impact.
-Avoid conclusions, diagnosis, or speculation.
-Coordinate with HR before any corrective action.
-Manager guidance
-Approach the conversation professionally and objectively.
-Focus on behavior and expectations — not personality.
-Be clear, direct, and consistent in your message.
+    body {
+      padding: 22px;
+    }
+
+    .shell {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 22px;
+      align-items: stretch;
+      margin-bottom: 24px;
+    }
+
+    .hero-left, .hero-right {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-left {
+      padding: 30px;
+    }
+
+    .hero-right {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #d8b4fe;
+      background: rgba(124, 58, 237, 0.16);
+      border: 1px solid rgba(216, 180, 254, 0.22);
+      padding: 8px 12px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(2.15rem, 4vw, 4rem);
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 1rem;
+    }
+
+    .hero-cta-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-size: 0.98rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.08s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn:hover {
+      opacity: 0.96;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.16);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      border: 1px solid var(--border);
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .mini-card {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px;
+    }
+
+    .mini-card strong {
+      display: block;
+      font-size: 0.95rem;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+
+    .mini-card span {
+      font-size: 0.92rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .tool-shell {
+      display: grid;
+      grid-template-columns: 1fr 310px;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .tool-card, .sidebar {
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .tool-card {
+      background: var(--card);
+      color: var(--text-dark);
+    }
+
+    .sidebar {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(18px);
+      padding: 20px;
+      color: var(--text);
+      position: sticky;
+      top: 18px;
+    }
+
+    .tool-top {
+      padding: 22px 22px 0;
+      background: linear-gradient(180deg, #f8faff 0%, #ffffff 100%);
+    }
+
+    .tool-body {
+      padding: 22px;
+    }
+
+    .progress-wrap {
+      margin-bottom: 18px;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.9rem;
+      color: #64748b;
+      margin-bottom: 10px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      transition: width 0.25s ease;
+      width: 0%;
+    }
+
+    .step-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #6d28d9;
+      background: #f5f3ff;
+      border: 1px solid #ddd6fe;
+      padding: 8px 11px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+    }
+
+    .question {
+      margin: 0 0 8px;
+      font-size: clamp(1.5rem, 2vw, 2rem);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+    }
+
+    .helper {
+      margin: 0 0 20px;
+      color: #64748b;
+      line-height: 1.55;
+      font-size: 0.98rem;
+    }
+
+    .option-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 6px;
+    }
+
+    .option-btn {
+      width: 100%;
+      text-align: left;
+      border: 1px solid #e5e7eb;
+      background: #fff;
+      border-radius: 18px;
+      padding: 16px 16px;
+      cursor: pointer;
+      transition: 0.16s ease;
+      font-size: 0.98rem;
+      color: #111827;
+      box-shadow: 0 6px 22px rgba(15, 23, 42, 0.04);
+    }
+
+    .option-btn:hover {
+      transform: translateY(-1px);
+      border-color: #c4b5fd;
+      box-shadow: 0 12px 26px rgba(124, 58, 237, 0.10);
+    }
+
+    .option-title {
+      display: block;
+      font-weight: 800;
+      margin-bottom: 6px;
+      font-size: 1rem;
+    }
+
+    .option-sub {
+      display: block;
+      color: #6b7280;
+      line-height: 1.45;
+      font-size: 0.92rem;
+    }
+
+    .nav-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .nav-btn {
+      border-radius: 12px;
+      border: 1px solid #dbe1ea;
+      background: #f8fafc;
+      color: #0f172a;
+      padding: 12px 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .sidebar h3 {
+      margin: 0 0 10px;
+      font-size: 1.05rem;
+    }
+
+    .sidebar p {
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 0.94rem;
+    }
+
+    .side-list {
+      margin: 16px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
+    .side-list li {
+      padding: 12px 12px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.08);
+      color: #e5ecff;
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    .result-card {
+      display: grid;
+      gap: 14px;
+    }
+
+    .result-head {
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid #ddd6fe;
+      background: linear-gradient(180deg, #faf5ff, #ffffff);
+    }
+
+    .result-head h3 {
+      margin: 0 0 8px;
+      font-size: 1.45rem;
+      line-height: 1.2;
+    }
+
+    .result-head p {
+      margin: 0;
+      color: #6b7280;
+      line-height: 1.55;
+    }
+
+    .badge-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 6px 0 0;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .badge-purple { background: #f3e8ff; color: #6b21a8; }
+    .badge-blue { background: #eff6ff; color: #1d4ed8; }
+    .badge-amber { background: #fffbeb; color: #b45309; }
+    .badge-orange { background: #fff7ed; color: #c2410c; }
+    .badge-red { background: #fef2f2; color: #b91c1c; }
+
+    .panel {
+      border-radius: 18px;
+      padding: 18px;
+      border: 1px solid #e5e7eb;
+      background: #fff;
+    }
+
+    .panel h4 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+    }
+
+    .panel ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #374151;
+      line-height: 1.6;
+    }
+
+    .panel li { margin-bottom: 8px; }
+
+    .panel-purple {
+      background: var(--purple);
+      border-color: var(--purple-border);
+    }
+
+    .panel-blue {
+      background: var(--success);
+      border-color: var(--success-border);
+    }
+
+    .panel-orange {
+      background: var(--warn);
+      border-color: var(--warn-border);
+    }
+
+    .panel-red {
+      background: var(--danger);
+      border-color: var(--danger-border);
+    }
+
+    .small-note {
+      font-size: 0.88rem;
+      color: #64748b;
+      line-height: 1.5;
+      margin-top: 10px;
+    }
+
+    .thanks-box {
+      border-radius: 18px;
+      padding: 18px;
+      background: linear-gradient(180deg, #ecfeff, #ffffff);
+      border: 1px solid #a5f3fc;
+    }
+
+    .footer {
+      margin-top: 22px;
+      text-align: center;
+      color: #a5b4d4;
+      font-size: 0.88rem;
+      line-height: 1.55;
+    }
+
+    .form-embed-wrap {
+      width: 100%;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid #d8b4fe;
+      margin-top: 12px;
+    }
+
+    .form-embed-wrap iframe {
+      display: block;
+      width: 100%;
+      min-height: 980px;
+      border: 0;
+      background: #fff;
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .tool-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+      }
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding: 14px;
+      }
+
+      .hero-left, .hero-right, .tool-body, .tool-top {
+        padding: 18px;
+      }
+
+      .option-grid,
+      .mini-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-row,
+      .hero-cta-row {
+        flex-direction: column;
+      }
+
+      .btn, .nav-btn {
+        width: 100%;
+      }
+
+      .form-embed-wrap iframe {
+        min-height: 1100px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <div class="hero-left">
+        <div class="eyebrow">HR Tech Demo</div>
+        <h1>Stop guessing on employee discipline decisions.</h1>
+        <p>
+          A fast, mobile-friendly HR decision tree for managers. Screen attendance, performance,
+          misconduct, safety, and protected-risk issues in under a minute.
+        </p>
+        <div class="hero-cta-row">
+          <button class="btn btn-primary" onclick="jumpToTool()">Try the Demo</button>
+          <button class="btn btn-secondary" onclick="showBuyerMessage()">Request Early Access</button>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div>
+          <h3 style="margin:0 0 10px; font-size:1.2rem;">Built to feel fast, not legal-heavy.</h3>
+          <p>
+            Managers answer a few questions, HR/legal risk gets flagged early, and the tool points
+            them toward coaching, written warning, final warning, termination review, or HR investigation.
+          </p>
+        </div>
+
+        <div class="mini-grid">
+          <div class="mini-card">
+            <strong>Fast on mobile</strong>
+            <span>Large tap targets, one flow, no messy policy hunting.</span>
+          </div>
+          <div class="mini-card">
+            <strong>Lead capture built in</strong>
+            <span>Collect demo interest before unlocking full guidance.</span>
+          </div>
+          <div class="mini-card">
+            <strong>Manager-friendly</strong>
+            <span>Clear recommendations, not long HR essays.</span>
+          </div>
+          <div class="mini-card">
+            <strong>Built for your organization</strong>
+            <span>Easily adaptable to your company’s policies, workflows, and HR processes.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tool-shell" id="toolArea">
+      <div class="tool-card">
+        <div class="tool-top">
+          <div class="progress-wrap">
+            <div class="progress-meta">
+              <span id="progressLabel">Step 1 of 5</span>
+              <span id="progressPercent">20%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+          </div>
+        </div>
+        <div class="tool-body">
+          <div id="app"></div>
+        </div>
+      </div>
+
+      <aside class="sidebar">
+        <h3>Why buyers care</h3>
+        <p>
+          This tool helps managers make faster, more consistent decisions while reducing HR risk.
+          It creates structure, improves documentation, and helps ensure issues are escalated
+          appropriately before they become bigger problems.
+        </p>
+
+        <ul class="side-list">
+          <li>Reduce risk and inconsistency across managers and teams</li>
+          <li>Built-in HR escalation logic helps catch legal and protected risks early</li>
+          <li>Easily customized to reflect your company’s handbook, policies, and workflows</li>
+        </ul>
+
+        <div style="margin-top:18px;">
+          <button class="btn btn-primary" style="width:100%;" onclick="showLeadCaptureOnly()">
+            Bring This to My Company
+          </button>
+        </div>
+      </aside>
+    </section>
+
+    <div class="footer">
+      Demo guidance tool only. Final employment decisions should be reviewed through appropriate HR, leadership, and legal counsel.
+    </div>
+  </div>
+
+  <script>
+    const app = document.getElementById("app");
+    const progressLabel = document.getElementById("progressLabel");
+    const progressPercent = document.getElementById("progressPercent");
+    const progressFill = document.getElementById("progressFill");
+
+    const totalSteps = 5;
+
+    const state = {
+      step: 1,
+      history: [],
+      issueType: "",
+      severity: "",
+      prior: "",
+      legal: "",
+      detail: "",
+      leadUnlocked: false
+    };
+
+    const googleFormEmbedUrl = "https://docs.google.com/forms/d/e/1FAIpQLScLJvO8W5KZ14_GoWXgK6otWdNMSebymZLu52qyvtpnmQRL7A/viewform?embedded=true";
+    const googleFormDirectUrl = "https://docs.google.com/forms/d/e/1FAIpQLScLJvO8W5KZ14_GoWXgK6otWdNMSebymZLu52qyvtpnmQRL7A/viewform";
+
+    const issueDetails = {
+      attendance: [
+        ["absence_tardy", "Absence / tardy", "Late arrival, missed shift, early departure"],
+        ["no_call", "No-call / no-show", "Missed work without proper notice"],
+        ["schedule", "Failure to follow schedule", "Repeated failure to follow assigned hours"]
+      ],
+      performance: [
+        ["quality", "Work quality issue", "Errors, missed standards, incomplete work"],
+        ["productivity", "Productivity issue", "Output too low or deadlines missed"],
+        ["followthrough", "Failure to follow through", "Incomplete tasks or repeated gaps"]
+      ],
+      conduct: [
+        ["insubordination_pushback", "Pushback / questioning but complied", "Employee challenged direction but ultimately complied"],
+        ["insubordination_argumentative", "Argumentative / disrespectful but complied", "Conflict, tone, or resistance without outright refusal"],
+        ["insubordination_refusal", "Direct refusal of instruction", "Employee refused a lawful work direction"],
+        ["insubordination_public", "Public refusal / disruption", "Refusal in front of others or with operational disruption"],
+        ["sleeping", "Sleeping on duty", "Observed asleep during work time"],
+        ["disrespect", "Disrespect / unprofessional conduct", "Tone, behavior, or conflict"],
+        ["dishonesty", "Dishonesty / timecard issue", "Potential falsification or misleading info"],
+        ["other_conduct", "Other conduct issue", "General misconduct concern"]
+      ],
+      safety: [
+        ["unsafe", "Unsafe practice", "Created or ignored a safety risk"],
+        ["violence", "Threat / violence concern", "Threats, intimidation, physical conduct"],
+        ["substance", "Drug / alcohol concern", "Impairment or use on duty"],
+        ["weapons", "Weapons concern", "Possession or credible report"]
+      ],
+      complaint: [
+        ["harassment", "Harassment / discrimination complaint", "Protected complaint issue"],
+        ["retaliation", "Retaliation concern", "Adverse action concern after complaint"],
+        ["policy_complaint", "General complaint / whistleblower concern", "Reported misconduct or policy concern"]
+      ],
+      protected: [
+        ["medical", "Medical condition / doctor note", "Potential medical issue"],
+        ["leave", "Leave / accommodation issue", "CFRA/FMLA/accommodation overlap"],
+        ["pregnancy", "Pregnancy-related issue", "Pregnancy or related condition"],
+        ["privacy", "Medical privacy concern", "Sensitive medical information concern"]
+      ],
+      other: [
+        ["other", "Other workplace issue", "General manager concern"]
+      ]
+    };
+
+    function updateProgress(stepNumber) {
+      state.step = stepNumber;
+      const pct = Math.round((stepNumber / totalSteps) * 100);
+      progressLabel.textContent = `Step ${stepNumber} of ${totalSteps}`;
+      progressPercent.textContent = `${pct}%`;
+      progressFill.style.width = `${pct}%`;
+    }
+
+    function setView(html) {
+      app.innerHTML = html;
+    }
+
+    function pushHistory(fnName) {
+      state.history.push(fnName);
+    }
+
+    function goTo(fn) {
+      pushHistory(fn.name);
+      fn();
+    }
+
+    function back() {
+      if (state.history.length <= 1) {
+        start();
+        return;
+      }
+      state.history.pop();
+      const previousName = state.history[state.history.length - 1];
+      window[previousName]();
+    }
+
+    function restart() {
+      state.history = [];
+      state.issueType = "";
+      state.severity = "";
+      state.prior = "";
+      state.legal = "";
+      state.detail = "";
+      state.leadUnlocked = false;
+      start();
+    }
+
+    function navRow(showBack = true) {
+      return `
+        <div class="nav-row">
+          ${showBack ? `<button class="nav-btn" onclick="back()">Back</button>` : ``}
+          <button class="nav-btn" onclick="restart()">Start Over</button>
+        </div>
+      `;
+    }
+
+    function jumpToTool() {
+      document.getElementById("toolArea").scrollIntoView({ behavior: "smooth", block: "start" });
+      start();
+    }
+
+    function showBuyerMessage() {
+      showLeadCaptureOnly();
+      document.getElementById("toolArea").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function getIssueLabel(key) {
+      const labels = {
+        attendance: "Attendance",
+        performance: "Performance",
+        conduct: "Conduct / Misconduct",
+        safety: "Safety",
+        complaint: "Complaint / Harassment / Retaliation",
+        protected: "Leave / Medical Issue",
+        other: "Other"
+      };
+      return labels[key] || key;
+    }
+
+    function getDetailMeta(issueType, detailKey) {
+      const found = (issueDetails[issueType] || []).find(item => item[0] === detailKey);
+      return found || [detailKey, detailKey, ""];
+    }
+
+    function start() {
+      state.history = ["start"];
+      updateProgress(1);
+      setView(`
+        <div class="step-pill">Quick Manager Intake</div>
+        <h2 class="question">What happened?</h2>
+        <p class="helper">
+          Start with the main issue type. If more than one applies, choose the highest-risk concern first.
+        </p>
+
+        <div class="option-grid">
+          ${issueOption("attendance", "Attendance issue", "Tardy, absence, no-call/no-show, schedule problem")}
+          ${issueOption("performance", "Performance issue", "Quality, productivity, missed expectations")}
+          ${issueOption("conduct", "Conduct / behavior", "Insubordination, disrespect, sleeping on duty")}
+          ${issueOption("safety", "Safety issue", "Unsafe practice, violence, drugs/alcohol, weapons")}
+          ${issueOption("complaint", "Complaint / harassment", "Harassment, retaliation, whistleblower concern")}
+          ${issueOption("protected", "Leave / medical issue", "Medical, accommodation, pregnancy, protected leave")}
+        </div>
+
+        ${navRow(false)}
+      `);
+    }
+
+    function issueOption(value, title, sub) {
+      return `
+        <button class="option-btn" onclick="selectIssueType('${value}')">
+          <span class="option-title">${title}</span>
+          <span class="option-sub">${sub}</span>
+        </button>
+      `;
+    }
+
+    function selectIssueType(value) {
+      state.issueType = value;
+      goTo(severityStep);
+    }
+
+    function severityStep() {
+      updateProgress(2);
+      setView(`
+        <div class="step-pill">Issue Type: ${getIssueLabel(state.issueType)}</div>
+        <h2 class="question">How serious is it?</h2>
+        <p class="helper">
+          Pick the option that best matches impact and urgency.
+        </p>
+
+        <div class="option-grid">
+          ${answerCard("minor", "Minor / first-time", "Low impact, isolated, early-stage issue")}
+          ${answerCard("repeated", "Repeated / pattern", "Ongoing concern or similar issue happening again")}
+          ${answerCard("serious", "Serious impact", "Clear disruption, stronger corrective action may be needed")}
+          ${answerCard("severe", "Severe / immediate risk", "Safety issue, major misconduct, or high business risk")}
+        </div>
+
+        ${navRow(true)}
+      `);
+    }
+
+    function answerCard(value, title, sub) {
+      return `
+        <button class="option-btn" onclick="selectSeverity('${value}')">
+          <span class="option-title">${title}</span>
+          <span class="option-sub">${sub}</span>
+        </button>
+      `;
+    }
+
+    function selectSeverity(value) {
+      state.severity = value;
+      goTo(priorStep);
+    }
+
+    function priorStep() {
+      updateProgress(3);
+      setView(`
+        <div class="step-pill">Discipline History</div>
+        <h2 class="question">Has this been documented before?</h2>
+        <p class="helper">
+          Think coaching, verbal counseling, written warning, or final warning.
+        </p>
+
+        <div class="option-grid">
+          ${priorCard("none", "No prior documentation", "No known prior discipline on this issue")}
+          ${priorCard("coaching", "Coaching / verbal", "Manager has already addressed it informally")}
+          ${priorCard("written", "Written warning", "Formal written discipline already issued")}
+          ${priorCard("final", "Final warning", "Already at a high corrective action level")}
+        </div>
+
+        ${navRow(true)}
+      `);
+    }
+
+    function priorCard(value, title, sub) {
+      return `
+        <button class="option-btn" onclick="selectPrior('${value}')">
+          <span class="option-title">${title}</span>
+          <span class="option-sub">${sub}</span>
+        </button>
+      `;
+    }
+
+    function selectPrior(value) {
+      state.prior = value;
+      goTo(legalStep);
+    }
+
+    function legalStep() {
+      updateProgress(4);
+      setView(`
+        <div class="step-pill">Risk Check</div>
+        <h2 class="question">Any legal or protected stop signs?</h2>
+        <p class="helper">
+          If a medical, leave, complaint, retaliation, accommodation, pregnancy, or other protected-risk issue may be involved, pause ordinary discipline and route to HR first.
+        </p>
+
+        <div class="option-grid">
+          <button class="option-btn" onclick="selectLegal('yes')">
+            <span class="option-title">Yes — possible protected risk</span>
+            <span class="option-sub">Medical issue, leave, disability, complaint, retaliation, pregnancy, or similar concern</span>
+          </button>
+
+          <button class="option-btn" onclick="selectLegal('no')">
+            <span class="option-title">No — no protected risk identified</span>
+            <span class="option-sub">No clear leave, medical, retaliation, complaint, or other stop-sign issue</span>
+          </button>
+        </div>
+
+        ${navRow(true)}
+      `);
+    }
+
+    function selectLegal(value) {
+      state.legal = value;
+      goTo(detailStep);
+    }
+
+    function detailStep() {
+      updateProgress(5);
+      const items = issueDetails[state.issueType] || issueDetails.other;
+
+      setView(`
+        <div class="step-pill">Specific Issue Detail</div>
+        <h2 class="question">What best describes the issue?</h2>
+        <p class="helper">
+          Choose the closest fit. This helps the tool map a cleaner recommendation.
+        </p>
+
+        <div class="option-grid">
+          ${items.map(item => `
+            <button class="option-btn" onclick="selectDetail('${item[0]}')">
+              <span class="option-title">${item[1]}</span>
+              <span class="option-sub">${item[2]}</span>
+            </button>
+          `).join("")}
+        </div>
+
+        ${navRow(true)}
+      `);
+    }
+
+    function selectDetail(value) {
+      state.detail = value;
+
+      if (!state.leadUnlocked) {
+        goTo(leadGateStep);
+      } else {
+        showResult();
+      }
+    }
+
+    function showLeadCaptureOnly() {
+      updateProgress(5);
+      state.history = ["showLeadCaptureOnly"];
+      setView(`
+        <div class="step-pill">Request Early Access</div>
+        <h2 class="question">Bring this decision tool to your company</h2>
+        <p class="helper">
+          Submit the Google form below. Your responses will go directly into your Google Forms / Google Sheets setup.
+        </p>
+
+        ${leadFormHtml(false)}
+        ${navRow(false)}
+      `);
+    }
+
+    function leadGateStep() {
+      updateProgress(5);
+      setView(`
+        <div class="step-pill">Unlock Full Recommendation</div>
+        <h2 class="question">Your result is ready.</h2>
+        <p class="helper">
+          Submit the form below, then continue to view the full recommendation.
+        </p>
+
+        ${leadFormHtml(true)}
+        ${navRow(true)}
+      `);
+    }
+
+    function leadFormHtml(showUnlockButton) {
+      return `
+        <div class="panel panel-purple">
+          <h4>Demo interest form</h4>
+
+          <div class="form-embed-wrap">
+            <iframe
+              src="${googleFormEmbedUrl}"
+              width="100%"
+              height="980"
+              frameborder="0"
+              marginheight="0"
+              marginwidth="0">
+              Loading…
+            </iframe>
+          </div>
+
+          <div class="small-note">
+            This is now a real Google Form. Submissions go to your Google Form responses and linked Google Sheet.
+          </div>
+
+          <div class="nav-row" style="margin-top:16px;">
+            <a class="btn btn-secondary" href="${googleFormDirectUrl}" target="_blank" rel="noopener noreferrer">
+              Open Form in New Tab
+            </a>
+            ${showUnlockButton ? `
+              <button class="btn btn-primary" onclick="submitLeadThenResult()">
+                Continue to Full Recommendation
+              </button>
+            ` : `
+              <button class="btn btn-primary" onclick="submitLeadOnly()">
+                I Submitted the Form
+              </button>
+            `}
+          </div>
+        </div>
+      `;
+    }
+
+    function submitLeadOnly() {
+      state.leadUnlocked = true;
+
+      setView(`
+        <div class="thanks-box">
+          <h2 class="question" style="margin-bottom:8px;">Thanks — form submitted.</h2>
+          <p class="helper" style="margin-bottom:0;">
+            Your demo request should now be in Google Forms / Google Sheets. You can now use the decision tool flow.
+          </p>
+        </div>
+        <div class="nav-row">
+          <button class="btn btn-primary" onclick="start()">Start the Tool</button>
+        </div>
+      `);
+    }
+
+    function submitLeadThenResult() {
+      state.leadUnlocked = true;
+      showResult();
+    }
+
+    function showResult() {
+      const recommendation = getRecommendation();
+      const detailMeta = getDetailMeta(state.issueType, state.detail);
+
+      setView(`
+        <div class="result-card">
+          <div class="result-head">
+            <div class="badge-row">
+              ${recommendation.levelBadge}
+              <span class="badge badge-blue">${getIssueLabel(state.issueType)}</span>
+              <span class="badge badge-purple">${detailMeta[1]}</span>
+            </div>
+            <h3>${recommendation.title}</h3>
+            <p>${recommendation.summary}</p>
+          </div>
+
+          <div class="panel panel-blue">
+            <h4>How HR views this</h4>
+            <ul>
+              <li>${recommendation.primaryAction}</li>
+              <li>Policy area potentially involved: <strong>${recommendation.policyArea}</strong></li>
+              <li>HR review needed: <strong>${recommendation.hrReview}</strong></li>
+            </ul>
+          </div>
+
+          ${recommendation.flags.length ? `
+            <div class="panel panel-red">
+              <h4>Why this matters</h4>
+              <ul>${recommendation.flags.map(f => `<li>${f}</li>`).join("")}</ul>
+            </div>
+          ` : ""}
+
+          <div class="panel panel-orange">
+            <h4>What the manager should do</h4>
+            <ul>${recommendation.managerSteps.map(s => `<li>${s}</li>`).join("")}</ul>
+          </div>
+
+          <div class="panel panel-purple">
+            <h4>Manager guidance</h4>
+            <ul>
+              <li>Approach the conversation professionally and objectively.</li>
+              <li>Focus on behavior and expectations — not personality.</li>
+              <li>Be clear, direct, and consistent in your message.</li>
+            </ul>
+          </div>
+
+          <div class="nav-row">
+            <button class="btn btn-primary" onclick="restart()">Run Another Scenario</button>
+            <button class="btn btn-secondary" onclick="showLeadCaptureOnly()">Request Company Demo</button>
+          </div>
+        </div>
+      `);
+    }
+
+    function recommendationBase({
+      title,
+      badge,
+      summary,
+      primaryAction,
+      policyArea,
+      hrReview,
+      flags,
+      managerSteps
+    }) {
+      return {
+        title,
+        levelBadge: badge,
+        summary,
+        primaryAction,
+        policyArea,
+        hrReview,
+        flags,
+        managerSteps
+      };
+    }
+
+    function getRecommendation() {
+      if (state.issueType === "protected") {
+        return recommendationBase({
+          title: "Leave / Medical Issue — Route to HR, Not Discipline",
+          badge: `<span class="badge badge-purple">HR Review Required</span>`,
+          summary: "This is generally a protected leave, accommodation, disability, pregnancy, or medical-privacy category. Managers should not treat this like a normal write-up issue.",
+          primaryAction: "Pause discipline and involve HR to review possible leave, accommodation, disability, pregnancy, or privacy obligations before any action is taken.",
+          policyArea: "Leave / accommodation / medical privacy / pregnancy",
+          hrReview: "Yes",
+          flags: [
+            "This category is usually about policy review, eligibility, documentation, and legal protection — not ordinary discipline.",
+            "Do not terminate or write up someone on leave, requesting leave, or raising a medical/accommodation issue without HR review.",
+            "Applicable federal, state, and local leave laws can change over time and may require case-by-case review."
+          ],
+          managerSteps: [
+            "Do not move straight to discipline, suspension, or termination.",
+            "Refer the matter to HR for leave, accommodation, or pregnancy review.",
+            "Document facts only, including dates, notice given, and business impact."
+          ]
+        });
+      }
+
+      if (state.issueType === "complaint") {
+        return recommendationBase({
+          title: "Complaint / Harassment Issue — HR Investigation Track",
+          badge: `<span class="badge badge-purple">HR Review Required</span>`,
+          summary: "This is generally not a normal discipline track. From a manager standpoint, this should be treated as an HR review or investigation issue first.",
+          primaryAction: "Do not issue a write-up first. Route the matter to HR for review, fact gathering, and next-step guidance.",
+          policyArea: "Anti-harassment / retaliation / complaint handling",
+          hrReview: "Yes",
+          flags: [
+            "Complaints can create retaliation risk if discipline is issued too quickly or without neutral review.",
+            "Managers should avoid conclusions, blame, or promises about outcomes before HR review.",
+            "A complaint does not automatically mean someone is right or wrong — it means the matter should be reviewed properly."
+          ],
+          managerSteps: [
+            "Document who reported what, when, and any immediate business or safety concerns.",
+            "Do not try to investigate informally beyond necessary fact gathering unless directed by HR.",
+            "Coordinate next steps with HR before taking corrective action."
+          ]
+        });
+      }
+
+      if (state.legal === "yes") {
+        return recommendationBase({
+          title: "Protected-Risk Stop Sign — HR Review First",
+          badge: `<span class="badge badge-purple">HR Review Required</span>`,
+          summary: "A possible protected-risk issue may be involved. Ordinary discipline should pause until HR reviews the facts and risks.",
+          primaryAction: "Treat this as an HR review matter first, not an immediate discipline matter.",
+          policyArea: protectedPolicyArea(),
+          hrReview: "Yes",
+          flags: [
+            "Possible overlap with medical, leave, accommodation, pregnancy, retaliation, complaint, or another protected issue.",
+            "Managers should document objective facts only and avoid conclusions or legal assumptions."
+          ],
+          managerSteps: [
+            "Pause corrective action until HR reviews the issue.",
+            "Document dates, observations, notice, and business impact only.",
+            "Coordinate next steps through HR."
+          ]
+        });
+      }
+
+      if (state.issueType === "attendance") {
+        return attendanceRecommendation();
+      }
+
+      if (state.issueType === "performance") {
+        return performanceRecommendation();
+      }
+
+      if (state.issueType === "conduct") {
+        return conductRecommendation();
+      }
+
+      if (state.issueType === "safety") {
+        return safetyRecommendation();
+      }
+
+      return recommendationBase({
+        title: "Case-by-Case HR Review Recommended",
+        badge: `<span class="badge badge-purple">HR Review</span>`,
+        summary: "The issue does not fit a simple recommendation and should be reviewed with HR.",
+        primaryAction: "Use HR to confirm the appropriate next step.",
+        policyArea: mapPolicyArea(),
+        hrReview: "Yes",
+        flags: [],
+        managerSteps: [
+          "Document facts objectively.",
+          "Avoid assumptions about motive or intent.",
+          "Confirm expectations, history, and business impact."
+        ]
+      });
+    }
+
+    function attendanceRecommendation() {
+      const severeNoCall = state.detail === "no_call" && (state.severity === "serious" || state.severity === "severe");
+      const repeatNoCall = state.detail === "no_call" && (state.prior === "written" || state.prior === "final");
+
+      if (state.prior === "final" || severeNoCall || repeatNoCall) {
+        return recommendationBase({
+          title: "Termination Review Recommended",
+          badge: `<span class="badge badge-red">Termination Review</span>`,
+          summary: "Attendance issues are usually progressive, but severe or repeated no-call/no-show situations may justify termination review.",
+          primaryAction: "Attendance is normally a progressive-discipline category, but this pattern may warrant a termination-level review.",
+          policyArea: "Attendance / call-in expectations",
+          hrReview: "Yes",
+          flags: [
+            "Before moving forward, confirm there is no protected leave, medical, or accommodation issue underneath the absence.",
+            "Consistency matters — compare how similar attendance cases were handled."
+          ],
+          managerSteps: [
+            "Verify dates, call-in failures, prior documentation, and business impact.",
+            "Confirm there is no missed protected-risk issue.",
+            "Coordinate with HR before any final employment decision."
+          ]
+        });
+      }
+
+      if (
+        state.prior === "written" ||
+        (state.severity === "serious" && (state.prior === "coaching" || state.prior === "written")) ||
+        (state.severity === "repeated" && state.prior === "written")
+      ) {
+        return recommendationBase({
+          title: "Final Warning Review Recommended",
+          badge: `<span class="badge badge-orange">Final Warning</span>`,
+          summary: "Attendance is typically handled through progressive discipline. This pattern appears beyond early-stage correction.",
+          primaryAction: "HR generally views attendance as a coaching → written → final → termination-review category unless protected leave issues are involved.",
+          policyArea: "Attendance / call-in expectations",
+          hrReview: "Recommended",
+          flags: [
+            "Repeated attendance issues usually require stronger documentation and consistent application.",
+            "Check for any leave, medical, or accommodation overlap before issuing final-level discipline."
+          ],
+          managerSteps: [
+            "Compile prior coaching and written warnings.",
+            "Document the attendance pattern, dates, and impact on operations.",
+            "Use clear expectations and involve HR if the case is close to termination."
+          ]
+        });
+      }
+
+      if (
+        (state.severity === "minor" && state.prior === "coaching") ||
+        (state.severity === "repeated" && (state.prior === "none" || state.prior === "coaching")) ||
+        state.detail === "no_call"
+      ) {
+        return recommendationBase({
+          title: "Written Warning Recommended",
+          badge: `<span class="badge badge-amber">Written Warning</span>`,
+          summary: "Attendance issues are typically progressive. Once the issue repeats, HR usually moves from coaching to written warning.",
+          primaryAction: "HR generally treats attendance as a progressive-discipline category, with written warning often following repeated attendance problems.",
+          policyArea: "Attendance / call-in expectations",
+          hrReview: "Not usually, unless additional risk emerges",
+          flags: [
+            "The goal is consistency and documentation, not surprise discipline.",
+            "Always confirm there is no protected reason for the attendance issue before moving forward."
+          ],
+          managerSteps: [
+            "List the dates, examples, and any prior coaching.",
+            "State attendance expectations clearly.",
+            "Explain that continued issues may lead to final warning or termination review."
+          ]
+        });
+      }
+
+      return recommendationBase({
+        title: "Coaching Recommended",
+        badge: `<span class="badge badge-blue">Coaching</span>`,
+        summary: "Attendance issues are usually the clearest progressive-discipline category. Early-stage problems are commonly handled through coaching first.",
+        primaryAction: "HR usually views attendance as a coaching-first category unless there is a more serious no-call/no-show pattern or a protected issue underneath it.",
+        policyArea: "Attendance / call-in expectations",
+        hrReview: "Not usually, unless additional risk emerges",
+        flags: [
+          "The purpose of early attendance discipline is to correct behavior and set clear expectations.",
+          "Managers should still ask whether a protected leave or medical issue may be contributing."
+        ],
+        managerSteps: [
+          "State the attendance expectation clearly and factually.",
+          "Document dates, examples, and the improvement expected.",
+          "Explain that repeated issues typically move to written warning."
+        ]
+      });
+    }
+
+    function performanceRecommendation() {
+      if (state.prior === "final" || state.severity === "severe") {
+        return recommendationBase({
+          title: "Termination Review Recommended",
+          badge: `<span class="badge badge-red">Termination Review</span>`,
+          summary: "Performance issues are usually progressive, but a final-warning history or severe business impact may justify termination review.",
+          primaryAction: "Performance is generally a coaching and improvement category first, but this case may warrant termination-level review.",
+          policyArea: "Performance expectations",
+          hrReview: "Yes",
+          flags: [
+            "Termination for performance is typically strongest when expectations, support, and documentation are already clear.",
+            "Consistency and documentation matter more than emotion or frustration."
+          ],
+          managerSteps: [
+            "Gather expectations, prior coaching, written warnings, and examples of impact.",
+            "Confirm the employee had notice and opportunity to improve where appropriate.",
+            "Coordinate with HR before final action."
+          ]
+        });
+      }
+
+      if (
+        state.prior === "written" ||
+        (state.severity === "serious" && (state.prior === "coaching" || state.prior === "written")) ||
+        (state.severity === "repeated" && state.prior === "written")
+      ) {
+        return recommendationBase({
+          title: "Final Warning Review Recommended",
+          badge: `<span class="badge badge-orange">Final Warning</span>`,
+          summary: "Performance issues are normally progressive. This looks beyond early-stage correction and may justify final-warning-level action.",
+          primaryAction: "HR usually treats performance as an expectations, documentation, and improvement category before moving to final-level discipline.",
+          policyArea: "Performance expectations",
+          hrReview: "Recommended",
+          flags: [
+            "Performance cases are strongest when specific examples, expectations, and timelines are documented.",
+            "Managers should avoid vague labels and focus on measurable issues."
+          ],
+          managerSteps: [
+            "Compile prior coaching or written warnings.",
+            "Document the performance gaps and the operational impact.",
+            "Set specific improvement expectations and timing if a final warning is used."
+          ]
+        });
+      }
+
+      if (
+        (state.severity === "minor" && state.prior === "coaching") ||
+        (state.severity === "repeated" && (state.prior === "none" || state.prior === "coaching"))
+      ) {
+        return recommendationBase({
+          title: "Written Warning Recommended",
+          badge: `<span class="badge badge-amber">Written Warning</span>`,
+          summary: "Performance issues usually move to written warning once expectations have already been coached and the issue continues.",
+          primaryAction: "HR generally views performance as a progressive category: clarify expectations, document examples, allow improvement, then escalate if needed.",
+          policyArea: "Performance expectations",
+          hrReview: "Not usually, unless additional risk emerges",
+          flags: [
+            "The goal is to document performance expectations and the need for improvement.",
+            "Specific examples matter more than general statements like “bad attitude” or “not a fit.”"
+          ],
+          managerSteps: [
+            "List the performance issues, examples, and dates.",
+            "Reference any prior coaching.",
+            "State clear performance expectations and follow-up timing."
+          ]
+        });
+      }
+
+      return recommendationBase({
+        title: "Coaching Recommended",
+        badge: `<span class="badge badge-blue">Coaching</span>`,
+        summary: "Performance is typically an expectations-and-improvement category. Early-stage issues are usually coached first.",
+        primaryAction: "HR generally views performance as a category where coaching, clarity, and documented expectations come before stronger corrective action.",
+        policyArea: "Performance expectations",
+        hrReview: "Not usually, unless additional risk emerges",
+        flags: [
+          "Early-stage performance issues are often corrected through clear feedback and follow-up.",
+          "Managers should document examples and avoid vague or personal language."
+        ],
+        managerSteps: [
+          "State the performance issue factually with examples.",
+          "Clarify what “good” looks like going forward.",
+          "Document the conversation and expected improvement."
+        ]
+      });
+    }
+
+    function conductRecommendation() {
+      switch (state.detail) {
+        case "sleeping":
+        case "dishonesty":
+          return recommendationBase({
+            title: "Termination Review or Immediate Higher-Level Review",
+            badge: `<span class="badge badge-red">Termination Review</span>`,
+            summary: "This is a serious conduct category. HR often treats sleeping on duty or dishonesty/falsification as conduct that may justify skipping lower steps.",
+            primaryAction: "Treat this as a serious conduct review matter, not a routine coaching issue.",
+            policyArea: "Standards of conduct",
+            hrReview: "Yes",
+            flags: [
+              "Serious conduct can justify skipping progressive steps depending on facts and consistency.",
+              "Preserve evidence and confirm no protected-risk issue is being missed."
+            ],
+            managerSteps: [
+              "Document exactly what was observed and by whom.",
+              "Preserve time records, witness notes, or other supporting information.",
+              "Coordinate next steps with HR before final action."
+            ]
+          });
+
+        case "insubordination_public":
+          return recommendationBase({
+            title: "Termination Review Recommended",
+            badge: `<span class="badge badge-red">Termination Review</span>`,
+            summary: "Public refusal or disruptive insubordination is generally treated much more seriously than ordinary pushback.",
+            primaryAction: "HR often views public refusal or disruption as conduct that may justify jumping straight to high-level review.",
+            policyArea: "Standards of conduct",
+            hrReview: "Yes",
+            flags: [
+              "Insubordination is not always automatic termination, but public refusal or operational disruption is far more serious than mere disagreement.",
+              "Confirm the instruction was lawful, clear, and job-related."
+            ],
+            managerSteps: [
+              "Document the instruction, the refusal, the audience, and the operational impact.",
+              "Gather witness information and supporting facts.",
+              "Coordinate with HR before issuing final discipline."
+            ]
+          });
+
+        case "insubordination_refusal":
+          if (state.prior === "none" || state.prior === "coaching") {
+            return recommendationBase({
+              title: "Final Warning or Suspension Review Recommended",
+              badge: `<span class="badge badge-orange">Final Warning Review</span>`,
+              summary: "Direct refusal of a lawful instruction is typically more serious than ordinary performance or attendance issues.",
+              primaryAction: "HR often treats direct refusal as conduct that may justify skipping early coaching steps and moving to final-warning-level review.",
+              policyArea: "Standards of conduct",
+              hrReview: "Recommended",
+              flags: [
+                "Direct refusal is stronger than simple pushback or tone issues.",
+                "Confirm there is no safety, leave, medical, or complaint issue underneath the refusal."
+              ],
+              managerSteps: [
+                "Document the instruction given, the refusal, and any business impact.",
+                "Confirm the instruction was lawful, clear, and job-related.",
+                "Review with HR before issuing next-level discipline."
+              ]
+            });
+          }
+
+          return recommendationBase({
+            title: "Termination Review Recommended",
+            badge: `<span class="badge badge-red">Termination Review</span>`,
+            summary: "Repeated or already-documented refusal of a lawful instruction may justify termination-level review.",
+            primaryAction: "This is generally beyond ordinary coaching and may warrant termination review.",
+            policyArea: "Standards of conduct",
+            hrReview: "Yes",
+            flags: [
+              "Repeated insubordination may justify skipping lower steps.",
+              "Check consistency, documentation, and any missed protected-risk issues."
+            ],
+            managerSteps: [
+              "Compile prior discipline and current facts.",
+              "Confirm the instruction was lawful, clear, and job-related.",
+              "Coordinate final communication through HR."
+            ]
+          });
+
+        case "insubordination_argumentative":
+          if (state.prior === "none" && state.severity === "minor") {
+            return recommendationBase({
+              title: "Written Warning Recommended",
+              badge: `<span class="badge badge-amber">Written Warning</span>`,
+              summary: "Argumentative or disrespectful conduct may warrant formal corrective action even if the employee ultimately complied.",
+              primaryAction: "HR usually distinguishes argumentative conduct from direct refusal. It is often a written-warning category if the employee complied but the conduct was still inappropriate.",
+              policyArea: "Standards of conduct",
+              hrReview: "Recommended if manager is unsure or consistency concerns exist",
+              flags: [
+                "This is generally a conduct issue, not a leave or complaint issue, unless protected facts are present.",
+                "Managers should focus on what was said or done, not personality labels."
+              ],
+              managerSteps: [
+                "Document the specific statements, conduct, and dates.",
+                "Describe the impact on team, operations, or leadership.",
+                "State clear expectations for professional conduct going forward."
+              ]
+            });
+          }
+
+          return recommendationBase({
+            title: "Final Warning Review Recommended",
+            badge: `<span class="badge badge-orange">Final Warning</span>`,
+            summary: "Repeated argumentative or disrespectful conduct may justify higher corrective action.",
+            primaryAction: "HR often treats repeated argumentative conduct as stronger than a one-time tone issue and may move to final-warning-level action.",
+            policyArea: "Standards of conduct",
+            hrReview: "Recommended",
+            flags: [
+              "Check consistency with similar conduct cases.",
+              "Ensure documentation is complete, specific, and factual."
+            ],
+            managerSteps: [
+              "Compile prior coaching or written warnings.",
+              "Describe the conduct and its impact clearly.",
+              "Keep language factual and defensible."
+            ]
+          });
+
+        case "insubordination_pushback":
+          if (state.prior === "none" && state.severity === "minor") {
+            return recommendationBase({
+              title: "Coaching Recommended",
+              badge: `<span class="badge badge-blue">Coaching</span>`,
+              summary: "This appears closer to pushback or questioning than direct refusal.",
+              primaryAction: "HR usually distinguishes simple pushback or questioning from true insubordination. If the employee ultimately complied, this often starts with coaching.",
+              policyArea: "Standards of conduct",
+              hrReview: "Not usually, unless additional risk emerges",
+              flags: [
+                "Questioning direction is not the same as outright refusal.",
+                "Managers should still set communication and professionalism expectations clearly."
+              ],
+              managerSteps: [
+                "Clarify expectations and communication standards.",
+                "Document the conversation and expected improvement.",
+                "Explain that repeated issues may lead to written warning."
+              ]
+            });
+          }
+
+          return recommendationBase({
+            title: "Written Warning Recommended",
+            badge: `<span class="badge badge-amber">Written Warning</span>`,
+            summary: "Repeated pushback or questioning that disrupts workflow may justify written corrective action.",
+            primaryAction: "HR may move repeated pushback into written-warning territory even when it is not outright refusal.",
+            policyArea: "Standards of conduct",
+            hrReview: "Recommended if manager is unsure or consistency concerns exist",
+            flags: [
+              "The key issue is repeated resistance or disruption, not just disagreement.",
+              "Document impact and pattern, not personal frustration."
+            ],
+            managerSteps: [
+              "Document dates, examples, and impact.",
+              "Reference prior coaching if applicable.",
+              "State clear expectations and next steps."
+            ]
+          });
+
+        case "disrespect":
+          if (state.prior === "none" && state.severity === "minor") {
+            return recommendationBase({
+              title: "Coaching or Written Warning Review",
+              badge: `<span class="badge badge-amber">Corrective Action</span>`,
+              summary: "Disrespectful or unprofessional conduct is usually handled as a conduct issue rather than a performance issue.",
+              primaryAction: "HR often treats disrespect as a conduct category that may start with coaching or move to written warning depending on tone, context, and impact.",
+              policyArea: "Standards of conduct",
+              hrReview: "Not usually, unless risk emerges",
+              flags: [
+                "Managers should focus on specific words or conduct, not labels like “bad attitude.”",
+                "Consistency matters when comparing similar tone or professionalism issues."
+              ],
+              managerSteps: [
+                "Document the behavior and exact examples.",
+                "Clarify professionalism expectations.",
+                "Explain that repeated issues can move to written warning or higher."
+              ]
+            });
+          }
+
+          return recommendationBase({
+            title: "Written Warning or Final Warning Review",
+            badge: `<span class="badge badge-orange">Corrective Action</span>`,
+            summary: "Repeated disrespectful conduct may justify stronger corrective action.",
+            primaryAction: "HR generally escalates repeated conduct issues when coaching has not corrected the behavior.",
+            policyArea: "Standards of conduct",
+            hrReview: "Recommended",
+            flags: [
+              "Repeated conduct matters more than one vague impression.",
+              "Use specific, factual examples and compare to prior handling."
+            ],
+            managerSteps: [
+              "Compile prior conversations or warnings.",
+              "Document the repeated conduct and business impact.",
+              "Coordinate with HR if moving toward final warning or termination review."
+            ]
+          });
+
+        default:
+          if (state.prior === "final" || state.severity === "severe") {
+            return recommendationBase({
+              title: "Termination Review Recommended",
+              badge: `<span class="badge badge-red">Termination Review</span>`,
+              summary: "This conduct issue may justify termination-level review depending on facts, severity, and prior history.",
+              primaryAction: "Conduct can justify skipping steps depending on seriousness and consistency with past practice.",
+              policyArea: "Standards of conduct",
+              hrReview: "Yes",
+              flags: [
+                "Review documentation, consistency, and any protected-risk overlap.",
+                "Do not move too fast without confirming the record."
+              ],
+              managerSteps: [
+                "Gather facts, prior discipline, and witness documentation.",
+                "Confirm no protected-risk issue has been missed.",
+                "Coordinate with HR before final action."
+              ]
+            });
+          }
+
+          if (
+            state.prior === "written" ||
+            (state.severity === "serious" && (state.prior === "coaching" || state.prior === "written")) ||
+            (state.severity === "repeated" && state.prior === "written")
+          ) {
+            return recommendationBase({
+              title: "Final Warning Review Recommended",
+              badge: `<span class="badge badge-orange">Final Warning</span>`,
+              summary: "This conduct issue appears beyond early-stage correction and may justify final-warning-level action.",
+              primaryAction: "HR often escalates conduct issues faster than attendance or performance when they affect professionalism, authority, or operations.",
+              policyArea: "Standards of conduct",
+              hrReview: "Recommended",
+              flags: [
+                "Check consistency with similar conduct cases.",
+                "Ensure prior documentation is complete and specific."
+              ],
+              managerSteps: [
+                "Compile prior coaching and written warning history.",
+                "Describe the conduct and the impact clearly.",
+                "Keep language factual and defensible."
+              ]
+            });
+          }
+
+          if (
+            (state.severity === "minor" && state.prior === "coaching") ||
+            (state.severity === "repeated" && (state.prior === "none" || state.prior === "coaching"))
+          ) {
+            return recommendationBase({
+              title: "Written Warning Recommended",
+              badge: `<span class="badge badge-amber">Written Warning</span>`,
+              summary: "This appears to be repeated or documented enough to move beyond simple coaching.",
+              primaryAction: "Conduct issues often move to written warning once the behavior has already been addressed informally.",
+              policyArea: "Standards of conduct",
+              hrReview: "Recommended if manager is unsure or consistency concerns exist",
+              flags: [],
+              managerSteps: [
+                "List specific examples and dates.",
+                "Reference prior coaching if applicable.",
+                "State clear behavioral expectations going forward."
+              ]
+            });
+          }
+
+          return recommendationBase({
+            title: "Coaching Recommended",
+            badge: `<span class="badge badge-blue">Coaching</span>`,
+            summary: "This appears to be an early-stage conduct issue without prior documented discipline.",
+            primaryAction: "Some conduct issues start with coaching, especially where the issue is isolated and not severe.",
+            policyArea: "Standards of conduct",
+            hrReview: "Not usually, unless additional risk emerges",
+            flags: [],
+            managerSteps: [
+              "State the conduct concern clearly and factually.",
+              "Document the example and expectation.",
+              "Explain that continued issues may lead to stronger corrective action."
+            ]
+          });
+      }
+    }
+
+    function safetyRecommendation() {
+      if (state.detail === "violence" || state.detail === "weapons" || state.detail === "substance") {
+        return recommendationBase({
+          title: "Immediate Higher-Level Review Recommended",
+          badge: `<span class="badge badge-red">Immediate Review</span>`,
+          summary: "This is a serious safety or workplace-violence type category. Managers should treat this as an immediate HR or leadership escalation issue.",
+          primaryAction: "This is not a normal progressive-discipline category. Immediate escalation and fact review are usually required.",
+          policyArea: "Safety / workplace violence / drug-free workplace",
+          hrReview: "Yes",
+          flags: [
+            "Safety issues can justify skipping lower steps depending on the facts.",
+            "Preserve evidence and confirm whether any protected safety complaint or reporting activity is involved."
+          ],
+          managerSteps: [
+            "Address immediate safety concerns first.",
+            "Preserve records, witness notes, screenshots, or other evidence.",
+            "Coordinate promptly with HR and leadership."
+          ]
+        });
+      }
+
+      if (state.detail === "unsafe" && state.prior === "none" && state.severity === "minor") {
+        return recommendationBase({
+          title: "Final Warning or Higher-Level Review",
+          badge: `<span class="badge badge-orange">Safety Review</span>`,
+          summary: "Even where no one was injured, unsafe practice is generally treated more seriously than ordinary attendance or performance issues.",
+          primaryAction: "HR often treats safety issues as immediate escalation categories because the focus is risk prevention, not just progressive discipline.",
+          policyArea: "Safety / workplace conduct",
+          hrReview: "Recommended",
+          flags: [
+            "Safety issues can overlap with protected safety complaints, so context matters.",
+            "Documentation should focus on the actual unsafe act and risk created."
+          ],
+          managerSteps: [
+            "Document the unsafe practice and the risk created.",
+            "Confirm whether the employee was raising a safety concern versus violating a safety rule.",
+            "Coordinate with HR if considering final-level discipline."
+          ]
+        });
+      }
+
+      return recommendationBase({
+        title: "Termination Review or Immediate Higher-Level Review",
+        badge: `<span class="badge badge-red">Termination Review</span>`,
+        summary: "Safety issues are generally handled as immediate escalation categories rather than standard progressive-discipline cases.",
+        primaryAction: "Treat this as a safety review matter first, with HR or leadership involvement before final action.",
+        policyArea: "Safety / workplace conduct",
+        hrReview: "Yes",
+        flags: [
+          "Safety complaints can sometimes overlap with protected activity, so do not assume every refusal or report is misconduct.",
+          "Preserve evidence and review the facts before deciding on final action."
+        ],
+        managerSteps: [
+          "Address immediate safety and operational concerns.",
+          "Document what occurred, who saw it, and any policy or safety rule involved.",
+          "Coordinate with HR before final corrective action."
+        ]
+      });
+    }
+
+    function protectedPolicyArea() {
+      if (state.issueType === "complaint") return "Anti-harassment / retaliation / complaint handling";
+      if (state.issueType === "protected") return "Leave / accommodation / medical privacy";
+      return "Protected-risk review";
+    }
+
+    function mapPolicyArea() {
+      const map = {
+        attendance: "Attendance / call-in expectations",
+        performance: "Performance expectations",
+        conduct: "Standards of conduct",
+        safety: "Safety / workplace conduct",
+        complaint: "Complaint handling / retaliation prevention",
+        protected: "Leave / accommodation / protected issue review",
+        other: "Manager guidance / policy review"
+      };
+      return map[state.issueType] || "General policy review";
+    }
+
+    start();
+  </script>
+</body>
+</html>
