@@ -154,6 +154,12 @@
       border: 1px solid var(--border);
     }
 
+    .btn-light {
+      background: #fff;
+      color: #111827;
+      border: 1px solid #e5e7eb;
+    }
+
     .mini-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -489,6 +495,47 @@
       background: #fff;
     }
 
+    .result-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+        color: #000;
+        padding: 0;
+      }
+
+      .hero,
+      .sidebar,
+      .footer,
+      .nav-row,
+      .result-actions,
+      .tool-top {
+        display: none !important;
+      }
+
+      .tool-shell {
+        display: block;
+      }
+
+      .tool-card {
+        box-shadow: none;
+        border-radius: 0;
+      }
+
+      .tool-body {
+        padding: 0;
+      }
+
+      .panel,
+      .result-head {
+        break-inside: avoid;
+      }
+    }
+
     @media (max-width: 980px) {
       .hero,
       .tool-shell {
@@ -515,7 +562,8 @@
       }
 
       .nav-row,
-      .hero-cta-row {
+      .hero-cta-row,
+      .result-actions {
         flex-direction: column;
       }
 
@@ -534,14 +582,14 @@
     <section class="hero">
       <div class="hero-left">
         <div class="eyebrow">HR Tech Demo</div>
-        <h1>Stop guessing on employee discipline decisions.</h1>
+        <h1>Help managers make better HR calls before they escalate to you.</h1>
         <p>
-          A fast, mobile-friendly HR decision tool designed for small business owners and leadership teams. Screen attendance, performance,
-          misconduct, safety, and protected-risk issues in under a minute.
+          A fast, mobile-friendly HR decision tool built for solo HR teams and small HR departments that are too busy
+          to reteach manager basics all day. Screen attendance, performance, misconduct, safety, and protected-risk issues in under a minute.
         </p>
         <div class="hero-cta-row">
           <button class="btn btn-primary" onclick="jumpToTool()">Try the Demo</button>
-          <button class="btn btn-secondary" onclick="showBuyerMessage()">Request Early Access</button>
+          <button class="btn btn-secondary" onclick="showLeadCaptureOnly()">Request Company Demo</button>
         </div>
       </div>
 
@@ -557,19 +605,19 @@
         <div class="mini-grid">
           <div class="mini-card">
             <strong>Fast on mobile</strong>
-            <span>Large tap targets, one flow, no messy policy hunting.</span>
+            <span>Large tap targets, one clean flow, no messy policy hunting.</span>
           </div>
           <div class="mini-card">
-            <strong>Lead capture built in</strong>
-            <span>Collect demo interest before unlocking full guidance.</span>
+            <strong>Built for lean HR teams</strong>
+            <span>Help managers self-screen routine issues before they interrupt HR.</span>
           </div>
           <div class="mini-card">
             <strong>Manager-friendly</strong>
             <span>Clear recommendations, not long HR essays.</span>
           </div>
           <div class="mini-card">
-            <strong>Built for your organization</strong>
-            <span>Easily adaptable to your company’s policies, workflows, and HR processes.</span>
+            <strong>Feedback + demo capture</strong>
+            <span>Use the Google Form to capture interest, phone, email, and improvement ideas.</span>
           </div>
         </div>
       </div>
@@ -594,7 +642,7 @@
       </div>
 
       <aside class="sidebar">
-        <h3>Why buyers care</h3>
+        <h3>Why HR buyers care</h3>
         <p>
           This tool helps managers make faster, more consistent decisions while reducing HR risk.
           It creates structure, improves documentation, and helps ensure issues are escalated
@@ -602,9 +650,9 @@
         </p>
 
         <ul class="side-list">
-          <li>Reduce risk and inconsistency across managers and teams</li>
-          <li>Built-in HR escalation logic helps catch legal and protected risks early</li>
-          <li>Easily customized to reflect your company’s handbook, policies, and workflows</li>
+          <li>Reduce inconsistency across managers and departments</li>
+          <li>Catch leave, complaint, retaliation, and protected-risk issues earlier</li>
+          <li>Give managers a better first screen before HR gets pulled in</li>
         </ul>
 
         <div style="margin-top:18px;">
@@ -616,7 +664,8 @@
     </section>
 
     <div class="footer">
-      Demo guidance tool only. Final employment decisions should be reviewed through appropriate HR, leadership, and legal counsel.
+      This tool provides general HR guidance based on common practices. It does not replace your company’s policies, HR review, or legal counsel.
+      Final employment decisions should always be reviewed through the appropriate internal HR, leadership, and legal process.
     </div>
   </div>
 
@@ -635,8 +684,7 @@
       severity: "",
       prior: "",
       legal: "",
-      detail: "",
-      leadUnlocked: false
+      detail: ""
     };
 
     const googleFormEmbedUrl = "https://docs.google.com/forms/d/e/1FAIpQLScLJvO8W5KZ14_GoWXgK6otWdNMSebymZLu52qyvtpnmQRL7A/viewform?embedded=true";
@@ -723,7 +771,6 @@
       state.prior = "";
       state.legal = "";
       state.detail = "";
-      state.leadUnlocked = false;
       start();
     }
 
@@ -739,11 +786,6 @@
     function jumpToTool() {
       document.getElementById("toolArea").scrollIntoView({ behavior: "smooth", block: "start" });
       start();
-    }
-
-    function showBuyerMessage() {
-      showLeadCaptureOnly();
-      document.getElementById("toolArea").scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     function getIssueLabel(key) {
@@ -762,6 +804,186 @@
     function getDetailMeta(issueType, detailKey) {
       const found = (issueDetails[issueType] || []).find(item => item[0] === detailKey);
       return found || [detailKey, detailKey, ""];
+    }
+
+    function getOutcomeKey(title) {
+      const lower = title.toLowerCase();
+      if (lower.includes("termination")) return "termination";
+      if (lower.includes("final warning")) return "final_warning";
+      if (lower.includes("written warning")) return "written_warning";
+      if (lower.includes("coaching")) return "coaching";
+      if (lower.includes("investigation")) return "investigation";
+      if (lower.includes("hr review")) return "hr_review";
+      if (lower.includes("immediate")) return "immediate_review";
+      return "review";
+    }
+
+    function getManagerGuidance(recommendation) {
+      const outcome = getOutcomeKey(recommendation.title);
+
+      if (state.issueType === "protected" || state.issueType === "complaint" || state.legal === "yes") {
+        return {
+          title: "Manager guidance",
+          items: [
+            "Do not promise outcomes or move straight to discipline before HR review.",
+            "Stick to facts, dates, observations, and business impact only.",
+            "Use a calm, neutral tone and route the matter to HR before taking action."
+          ]
+        };
+      }
+
+      if (state.issueType === "attendance") {
+        if (outcome === "coaching") {
+          return {
+            title: "Manager guidance",
+            items: [
+              "Be direct about the attendance expectation and why it matters operationally.",
+              "Reference dates and facts, not assumptions about effort or attitude.",
+              "End the conversation with a clear expectation for immediate improvement."
+            ]
+          };
+        }
+        if (outcome === "written_warning") {
+          return {
+            title: "Manager guidance",
+            items: [
+              "Walk through the attendance pattern with specific dates and prior conversations.",
+              "State that this has moved beyond informal correction and now requires formal documentation.",
+              "Be clear about the next step if attendance does not improve."
+            ]
+          };
+        }
+        if (outcome === "final_warning") {
+          return {
+            title: "Manager guidance",
+            items: [
+              "Keep the tone serious and clear — this is no longer an early-stage issue.",
+              "Explain that continued attendance problems may result in termination review.",
+              "Make sure the employee understands exactly what must change immediately."
+            ]
+          };
+        }
+      }
+
+      if (state.issueType === "performance") {
+        if (outcome === "coaching") {
+          return {
+            title: "Manager guidance",
+            items: [
+              "Focus on measurable gaps, not vague labels.",
+              "Clarify what success looks like going forward.",
+              "Set a specific follow-up point so the conversation feels actionable."
+            ]
+          };
+        }
+        if (outcome === "written_warning") {
+          return {
+            title: "Manager guidance",
+            items: [
+              "Use examples, dates, and missed expectations to keep the message objective.",
+              "Make clear that prior coaching did not fully resolve the issue.",
+              "Give a concrete performance standard and follow-up timeline."
+            ]
+          };
+        }
+        if (outcome === "final_warning" || outcome === "termination") {
+          return {
+            title: "Manager guidance",
+            items: [
+              "Keep the conversation factual, serious, and tightly tied to documented expectations.",
+              "Avoid emotional language or broad statements like 'not a fit.'",
+              "Coordinate closely with HR before communicating any final-level action."
+            ]
+          };
+        }
+      }
+
+      if (state.issueType === "conduct") {
+        if (outcome === "coaching") {
+          return {
+            title: "Manager guidance",
+            items: [
+              "Address the conduct directly and explain why it was not acceptable.",
+              "Focus on the specific behavior, not personality.",
+              "Set a clear expectation for how the employee should handle similar situations going forward."
+            ]
+          };
+        }
+        if (outcome === "written_warning") {
+          return {
+            title: "Manager guidance",
+            items: [
+              "Describe exactly what was said or done, with dates and impact.",
+              "Keep your language objective and avoid loaded wording.",
+              "Be clear that repeated conduct issues may move quickly to stronger discipline."
+            ]
+          };
+        }
+        if (outcome === "final_warning") {
+          return {
+            title: "Manager guidance",
+            items: [
+              "Communicate that the behavior is now at a serious corrective-action stage.",
+              "State clearly what must stop immediately.",
+              "Do not improvise — use documentation and HR alignment."
+            ]
+          };
+        }
+        if (outcome === "termination" || outcome === "immediate_review") {
+          return {
+            title: "Manager guidance",
+            items: [
+              "Do not treat this like a routine write-up conversation.",
+              "Preserve facts, witnesses, and evidence before communicating next steps.",
+              "Pause and coordinate the final approach with HR."
+            ]
+          };
+        }
+      }
+
+      if (state.issueType === "safety") {
+        return {
+          title: "Manager guidance",
+          items: [
+            "Address immediate safety first before worrying about discipline language.",
+            "Document what occurred, who saw it, and what risk was created.",
+            "Treat safety conversations with a serious, controlled tone and involve HR quickly."
+          ]
+        };
+      }
+
+      return {
+        title: "Manager guidance",
+        items: [
+          "Approach the conversation professionally and objectively.",
+          "Focus on behavior, facts, and expectations — not personality.",
+          "Be clear, direct, and consistent in your message."
+        ]
+      };
+    }
+
+    function getImportantNote(recommendation) {
+      if (state.issueType === "protected" || state.issueType === "complaint" || state.legal === "yes") {
+        return [
+          "This situation may involve protected or legal risk.",
+          "Do not proceed with discipline until HR has reviewed the case.",
+          "Company policy, past practice, and location-specific laws may change the right outcome."
+        ];
+      }
+
+      if (recommendation.hrReview === "Yes" || recommendation.hrReview === "Recommended") {
+        return [
+          "This recommendation is based on the inputs provided.",
+          "Company policy, past practice, and manager consistency may affect the right next step.",
+          "If you are close to final warning or termination, involve HR before moving forward."
+        ];
+      }
+
+      return [
+        "This recommendation is based on the inputs provided.",
+        "Managers should still follow company policy and document the situation consistently.",
+        "Escalate to HR if additional risk or protected issues appear."
+      ];
     }
 
     function start() {
@@ -925,47 +1147,28 @@
 
     function selectDetail(value) {
       state.detail = value;
-
-      if (!state.leadUnlocked) {
-        goTo(leadGateStep);
-      } else {
-        showResult();
-      }
+      showResult();
     }
 
     function showLeadCaptureOnly() {
       updateProgress(5);
       state.history = ["showLeadCaptureOnly"];
       setView(`
-        <div class="step-pill">Request Early Access</div>
+        <div class="step-pill">Request Company Demo</div>
         <h2 class="question">Bring this decision tool to your company</h2>
         <p class="helper">
-          Submit the Google form below. Your responses will go directly into your Google Forms / Google Sheets setup.
+          Submit the Google form below to request a demo, share feedback, or leave your contact information for follow-up.
         </p>
 
-        ${leadFormHtml(false)}
+        ${leadFormHtml()}
         ${navRow(false)}
       `);
     }
 
-    function leadGateStep() {
-      updateProgress(5);
-      setView(`
-        <div class="step-pill">Unlock Full Recommendation</div>
-        <h2 class="question">Your result is ready.</h2>
-        <p class="helper">
-          Submit the form below, then continue to view the full recommendation.
-        </p>
-
-        ${leadFormHtml(true)}
-        ${navRow(true)}
-      `);
-    }
-
-    function leadFormHtml(showUnlockButton) {
+    function leadFormHtml() {
       return `
         <div class="panel panel-purple">
-          <h4>Demo interest form</h4>
+          <h4>Demo and feedback form</h4>
 
           <div class="form-embed-wrap">
             <iframe
@@ -980,51 +1183,26 @@
           </div>
 
           <div class="small-note">
-            This is now a real Google Form. Submissions go to your Google Form responses and linked Google Sheet.
+            Tip: keep your Google Form short. Best fields are name, email, company, optional phone, and one open comment asking what they would improve.
           </div>
 
           <div class="nav-row" style="margin-top:16px;">
             <a class="btn btn-secondary" href="${googleFormDirectUrl}" target="_blank" rel="noopener noreferrer">
               Open Form in New Tab
             </a>
-            ${showUnlockButton ? `
-              <button class="btn btn-primary" onclick="submitLeadThenResult()">
-                Continue to Full Recommendation
-              </button>
-            ` : `
-              <button class="btn btn-primary" onclick="submitLeadOnly()">
-                I Submitted the Form
-              </button>
-            `}
+            <button class="btn btn-primary" onclick="restart()">
+              Back to Tool
+            </button>
           </div>
         </div>
       `;
     }
 
-    function submitLeadOnly() {
-      state.leadUnlocked = true;
-
-      setView(`
-        <div class="thanks-box">
-          <h2 class="question" style="margin-bottom:8px;">Thanks — form submitted.</h2>
-          <p class="helper" style="margin-bottom:0;">
-            Your demo request should now be in Google Forms / Google Sheets. You can now use the decision tool flow.
-          </p>
-        </div>
-        <div class="nav-row">
-          <button class="btn btn-primary" onclick="start()">Start the Tool</button>
-        </div>
-      `);
-    }
-
-    function submitLeadThenResult() {
-      state.leadUnlocked = true;
-      showResult();
-    }
-
     function showResult() {
       const recommendation = getRecommendation();
       const detailMeta = getDetailMeta(state.issueType, state.detail);
+      const guidance = getManagerGuidance(recommendation);
+      const importantNote = getImportantNote(recommendation);
 
       setView(`
         <div class="result-card">
@@ -1060,17 +1238,30 @@
           </div>
 
           <div class="panel panel-purple">
-            <h4>Manager guidance</h4>
-            <ul>
-              <li>Approach the conversation professionally and objectively.</li>
-              <li>Focus on behavior and expectations — not personality.</li>
-              <li>Be clear, direct, and consistent in your message.</li>
-            </ul>
+            <h4>${guidance.title}</h4>
+            <ul>${guidance.items.map(item => `<li>${item}</li>`).join("")}</ul>
+          </div>
+
+          <div class="panel panel-red">
+            <h4>Important note</h4>
+            <ul>${importantNote.map(item => `<li>${item}</li>`).join("")}</ul>
+          </div>
+
+          <div class="panel">
+            <h4>Want this for your managers?</h4>
+            <p class="small-note" style="margin-top:0;">
+              Request a company demo, share feedback, or leave your contact info so I can follow up.
+            </p>
+
+            <div class="result-actions">
+              <button class="btn btn-light" onclick="window.print()">Print / Save as PDF</button>
+              <button class="btn btn-primary" onclick="showLeadCaptureOnly()">Request Company Demo</button>
+              <a class="btn btn-secondary" href="${googleFormDirectUrl}" target="_blank" rel="noopener noreferrer">Give Feedback</a>
+            </div>
           </div>
 
           <div class="nav-row">
             <button class="btn btn-primary" onclick="restart()">Run Another Scenario</button>
-            <button class="btn btn-secondary" onclick="showLeadCaptureOnly()">Request Company Demo</button>
           </div>
         </div>
       `);
