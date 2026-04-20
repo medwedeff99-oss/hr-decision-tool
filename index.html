@@ -463,13 +463,6 @@
       margin-top: 10px;
     }
 
-    .thanks-box {
-      border-radius: 18px;
-      padding: 18px;
-      background: linear-gradient(180deg, #ecfeff, #ffffff);
-      border: 1px solid #a5f3fc;
-    }
-
     .footer {
       margin-top: 22px;
       text-align: center;
@@ -613,7 +606,7 @@
           </div>
           <div class="mini-card">
             <strong>Manager-friendly</strong>
-            <span>Clear recommendations, not long HR essays.</span>
+            <span>Clear recommendations plus teachable HR judgment, not long HR essays.</span>
           </div>
           <div class="mini-card">
             <strong>Easy to pilot</strong>
@@ -645,14 +638,13 @@
         <h3>Why HR buyers care</h3>
         <p>
           This tool helps managers make faster, more consistent decisions while reducing HR risk.
-          It creates structure, improves documentation, and helps ensure issues are escalated
-          appropriately before they become bigger problems.
+          It creates structure, improves documentation, and teaches managers where they can accidentally create retaliation, consistency, or protected-activity issues.
         </p>
 
         <ul class="side-list">
           <li>Reduce inconsistency across managers and departments</li>
           <li>Catch leave, complaint, retaliation, and protected-risk issues earlier</li>
-          <li>Give managers a better first screen before HR gets pulled in</li>
+          <li>Teach managers why not all pushback, refusal, or safety concerns should be handled the same way</li>
         </ul>
 
         <div style="margin-top:18px;">
@@ -986,6 +978,256 @@
       ];
     }
 
+    function getTeachingContent() {
+      const detail = state.detail;
+
+      if (state.issueType === "protected" || state.issueType === "complaint" || state.legal === "yes") {
+        return {
+          riskTitle: "Real-world risk",
+          risk: [
+            "This may involve protected activity, a complaint, leave, accommodation, medical privacy, pregnancy, or another legal stop-sign issue.",
+            "Discipline too close to a complaint, leave request, accommodation request, safety concern, or similar issue can look retaliatory.",
+            "Even where the employee may still have performance or conduct issues, moving too fast can create a bigger HR and legal problem than the original issue."
+          ],
+          hrTitle: "How HR thinks about this",
+          hr: [
+            "HR will focus on timing, consistency, past practice, documentation, and whether the employee engaged in any protected activity.",
+            "The question is not just 'what happened' — it is 'what risk is created if we act now?'",
+            "HR will usually want facts first and conclusions later."
+          ],
+          mistakesTitle: "Common manager mistakes",
+          mistakes: [
+            "Moving to discipline before HR review.",
+            "Treating the issue like ordinary insubordination, attendance, or performance without checking for protected overlap.",
+            "Making promises, taking sides, or trying to quietly solve the issue without escalation."
+          ],
+          lessonTitle: "Quick teaching moment",
+          lesson: [
+            "A manager can be directionally right about the behavior and still create risk by handling the timing badly.",
+            "Protected activity and bad behavior can overlap — that is exactly why HR should review first.",
+            "When you see complaint, leave, accommodation, retaliation, or safety signals, slow down."
+          ]
+        };
+      }
+
+      if (state.issueType === "attendance") {
+        return {
+          riskTitle: "Real-world risk",
+          risk: [
+            "Attendance cases often look simple, but they can overlap with medical issues, protected leave, accommodation requests, pregnancy, workers’ compensation, or retaliation concerns.",
+            "Managers create risk when they discipline attendance without checking whether there is a protected reason underneath the pattern.",
+            "Inconsistent handling of similar attendance cases weakens the company’s position fast."
+          ],
+          hrTitle: "How HR thinks about this",
+          hr: [
+            "HR looks for pattern, documentation, operational impact, and consistency across employees.",
+            "HR also wants to know whether the employee gave notice, referenced a medical issue, or raised a concern that changes the risk level.",
+            "Attendance is usually progressive, but only after protected-risk issues are ruled out."
+          ],
+          mistakesTitle: "Common manager mistakes",
+          mistakes: [
+            "Jumping to termination too quickly.",
+            "Ignoring possible medical, leave, or accommodation signals.",
+            "Treating a messy record like a clean pattern when the dates and facts are weak."
+          ],
+          lessonTitle: "Quick teaching moment",
+          lesson: [
+            "Attendance is one of the easiest categories to discipline and one of the easiest categories to mishandle.",
+            "If the facts are not clean, the pattern is not really clean either.",
+            "Managers should learn that consistency and documentation matter just as much as the missed shift."
+          ]
+        };
+      }
+
+      if (state.issueType === "performance") {
+        return {
+          riskTitle: "Real-world risk",
+          risk: [
+            "Performance cases often fail because expectations were vague, documentation was weak, or the manager changed the reason later.",
+            "An employee may claim the performance process was unfair, inconsistent, or a cover for retaliation or discrimination.",
+            "The risk usually increases when the feedback history is unclear or the employee was never given a real chance to improve."
+          ],
+          hrTitle: "How HR thinks about this",
+          hr: [
+            "HR looks for clear expectations, objective examples, support provided, prior coaching, and follow-up timing.",
+            "HR wants to see measurable gaps, not labels like 'bad attitude' or 'not a fit.'",
+            "A strong performance case usually shows the employee knew the standard and had an opportunity to improve."
+          ],
+          mistakesTitle: "Common manager mistakes",
+          mistakes: [
+            "Using vague language instead of facts and examples.",
+            "Writing someone up for performance after failing to clearly set expectations.",
+            "Giving inconsistent messages — positive one day and discipline the next."
+          ],
+          lessonTitle: "Quick teaching moment",
+          lesson: [
+            "Managers often think the issue is poor performance; HR is often looking at whether the manager set the employee up clearly and fairly.",
+            "The cleaner the expectations, the stronger the case.",
+            "Performance discipline should teach accountability, not surprise the employee."
+          ]
+        };
+      }
+
+      if (state.issueType === "conduct") {
+        let risk = [
+          "Not all disagreement, pushback, or refusal should automatically be labeled insubordination.",
+          "Some workplace complaints about pay, scheduling, staffing, safety, or working conditions can overlap with protected activity.",
+          "Mislabeling the issue creates risk, especially when the manager is frustrated and moves too fast."
+        ];
+
+        let hr = [
+          "HR separates behavior, intent, context, and impact.",
+          "HR asks whether the employee truly refused, only pushed back, raised a group concern, or reacted poorly while discussing a workplace issue.",
+          "HR also compares how similar conduct cases were handled before."
+        ];
+
+        let mistakes = [
+          "Calling everything insubordination.",
+          "Letting emotion drive the response.",
+          "Documenting conclusions instead of the actual words, behavior, witnesses, and impact."
+        ];
+
+        let lesson = [
+          "Conduct issues move faster than attendance or performance, but they still require precision.",
+          "Managers should learn the difference between disrespect, pushback, refusal, protected complaint activity, and serious misconduct.",
+          "The label matters because the consequence path changes with it."
+        ];
+
+        if (detail === "insubordination_pushback") {
+          lesson = [
+            "Questioning direction is not the same thing as refusing direction.",
+            "Managers should not escalate every challenge to authority into insubordination.",
+            "This is where coaching and clarity often matter more than punishment."
+          ];
+        }
+
+        if (detail === "insubordination_argumentative") {
+          lesson = [
+            "Argumentative behavior may still justify discipline even if the employee ultimately complied.",
+            "The teaching point is to document the conduct, not exaggerate it into refusal if it was not refusal.",
+            "Managers should focus on professionalism, disruption, and impact."
+          ];
+        }
+
+        if (detail === "insubordination_refusal" || detail === "insubordination_public") {
+          lesson = [
+            "Direct refusal is a much more serious category than ordinary pushback.",
+            "Even then, the manager should confirm the instruction was lawful, clear, job-related, and not tied to a protected issue.",
+            "Public refusal usually raises the seriousness because of disruption and operational impact."
+          ];
+        }
+
+        if (detail === "sleeping") {
+          lesson = [
+            "Sleeping on duty is often treated as serious misconduct, especially in safety-sensitive or customer-facing roles.",
+            "Managers should still document what was observed, by whom, and what the business or safety impact was.",
+            "This is a classic area where weak facts create unnecessary arguments later."
+          ];
+        }
+
+        if (detail === "dishonesty") {
+          lesson = [
+            "Dishonesty and timecard issues are often treated as higher-level conduct because trust is central to employment.",
+            "Managers should preserve records and avoid guessing — facts matter more than suspicion.",
+            "A sloppy dishonesty case can be worse than no dishonesty case at all."
+          ];
+        }
+
+        if (detail === "disrespect") {
+          lesson = [
+            "Managers often overuse words like 'attitude' or 'unprofessional.'",
+            "The stronger approach is to describe what was said or done and why it mattered.",
+            "The goal is to teach standards of conduct, not punish personality."
+          ];
+        }
+
+        return {
+          riskTitle: "Real-world risk",
+          risk,
+          hrTitle: "How HR thinks about this",
+          hr,
+          mistakesTitle: "Common manager mistakes",
+          mistakes,
+          lessonTitle: "Quick teaching moment",
+          lesson
+        };
+      }
+
+      if (state.issueType === "safety") {
+        let lesson = [
+          "Safety issues are rarely just routine discipline issues.",
+          "Managers need to separate unsafe behavior from employees raising safety concerns in good faith.",
+          "Immediate risk control comes first; discipline language comes second."
+        ];
+
+        if (detail === "unsafe") {
+          lesson = [
+            "Unsafe practice can justify high-level review even if no injury occurred.",
+            "The teaching point is that risk prevention matters before waiting for actual harm.",
+            "Managers should ask whether the employee violated a rule or was actually refusing unsafe work."
+          ];
+        }
+
+        if (detail === "violence" || detail === "weapons" || detail === "substance") {
+          lesson = [
+            "Threats, violence, weapons, and impairment issues usually require immediate escalation, not a normal manager write-up conversation.",
+            "This is where evidence preservation, witness information, and controlled response matter most.",
+            "Managers should understand that delay can become its own failure."
+          ];
+        }
+
+        return {
+          riskTitle: "Real-world risk",
+          risk: [
+            "Safety complaints and safety-related refusals can create retaliation risk if a manager treats them as attitude or disobedience without first evaluating the context.",
+            "Ignoring or downplaying a safety issue can create bigger liability if something happens later.",
+            "Managers create avoidable risk when they do not escalate or document safety concerns promptly."
+          ],
+          hrTitle: "How HR thinks about this",
+          hr: [
+            "HR focuses first on immediate safety, then facts, then whether the employee was reporting a hazard, refusing unsafe work, or violating a safety rule.",
+            "HR will usually want quick escalation, witness details, evidence, and policy alignment.",
+            "Safety cases are often about risk control as much as discipline."
+          ],
+          mistakesTitle: "Common manager mistakes",
+          mistakes: [
+            "Treating a safety concern like a personality issue.",
+            "Failing to escalate quickly.",
+            "Not documenting what the hazard was, who observed it, and what action was taken."
+          ],
+          lessonTitle: "Quick teaching moment",
+          lesson
+        };
+      }
+
+      return {
+        riskTitle: "Real-world risk",
+        risk: [
+          "Most HR problems get harder when facts are unclear, documentation is weak, or discipline is inconsistent.",
+          "Managers can create risk by moving too fast, using vague labels, or treating similar situations differently.",
+          "Even lower-risk issues should be handled consistently and professionally."
+        ],
+        hrTitle: "How HR thinks about this",
+        hr: [
+          "HR usually starts with facts, pattern, consistency, and business impact.",
+          "They want to know whether expectations were clear and whether the company has handled similar cases the same way.",
+          "A technically correct outcome can still be weakened by poor process."
+        ],
+        mistakesTitle: "Common manager mistakes",
+        mistakes: [
+          "Acting on frustration instead of facts.",
+          "Skipping documentation.",
+          "Failing to think ahead about consistency and business impact."
+        ],
+        lessonTitle: "Quick teaching moment",
+        lesson: [
+          "A good manager decision is not only about being right — it is about being fair, consistent, and defensible.",
+          "The tool should teach judgment, not just discipline levels.",
+          "Strong process protects both the manager and the organization."
+        ]
+      };
+    }
+
     function start() {
       state.history = ["start"];
       updateProgress(1);
@@ -1097,18 +1339,18 @@
         <div class="step-pill">Risk Check</div>
         <h2 class="question">Any legal or protected stop signs?</h2>
         <p class="helper">
-          If a medical, leave, complaint, retaliation, accommodation, pregnancy, or other protected-risk issue may be involved, pause ordinary discipline and route to HR first.
+          If a medical, leave, complaint, retaliation, accommodation, pregnancy, wage/hour, safety-reporting, or other protected-risk issue may be involved, pause ordinary discipline and route to HR first.
         </p>
 
         <div class="option-grid">
           <button class="option-btn" onclick="selectLegal('yes')">
             <span class="option-title">Yes — possible protected risk</span>
-            <span class="option-sub">Medical issue, leave, disability, complaint, retaliation, pregnancy, or similar concern</span>
+            <span class="option-sub">Medical issue, leave, disability, complaint, retaliation, pregnancy, accommodation, wage/safety concern, or similar issue</span>
           </button>
 
           <button class="option-btn" onclick="selectLegal('no')">
             <span class="option-title">No — no protected risk identified</span>
-            <span class="option-sub">No clear leave, medical, retaliation, complaint, or other stop-sign issue</span>
+            <span class="option-sub">No clear leave, medical, complaint, retaliation, wage/safety, or other stop-sign issue</span>
           </button>
         </div>
 
@@ -1147,7 +1389,27 @@
 
     function selectDetail(value) {
       state.detail = value;
-      showResult();
+      showLeadCaptureBeforeResult();
+    }
+
+    function showLeadCaptureBeforeResult() {
+      state.history = ["showLeadCaptureBeforeResult"];
+      updateProgress(5);
+
+      setView(`
+        <div class="step-pill">See Your Recommendation</div>
+        <h2 class="question">Enter your info before viewing the result</h2>
+        <p class="helper">
+          Submit the form below to view the recommendation, teaching points, and next-step guidance.
+        </p>
+
+        ${leadFormHtml("result")}
+
+        <div class="nav-row">
+          <button class="btn btn-primary" onclick="showResult()">View Recommendation</button>
+          <button class="nav-btn" onclick="restart()">Start Over</button>
+        </div>
+      `);
     }
 
     function showLeadCaptureOnly() {
@@ -1160,12 +1422,34 @@
           Submit the Google form below to request a demo, share feedback, or leave your contact information for follow-up.
         </p>
 
-        ${leadFormHtml()}
+        ${leadFormHtml("demo")}
         ${navRow(false)}
       `);
     }
 
-    function leadFormHtml() {
+    function leadFormHtml(mode = "demo") {
+      const bottomButtons = mode === "result"
+        ? `
+          <div class="nav-row" style="margin-top:16px;">
+            <a class="btn btn-secondary" href="${googleFormDirectUrl}" target="_blank" rel="noopener noreferrer">
+              Open Form in New Tab
+            </a>
+            <button class="btn btn-primary" onclick="showResult()">
+              Continue to Recommendation
+            </button>
+          </div>
+        `
+        : `
+          <div class="nav-row" style="margin-top:16px;">
+            <a class="btn btn-secondary" href="${googleFormDirectUrl}" target="_blank" rel="noopener noreferrer">
+              Open Form in New Tab
+            </a>
+            <button class="btn btn-primary" onclick="restart()">
+              Back to Tool
+            </button>
+          </div>
+        `;
+
       return `
         <div class="panel panel-purple">
           <h4>Demo and feedback form</h4>
@@ -1186,14 +1470,7 @@
             Tip: keep your Google Form short. Best fields are name, email, company, optional phone, and one open comment asking what they would improve.
           </div>
 
-          <div class="nav-row" style="margin-top:16px;">
-            <a class="btn btn-secondary" href="${googleFormDirectUrl}" target="_blank" rel="noopener noreferrer">
-              Open Form in New Tab
-            </a>
-            <button class="btn btn-primary" onclick="restart()">
-              Back to Tool
-            </button>
-          </div>
+          ${bottomButtons}
         </div>
       `;
     }
@@ -1203,6 +1480,7 @@
       const detailMeta = getDetailMeta(state.issueType, state.detail);
       const guidance = getManagerGuidance(recommendation);
       const importantNote = getImportantNote(recommendation);
+      const teaching = getTeachingContent();
 
       setView(`
         <div class="result-card">
@@ -1240,6 +1518,26 @@
           <div class="panel panel-purple">
             <h4>${guidance.title}</h4>
             <ul>${guidance.items.map(item => `<li>${item}</li>`).join("")}</ul>
+          </div>
+
+          <div class="panel panel-red">
+            <h4>${teaching.riskTitle}</h4>
+            <ul>${teaching.risk.map(item => `<li>${item}</li>`).join("")}</ul>
+          </div>
+
+          <div class="panel panel-blue">
+            <h4>${teaching.hrTitle}</h4>
+            <ul>${teaching.hr.map(item => `<li>${item}</li>`).join("")}</ul>
+          </div>
+
+          <div class="panel panel-orange">
+            <h4>${teaching.mistakesTitle}</h4>
+            <ul>${teaching.mistakes.map(item => `<li>${item}</li>`).join("")}</ul>
+          </div>
+
+          <div class="panel panel-purple">
+            <h4>${teaching.lessonTitle}</h4>
+            <ul>${teaching.lesson.map(item => `<li>${item}</li>`).join("")}</ul>
           </div>
 
           <div class="panel panel-red">
@@ -1341,7 +1639,7 @@
           policyArea: protectedPolicyArea(),
           hrReview: "Yes",
           flags: [
-            "Possible overlap with medical, leave, accommodation, pregnancy, retaliation, complaint, or another protected issue.",
+            "Possible overlap with medical, leave, accommodation, pregnancy, retaliation, complaint, wage/hour, safety-reporting, or another protected issue.",
             "Managers should document objective facts only and avoid conclusions or legal assumptions."
           ],
           managerSteps: [
@@ -1397,7 +1695,7 @@
           policyArea: "Attendance / call-in expectations",
           hrReview: "Yes",
           flags: [
-            "Before moving forward, confirm there is no protected leave, medical, or accommodation issue underneath the absence.",
+            "Before moving forward, confirm there is no protected leave, medical, accommodation, injury, or retaliation issue underneath the absence.",
             "Consistency matters — compare how similar attendance cases were handled."
           ],
           managerSteps: [
@@ -1422,7 +1720,7 @@
           hrReview: "Recommended",
           flags: [
             "Repeated attendance issues usually require stronger documentation and consistent application.",
-            "Check for any leave, medical, or accommodation overlap before issuing final-level discipline."
+            "Check for any leave, medical, accommodation, injury, or retaliation overlap before issuing final-level discipline."
           ],
           managerSteps: [
             "Compile prior coaching and written warnings.",
@@ -1465,7 +1763,7 @@
         hrReview: "Not usually, unless additional risk emerges",
         flags: [
           "The purpose of early attendance discipline is to correct behavior and set clear expectations.",
-          "Managers should still ask whether a protected leave or medical issue may be contributing."
+          "Managers should still ask whether a protected leave, medical, injury, or accommodation issue may be contributing."
         ],
         managerSteps: [
           "State the attendance expectation clearly and factually.",
@@ -1533,7 +1831,7 @@
           hrReview: "Not usually, unless additional risk emerges",
           flags: [
             "The goal is to document performance expectations and the need for improvement.",
-            "Specific examples matter more than general statements like “bad attitude” or “not a fit.”"
+            "Specific examples matter more than general statements like 'bad attitude' or 'not a fit.'"
           ],
           managerSteps: [
             "List the performance issues, examples, and dates.",
@@ -1556,7 +1854,7 @@
         ],
         managerSteps: [
           "State the performance issue factually with examples.",
-          "Clarify what “good” looks like going forward.",
+          "Clarify what 'good' looks like going forward.",
           "Document the conversation and expected improvement."
         ]
       });
@@ -1614,7 +1912,7 @@
               hrReview: "Recommended",
               flags: [
                 "Direct refusal is stronger than simple pushback or tone issues.",
-                "Confirm there is no safety, leave, medical, or complaint issue underneath the refusal."
+                "Confirm there is no safety, leave, medical, complaint, or protected-activity issue underneath the refusal."
               ],
               managerSteps: [
                 "Document the instruction given, the refusal, and any business impact.",
@@ -1730,7 +2028,7 @@
               policyArea: "Standards of conduct",
               hrReview: "Not usually, unless risk emerges",
               flags: [
-                "Managers should focus on specific words or conduct, not labels like “bad attitude.”",
+                "Managers should focus on specific words or conduct, not labels like 'bad attitude.'",
                 "Consistency matters when comparing similar tone or professionalism issues."
               ],
               managerSteps: [
@@ -1852,7 +2150,7 @@
           hrReview: "Yes",
           flags: [
             "Safety issues can justify skipping lower steps depending on the facts.",
-            "Preserve evidence and confirm whether any protected safety complaint or reporting activity is involved."
+            "Preserve evidence and confirm whether any protected safety complaint, reporting activity, or unsafe-work refusal is involved."
           ],
           managerSteps: [
             "Address immediate safety concerns first.",
@@ -1871,7 +2169,7 @@
           policyArea: "Safety / workplace conduct",
           hrReview: "Recommended",
           flags: [
-            "Safety issues can overlap with protected safety complaints, so context matters.",
+            "Safety issues can overlap with protected safety complaints or unsafe-work refusal, so context matters.",
             "Documentation should focus on the actual unsafe act and risk created."
           ],
           managerSteps: [
