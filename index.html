@@ -3,9 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script 
-    src="https://www.paypal.com/sdk/js?client-id=BAAMrmevl_FrgCaU8iLXHsVTxsLSvtGsL2Y2vh_rpcYhkmZ52NoKkXGjIfc4ETMJcEm9F5A0bPu50tn8_Q&components=hosted-buttons&enable-funding=venmo&currency=USD">
-  </script>
   <title>HR Decision Tree Demo</title>
   <style>
     :root {
@@ -524,80 +521,106 @@
     }
 
 
-    .premium-lock {
+    .value-section {
+      margin: 0 0 24px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      padding: 24px;
+    }
+
+    .value-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .value-list {
+      margin: 14px 0 0;
+      padding-left: 18px;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .value-list li { margin-bottom: 8px; }
+
+    .value-card {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--border);
       border-radius: 18px;
-      padding: 20px;
+      padding: 18px;
+      color: var(--text);
+    }
+
+    .value-price {
+      font-size: 2rem;
+      font-weight: 800;
+      margin: 10px 0 6px;
+      color: #fff;
+    }
+
+    .value-muted {
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .premium-callout {
+      border-radius: 18px;
+      padding: 18px;
       border: 1px solid #d8b4fe;
       background: linear-gradient(180deg, #faf5ff, #ffffff);
     }
 
-    .premium-lock h4 {
+    .premium-callout h4 {
       margin: 0 0 10px;
-      font-size: 1.08rem;
+      font-size: 1.12rem;
     }
 
-    .premium-lock ul {
+    .premium-teaser {
+      border-radius: 18px;
+      padding: 18px;
+      border: 1px dashed #c4b5fd;
+      background: #faf5ff;
+    }
+
+    .premium-teaser ul {
       margin: 0;
       padding-left: 18px;
       color: #374151;
       line-height: 1.6;
     }
 
-    .premium-price {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 9px 12px;
-      border-radius: 999px;
-      background: #111827;
-      color: #fff;
-      font-size: 0.88rem;
-      font-weight: 800;
-      margin-bottom: 12px;
-    }
-
-    .owner-note {
-      font-size: 0.88rem;
+    .premium-note {
+      font-size: 0.92rem;
       color: #6b7280;
+      line-height: 1.6;
       margin-top: 10px;
-      line-height: 1.5;
     }
 
-    .paywall-preview {
-      position: relative;
-      overflow: hidden;
+    .paypal-wrap {
+      margin-top: 16px;
+      padding: 16px;
       border-radius: 16px;
       border: 1px solid #e5e7eb;
       background: #fff;
-      padding: 16px;
     }
 
-    .paywall-preview::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to bottom, rgba(255,255,255,0.35), rgba(255,255,255,0.92));
-      pointer-events: none;
-    }
-
-    .paywall-preview ul {
-      filter: blur(2px);
-      user-select: none;
-      margin: 0;
-      padding-left: 18px;
-      color: #374151;
-      line-height: 1.6;
-    }
-
-    .section-kicker {
-      font-size: 0.82rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #6d28d9;
+    .owner-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
       font-weight: 800;
-      margin-bottom: 8px;
+      color: #065f46;
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      padding: 8px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
     }
-
 
     @media print {
       body {
@@ -656,7 +679,8 @@
       }
 
       .option-grid,
-      .mini-grid {
+      .mini-grid,
+      .value-grid {
         grid-template-columns: 1fr;
       }
 
@@ -676,6 +700,9 @@
       }
     }
   </style>
+  <script 
+  src="https://www.paypal.com/sdk/js?client-id=BAAMrmevl_FrgCaU8iLXHsVTxsLSvtGsL2Y2vh_rpcYhkmZ52NoKkXGjIfc4ETMJcEm9F5A0bPu50tn8_Q&components=hosted-buttons&enable-funding=venmo&currency=USD">
+</script>
 </head>
 <body>
   <div class="shell">
@@ -690,7 +717,7 @@
         <div class="hero-cta-row">
           <button class="btn btn-primary" onclick="jumpToTool()">Try the Demo</button>
           <button class="btn btn-secondary" onclick="showLeadCaptureOnly()">Request Company Demo</button>
-          <a class="btn btn-secondary" href="#pricingValue">Why Full Access</a>
+          <button class="btn btn-secondary" onclick="scrollToFullAccess()">Why Full Access</button>
         </div>
       </div>
 
@@ -714,16 +741,47 @@
           </div>
           <div class="mini-card">
             <strong>Manager-friendly</strong>
-            <span>Clear recommendations plus practical talking points and next-step guidance.</span>
+            <span>Clear recommendations plus practical talking points.</span>
           </div>
           <div class="mini-card">
             <strong>Teaches judgment</strong>
             <span>Shows where managers can accidentally create retaliation, consistency, or protected-activity risk.</span>
           </div>
-          <div class="mini-card" id="pricingValue">
-            <strong>Full access = $9.99/month</strong>
-            <span>Positioned as low-cost protection against manager mistakes that can waste HR time and create expensive employee-relations problems.</span>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="value-section" id="fullAccessInfo">
+      <div class="value-grid">
+        <div>
+          <div class="eyebrow">Full Access</div>
+          <h2 style="margin:0 0 10px; font-size:clamp(1.8rem, 3vw, 2.6rem); line-height:1.1;">$9.99/month to help prevent manager mistakes that can cost far more later.</h2>
+          <p class="value-muted">
+            The demo shows the direction. Full access is positioned as low-cost protection against avoidable manager errors that can waste HR time,
+            create expensive employee-relations problems, and increase legal risk.
+          </p>
+          <ul class="value-list">
+            <li>Exact scripts for what managers should say</li>
+            <li>What not to say in high-risk conversations</li>
+            <li>HR risk warnings, nuance alerts, and stop-sign guidance</li>
+            <li>Documentation guidance that helps build cleaner cases</li>
+          </ul>
+        </div>
+
+        <div class="value-card">
+          <h3 style="margin:0 0 6px; font-size:1.25rem;">Unlock Full Access</h3>
+          <div class="value-price">$9.99<span style="font-size:1rem; font-weight:700;">/month</span></div>
+          <p class="value-muted" style="margin:0 0 14px;">
+            Most HR issues do not go bad because the initial concern was impossible to understand.
+            They go bad because the manager handled the conversation poorly.
+          </p>
+          <div class="paypal-wrap">
+            <div id="paypal-container-top"></div>
           </div>
+          <p class="premium-note">
+            Testing phase: simple self-serve payment now, deeper access automation later.
+          </p>
         </div>
       </div>
     </section>
@@ -793,6 +851,8 @@
 
     const googleFormEmbedUrl = "https://docs.google.com/forms/d/e/1FAIpQLScLJvO8W5KZ14_GoWXgK6otWdNMSebymZLu52qyvtpnmQRL7A/viewform?embedded=true";
     const googleFormDirectUrl = "https://docs.google.com/forms/d/e/1FAIpQLScLJvO8W5KZ14_GoWXgK6otWdNMSebymZLu52qyvtpnmQRL7A/viewform";
+
+    const ownerUnlocked = window.location.search.includes("unlock=true");
 
     const issueDetails = {
       attendance: [
@@ -894,6 +954,42 @@
     function jumpToTool() {
       document.getElementById("toolArea").scrollIntoView({ behavior: "smooth", block: "start" });
       start();
+    }
+
+    function scrollToFullAccess() {
+      const el = document.getElementById("fullAccessInfo");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+
+    function scrollToToolTop() {
+      const el = document.getElementById("toolArea");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }
+
+    function renderPayPalButtons() {
+      if (typeof paypal === "undefined" || !paypal.HostedButtons) return;
+
+      const topContainer = document.getElementById("paypal-container-top");
+      if (topContainer && !topContainer.dataset.rendered) {
+        topContainer.dataset.rendered = "true";
+        paypal.HostedButtons({
+          hostedButtonId: "66QB7WW97S7ZC",
+        }).render("#paypal-container-top");
+      }
+
+      const resultContainer = document.getElementById("paypal-container-result");
+      if (resultContainer && !resultContainer.dataset.rendered) {
+        resultContainer.dataset.rendered = "true";
+        paypal.HostedButtons({
+          hostedButtonId: "66QB7WW97S7ZC",
+        }).render("#paypal-container-result");
+      }
     }
 
     function getIssueLabel(key) {
@@ -1841,7 +1937,6 @@ We’ll document this and follow up appropriately.`;
 
         ${navRow(false)}
       `);
-      setTimeout(scrollToToolTop, 0);
     }
 
     function issueOption(value, title, sub) {
@@ -1982,7 +2077,7 @@ We’ll document this and follow up appropriately.`;
 
     function selectDetail(value) {
       state.detail = value;
-      showLeadCaptureBeforeResult();
+      showResult();
     }
 
     function showLeadCaptureBeforeResult() {
@@ -1993,7 +2088,7 @@ We’ll document this and follow up appropriately.`;
         <div class="step-pill">See Your Recommendation</div>
         <h2 class="question">Enter your info before viewing the result</h2>
         <p class="helper">
-          Submit the form below to view the demo recommendation and next-step guidance.
+          Submit the form below to view the recommendation, teaching points, scripts, and next-step guidance.
         </p>
 
         ${leadFormHtml("result")}
@@ -2003,7 +2098,6 @@ We’ll document this and follow up appropriately.`;
           <button class="nav-btn" onclick="restart()">Start Over</button>
         </div>
       `);
-      setTimeout(scrollToToolTop, 0);
     }
 
     function showLeadCaptureOnly() {
@@ -2019,7 +2113,6 @@ We’ll document this and follow up appropriately.`;
         ${leadFormHtml("demo")}
         ${navRow(false)}
       `);
-      setTimeout(scrollToToolTop, 0);
     }
 
     function leadFormHtml(mode = "demo") {
@@ -2070,77 +2163,6 @@ We’ll document this and follow up appropriately.`;
       `;
     }
 
-
-    function isOwnerUnlocked() {
-      const params = new URLSearchParams(window.location.search);
-      return params.get("unlock") === "true";
-    }
-
-    function scrollToToolTop() {
-      const el = document.getElementById("toolArea");
-      if (!el) return;
-      window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 12, behavior: "smooth" });
-    }
-
-    function renderPaypalButtonIfPresent() {
-      const containerId = "paypal-container-66QB7WW97S7ZC";
-      const el = document.getElementById(containerId);
-      if (!el || el.dataset.rendered === "yes" || !window.paypal || !paypal.HostedButtons) return;
-      el.dataset.rendered = "yes";
-      paypal.HostedButtons({
-        hostedButtonId: "66QB7WW97S7ZC",
-      }).render("#" + containerId);
-    }
-
-    function getUpgradeHtml() {
-      if (isOwnerUnlocked()) {
-        return `
-          <div class="panel panel-blue">
-            <h4>Owner preview active</h4>
-            <p class="small-note" style="margin-top:0;">
-              You are viewing the full-access version through your owner preview link. Anyone using the normal public page will see the demo version and the upgrade section instead.
-            </p>
-          </div>
-        `;
-      }
-
-      return `
-        <div class="premium-lock">
-          <div class="premium-price">$9.99 / month</div>
-          <div class="section-kicker">Unlock full access</div>
-          <h4>Get the full manager version</h4>
-          <p class="small-note" style="margin-top:0;">
-            The demo gives the direction. Full access is positioned as the practical tool that helps prevent manager mistakes that can waste HR time and lead to costly employee-relations or legal problems.
-          </p>
-
-          <ul>
-            <li>Exact scripts managers can use in difficult conversations</li>
-            <li>What not to say to avoid making the issue worse</li>
-            <li>Documentation guidance and pattern checks</li>
-            <li>Risk warnings, nuance alerts, and deeper coaching content</li>
-          </ul>
-
-          <div class="paywall-preview" style="margin-top:14px;">
-            <div class="section-kicker">Premium preview</div>
-            <ul>
-              <li>Premium scripts tailored to the issue type</li>
-              <li>Deeper risk language and legal-sensitive stop signs</li>
-              <li>Manager execution guidance meant to prevent expensive mistakes</li>
-            </ul>
-          </div>
-
-          <div style="margin-top:16px;">
-            <div id="paypal-container-66QB7WW97S7ZC"></div>
-          </div>
-
-          <div class="owner-note">
-            Owner preview shortcut: add <strong>?unlock=true</strong> to the end of your page URL to view the full-access version without paying.
-          </div>
-        </div>
-      `;
-    }
-
-
     function copyText(text) {
       if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(text).then(() => {
@@ -2170,36 +2192,24 @@ We’ll document this and follow up appropriately.`;
       document.body.removeChild(textarea);
     }
 
+
     function showResult() {
       const recommendation = getRecommendation();
       const detailMeta = getDetailMeta(state.issueType, state.detail);
       const guidance = getManagerGuidance(recommendation);
       const importantNote = getImportantNote(recommendation);
+      const teaching = getTeachingContent();
       const confidence = getConfidenceLevel(recommendation);
+      const stopSign = getStopSignContent(recommendation);
+      const consequences = getConsequenceSnapshot(recommendation);
+      const nuance = getNuanceAlert();
+      const documentation = getDocumentationItems();
+      const patternCheck = getPatternCheck(recommendation);
+      const script = getManagerScript(recommendation);
+      const avoidSaying = getAvoidSaying(recommendation);
 
-      const isUnlocked = isOwnerUnlocked();
-
-      let premiumHtml = "";
-      if (isUnlocked) {
-        const teaching = getTeachingContent();
-        const stopSign = getStopSignContent(recommendation);
-        const consequences = getConsequenceSnapshot(recommendation);
-        const nuance = getNuanceAlert();
-        const documentation = getDocumentationItems();
-        const patternCheck = getPatternCheck(recommendation);
-        const script = getManagerScript(recommendation);
-        const avoidSaying = getAvoidSaying(recommendation);
-
-        premiumHtml = `
-          <div class="panel panel-red">
-            <h4>Stop here before acting</h4>
-            <ul>${stopSign.map(item => `<li>${item}</li>`).join("")}</ul>
-          </div>
-
-          <div class="panel panel-purple">
-            <h4>${guidance.title}</h4>
-            <ul>${guidance.items.map(item => `<li>${item}</li>`).join("")}</ul>
-          </div>
+      const premiumHtml = ownerUnlocked ? `
+          <div class="owner-badge">Owner preview / full-access view enabled</div>
 
           <div class="panel panel-red">
             <h4>${teaching.riskTitle}</h4>
@@ -2253,15 +2263,42 @@ We’ll document this and follow up appropriately.`;
             <h4>Avoid saying</h4>
             <ul>${avoidSaying.map(item => `<li>${item}</li>`).join("")}</ul>
           </div>
-        `;
-      } else {
-        premiumHtml = getUpgradeHtml();
-      }
+      ` : `
+          <div class="premium-callout">
+            <h4>Demo result shown. Unlock Full Access for the deeper manager-protection layer.</h4>
+            <p class="premium-note" style="margin-top:0;">
+              This $9.99/month version is positioned as low-cost protection against manager mistakes that can waste HR time,
+              create expensive employee-relations problems, and increase legal risk.
+            </p>
+
+            <div class="premium-teaser">
+              <ul>
+                <li>Exact scripts managers can use in difficult conversations</li>
+                <li>What not to say when risk is high</li>
+                <li>Real-world risk and consequence snapshots</li>
+                <li>Documentation guidance and nuance alerts</li>
+              </ul>
+            </div>
+
+            <div class="paypal-wrap">
+              <div id="paypal-container-result"></div>
+            </div>
+
+            <div class="panel panel-purple" style="margin-top:16px;">
+              <h4>Not ready yet? Leave your email for updates and sample guidance.</h4>
+              <p class="premium-note" style="margin-top:0;">
+                Use this if you want updates or want me to follow up later. The demo result above is still visible without giving your email.
+              </p>
+              ${leadFormHtml("demo")}
+            </div>
+          </div>
+      `;
 
       setView(`
         <div class="result-card">
           <div class="result-head">
             <div class="badge-row">
+              <span class="badge badge-gray">Demo Result</span>
               ${recommendation.levelBadge}
               <span class="badge badge-blue">${getIssueLabel(state.issueType)}</span>
               <span class="badge badge-purple">${detailMeta[1]}</span>
@@ -2275,8 +2312,13 @@ We’ll document this and follow up appropriately.`;
             </div>
           </div>
 
+          <div class="panel panel-red">
+            <h4>Stop here before acting</h4>
+            <ul>${stopSign.map(item => `<li>${item}</li>`).join("")}</ul>
+          </div>
+
           <div class="panel panel-blue">
-            <h4>Demo result</h4>
+            <h4>How HR views this</h4>
             <ul>
               <li>${recommendation.primaryAction}</li>
               <li>Policy area potentially involved: <strong>${recommendation.policyArea}</strong></li>
@@ -2292,8 +2334,13 @@ We’ll document this and follow up appropriately.`;
           ` : ""}
 
           <div class="panel panel-orange">
-            <h4>What the manager should do next</h4>
+            <h4>What the manager should do</h4>
             <ul>${recommendation.managerSteps.map(s => `<li>${s}</li>`).join("")}</ul>
+          </div>
+
+          <div class="panel panel-purple">
+            <h4>${guidance.title}</h4>
+            <ul>${guidance.items.map(item => `<li>${item}</li>`).join("")}</ul>
           </div>
 
           ${premiumHtml}
@@ -2306,13 +2353,13 @@ We’ll document this and follow up appropriately.`;
           <div class="panel">
             <h4>Want this for your managers?</h4>
             <p class="small-note" style="margin-top:0;">
-              Request a company demo, share feedback, or leave your contact info so I can follow up.
+              Use the paid full-access version for individual use, or request a company demo if you want broader team rollout.
             </p>
 
             <div class="result-actions">
               <button class="btn btn-light" onclick="window.print()">Print / Save as PDF</button>
-              <button class="btn btn-primary" onclick="showLeadCaptureOnly()">Request Company Demo</button>
-              <a class="btn btn-secondary" href="${googleFormDirectUrl}" target="_blank" rel="noopener noreferrer">Give Feedback</a>
+              <button class="btn btn-primary" onclick="scrollToFullAccess()">See Full Access Pricing</button>
+              <button class="btn btn-secondary" onclick="showLeadCaptureOnly()">Request Company Demo</button>
             </div>
           </div>
 
@@ -2322,10 +2369,8 @@ We’ll document this and follow up appropriately.`;
         </div>
       `);
 
-      setTimeout(() => {
-        scrollToToolTop();
-        renderPaypalButtonIfPresent();
-      }, 0);
+      scrollToToolTop();
+      renderPayPalButtons();
     }
 
     function recommendationBase({
@@ -2982,6 +3027,7 @@ We’ll document this and follow up appropriately.`;
     }
 
     start();
+    renderPayPalButtons();
   </script>
 </body>
 </html>
