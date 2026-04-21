@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script 
+    src="https://www.paypal.com/sdk/js?client-id=BAAMrmevl_FrgCaU8iLXHsVTxsLSvtGsL2Y2vh_rpcYhkmZ52NoKkXGjIfc4ETMJcEm9F5A0bPu50tn8_Q&components=hosted-buttons&enable-funding=venmo&currency=USD">
+  </script>
   <title>HR Decision Tree Demo</title>
   <style>
     :root {
@@ -520,6 +523,82 @@
       margin-top: 10px;
     }
 
+
+    .premium-lock {
+      border-radius: 18px;
+      padding: 20px;
+      border: 1px solid #d8b4fe;
+      background: linear-gradient(180deg, #faf5ff, #ffffff);
+    }
+
+    .premium-lock h4 {
+      margin: 0 0 10px;
+      font-size: 1.08rem;
+    }
+
+    .premium-lock ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #374151;
+      line-height: 1.6;
+    }
+
+    .premium-price {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: #111827;
+      color: #fff;
+      font-size: 0.88rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .owner-note {
+      font-size: 0.88rem;
+      color: #6b7280;
+      margin-top: 10px;
+      line-height: 1.5;
+    }
+
+    .paywall-preview {
+      position: relative;
+      overflow: hidden;
+      border-radius: 16px;
+      border: 1px solid #e5e7eb;
+      background: #fff;
+      padding: 16px;
+    }
+
+    .paywall-preview::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.35), rgba(255,255,255,0.92));
+      pointer-events: none;
+    }
+
+    .paywall-preview ul {
+      filter: blur(2px);
+      user-select: none;
+      margin: 0;
+      padding-left: 18px;
+      color: #374151;
+      line-height: 1.6;
+    }
+
+    .section-kicker {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #6d28d9;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+
     @media print {
       body {
         background: #fff;
@@ -611,6 +690,7 @@
         <div class="hero-cta-row">
           <button class="btn btn-primary" onclick="jumpToTool()">Try the Demo</button>
           <button class="btn btn-secondary" onclick="showLeadCaptureOnly()">Request Company Demo</button>
+          <a class="btn btn-secondary" href="#pricingValue">Why Full Access</a>
         </div>
       </div>
 
@@ -634,11 +714,15 @@
           </div>
           <div class="mini-card">
             <strong>Manager-friendly</strong>
-            <span>Clear recommendations plus practical talking points.</span>
+            <span>Clear recommendations plus practical talking points and next-step guidance.</span>
           </div>
           <div class="mini-card">
             <strong>Teaches judgment</strong>
             <span>Shows where managers can accidentally create retaliation, consistency, or protected-activity risk.</span>
+          </div>
+          <div class="mini-card" id="pricingValue">
+            <strong>Full access = $9.99/month</strong>
+            <span>Positioned as low-cost protection against manager mistakes that can waste HR time and create expensive employee-relations problems.</span>
           </div>
         </div>
       </div>
@@ -1757,6 +1841,7 @@ We’ll document this and follow up appropriately.`;
 
         ${navRow(false)}
       `);
+      setTimeout(scrollToToolTop, 0);
     }
 
     function issueOption(value, title, sub) {
@@ -1908,7 +1993,7 @@ We’ll document this and follow up appropriately.`;
         <div class="step-pill">See Your Recommendation</div>
         <h2 class="question">Enter your info before viewing the result</h2>
         <p class="helper">
-          Submit the form below to view the recommendation, teaching points, scripts, and next-step guidance.
+          Submit the form below to view the demo recommendation and next-step guidance.
         </p>
 
         ${leadFormHtml("result")}
@@ -1918,6 +2003,7 @@ We’ll document this and follow up appropriately.`;
           <button class="nav-btn" onclick="restart()">Start Over</button>
         </div>
       `);
+      setTimeout(scrollToToolTop, 0);
     }
 
     function showLeadCaptureOnly() {
@@ -1933,6 +2019,7 @@ We’ll document this and follow up appropriately.`;
         ${leadFormHtml("demo")}
         ${navRow(false)}
       `);
+      setTimeout(scrollToToolTop, 0);
     }
 
     function leadFormHtml(mode = "demo") {
@@ -1983,6 +2070,77 @@ We’ll document this and follow up appropriately.`;
       `;
     }
 
+
+    function isOwnerUnlocked() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("unlock") === "true";
+    }
+
+    function scrollToToolTop() {
+      const el = document.getElementById("toolArea");
+      if (!el) return;
+      window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 12, behavior: "smooth" });
+    }
+
+    function renderPaypalButtonIfPresent() {
+      const containerId = "paypal-container-66QB7WW97S7ZC";
+      const el = document.getElementById(containerId);
+      if (!el || el.dataset.rendered === "yes" || !window.paypal || !paypal.HostedButtons) return;
+      el.dataset.rendered = "yes";
+      paypal.HostedButtons({
+        hostedButtonId: "66QB7WW97S7ZC",
+      }).render("#" + containerId);
+    }
+
+    function getUpgradeHtml() {
+      if (isOwnerUnlocked()) {
+        return `
+          <div class="panel panel-blue">
+            <h4>Owner preview active</h4>
+            <p class="small-note" style="margin-top:0;">
+              You are viewing the full-access version through your owner preview link. Anyone using the normal public page will see the demo version and the upgrade section instead.
+            </p>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="premium-lock">
+          <div class="premium-price">$9.99 / month</div>
+          <div class="section-kicker">Unlock full access</div>
+          <h4>Get the full manager version</h4>
+          <p class="small-note" style="margin-top:0;">
+            The demo gives the direction. Full access is positioned as the practical tool that helps prevent manager mistakes that can waste HR time and lead to costly employee-relations or legal problems.
+          </p>
+
+          <ul>
+            <li>Exact scripts managers can use in difficult conversations</li>
+            <li>What not to say to avoid making the issue worse</li>
+            <li>Documentation guidance and pattern checks</li>
+            <li>Risk warnings, nuance alerts, and deeper coaching content</li>
+          </ul>
+
+          <div class="paywall-preview" style="margin-top:14px;">
+            <div class="section-kicker">Premium preview</div>
+            <ul>
+              <li>Premium scripts tailored to the issue type</li>
+              <li>Deeper risk language and legal-sensitive stop signs</li>
+              <li>Manager execution guidance meant to prevent expensive mistakes</li>
+            </ul>
+          </div>
+
+          <div style="margin-top:16px;">
+            <div id="paypal-container-66QB7WW97S7ZC"></div>
+          </div>
+
+          <div class="owner-note">
+            Owner preview shortcut: add <strong>?unlock=true</strong> to the end of your page URL to view the full-access version without paying.
+          </div>
+        </div>
+      `;
+    }
+
+
     function copyText(text) {
       if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(text).then(() => {
@@ -2017,57 +2175,25 @@ We’ll document this and follow up appropriately.`;
       const detailMeta = getDetailMeta(state.issueType, state.detail);
       const guidance = getManagerGuidance(recommendation);
       const importantNote = getImportantNote(recommendation);
-      const teaching = getTeachingContent();
       const confidence = getConfidenceLevel(recommendation);
-      const stopSign = getStopSignContent(recommendation);
-      const consequences = getConsequenceSnapshot(recommendation);
-      const nuance = getNuanceAlert();
-      const documentation = getDocumentationItems();
-      const patternCheck = getPatternCheck(recommendation);
-      const script = getManagerScript(recommendation);
-      const avoidSaying = getAvoidSaying(recommendation);
 
-      setView(`
-        <div class="result-card">
-          <div class="result-head">
-            <div class="badge-row">
-              ${recommendation.levelBadge}
-              <span class="badge badge-blue">${getIssueLabel(state.issueType)}</span>
-              <span class="badge badge-purple">${detailMeta[1]}</span>
-            </div>
-            <h3>${recommendation.title}</h3>
-            <p>${recommendation.summary}</p>
+      const isUnlocked = isOwnerUnlocked();
 
-            <div class="confidence-wrap">
-              <span class="badge ${confidence.colorClass}">${confidence.label}</span>
-              <span class="badge badge-gray">${confidence.text}</span>
-            </div>
-          </div>
+      let premiumHtml = "";
+      if (isUnlocked) {
+        const teaching = getTeachingContent();
+        const stopSign = getStopSignContent(recommendation);
+        const consequences = getConsequenceSnapshot(recommendation);
+        const nuance = getNuanceAlert();
+        const documentation = getDocumentationItems();
+        const patternCheck = getPatternCheck(recommendation);
+        const script = getManagerScript(recommendation);
+        const avoidSaying = getAvoidSaying(recommendation);
 
+        premiumHtml = `
           <div class="panel panel-red">
             <h4>Stop here before acting</h4>
             <ul>${stopSign.map(item => `<li>${item}</li>`).join("")}</ul>
-          </div>
-
-          <div class="panel panel-blue">
-            <h4>How HR views this</h4>
-            <ul>
-              <li>${recommendation.primaryAction}</li>
-              <li>Policy area potentially involved: <strong>${recommendation.policyArea}</strong></li>
-              <li>HR review needed: <strong>${recommendation.hrReview}</strong></li>
-            </ul>
-          </div>
-
-          ${recommendation.flags.length ? `
-            <div class="panel panel-red">
-              <h4>Why this matters</h4>
-              <ul>${recommendation.flags.map(f => `<li>${f}</li>`).join("")}</ul>
-            </div>
-          ` : ""}
-
-          <div class="panel panel-orange">
-            <h4>What the manager should do</h4>
-            <ul>${recommendation.managerSteps.map(s => `<li>${s}</li>`).join("")}</ul>
           </div>
 
           <div class="panel panel-purple">
@@ -2127,6 +2253,50 @@ We’ll document this and follow up appropriately.`;
             <h4>Avoid saying</h4>
             <ul>${avoidSaying.map(item => `<li>${item}</li>`).join("")}</ul>
           </div>
+        `;
+      } else {
+        premiumHtml = getUpgradeHtml();
+      }
+
+      setView(`
+        <div class="result-card">
+          <div class="result-head">
+            <div class="badge-row">
+              ${recommendation.levelBadge}
+              <span class="badge badge-blue">${getIssueLabel(state.issueType)}</span>
+              <span class="badge badge-purple">${detailMeta[1]}</span>
+            </div>
+            <h3>${recommendation.title}</h3>
+            <p>${recommendation.summary}</p>
+
+            <div class="confidence-wrap">
+              <span class="badge ${confidence.colorClass}">${confidence.label}</span>
+              <span class="badge badge-gray">${confidence.text}</span>
+            </div>
+          </div>
+
+          <div class="panel panel-blue">
+            <h4>Demo result</h4>
+            <ul>
+              <li>${recommendation.primaryAction}</li>
+              <li>Policy area potentially involved: <strong>${recommendation.policyArea}</strong></li>
+              <li>HR review needed: <strong>${recommendation.hrReview}</strong></li>
+            </ul>
+          </div>
+
+          ${recommendation.flags.length ? `
+            <div class="panel panel-red">
+              <h4>Why this matters</h4>
+              <ul>${recommendation.flags.map(f => `<li>${f}</li>`).join("")}</ul>
+            </div>
+          ` : ""}
+
+          <div class="panel panel-orange">
+            <h4>What the manager should do next</h4>
+            <ul>${recommendation.managerSteps.map(s => `<li>${s}</li>`).join("")}</ul>
+          </div>
+
+          ${premiumHtml}
 
           <div class="panel panel-red">
             <h4>Important note</h4>
@@ -2151,6 +2321,11 @@ We’ll document this and follow up appropriately.`;
           </div>
         </div>
       `);
+
+      setTimeout(() => {
+        scrollToToolTop();
+        renderPaypalButtonIfPresent();
+      }, 0);
     }
 
     function recommendationBase({
