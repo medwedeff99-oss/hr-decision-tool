@@ -777,7 +777,7 @@
           </div>
           <div class="mini-card">
             <strong>Manager-friendly</strong>
-            <span>Clear recommendations plus practical talking points.</span>
+            <span>Clear recommendations with a stronger paid manager-guidance layer.</span>
           </div>
           <div class="mini-card">
             <strong>Teaches judgment</strong>
@@ -850,7 +850,7 @@
         <ul class="side-list">
           <li>Reduce inconsistency across managers and departments</li>
           <li>Catch leave, complaint, retaliation, and protected-risk issues earlier</li>
-          <li>Give managers better scripts, documentation guidance, and stop-signs before they act</li>
+          <li>Give managers a cleaner decision path and paid upgrade for scripts, documentation guidance, and stop-signs</li>
         </ul>
 
         <div style="margin-top:18px;">
@@ -1081,735 +1081,372 @@
       return "review";
     }
 
-    function getConfidenceLevel(recommendation) {
+
+    function getRiskLevel(recommendation) {
       if (state.issueType === "protected" || state.issueType === "complaint" || state.legal === "yes") {
         return {
-          label: "Low confidence for manager-only action",
+          label: "High risk — talk to HR first",
           colorClass: "badge-red",
-          text: "This is not a routine manager-only call. HR review should happen before action."
+          text: "Do not treat this like a normal manager write-up."
+        };
+      }
+
+      if (state.issueType === "safety") {
+        return {
+          label: recommendation.hrReview === "Yes" ? "High risk — escalate fast" : "Medium to high risk",
+          colorClass: recommendation.hrReview === "Yes" ? "badge-red" : "badge-orange",
+          text: "Handle safety first, then decide next steps."
         };
       }
 
       if (recommendation.hrReview === "Yes") {
         return {
-          label: "Low confidence without HR review",
+          label: "High risk — HR should review",
           colorClass: "badge-red",
-          text: "This situation is serious enough that HR should be involved before moving forward."
+          text: "This is not a clean manager-only decision."
         };
       }
 
       if (recommendation.hrReview === "Recommended") {
         return {
-          label: "Medium confidence",
+          label: "Medium risk",
           colorClass: "badge-orange",
-          text: "The direction is fairly clear, but manager judgment alone may not be enough."
+          text: "You may be heading into final warning or termination territory."
         };
       }
 
       return {
-        label: "High confidence",
+        label: "Lower risk",
         colorClass: "badge-green",
-        text: "This is a more standard manager issue if facts are clean and no additional risk emerges."
+        text: "A manager can usually handle this if facts are clean and documented."
       };
     }
 
-    function getStopSignContent(recommendation) {
+    function getActionLine(recommendation) {
       if (state.issueType === "protected" || state.issueType === "complaint" || state.legal === "yes") {
-        return [
-          "Stop here before acting.",
-          "Do not issue discipline, promise outcomes, or make a final call before HR review."
-        ];
+        return "Stop — bring HR in before you act";
       }
 
-      if (state.issueType === "safety") {
-        return [
-          "Stop and address immediate safety first.",
-          "Risk control, witness information, and escalation come before discipline language."
-        ];
-      }
-
-      if (recommendation.hrReview === "Yes") {
-        return [
-          "Stop before final action.",
-          "This is at or near an HR-level decision and should not be handled casually."
-        ];
-      }
-
-      if (recommendation.hrReview === "Recommended") {
-        return [
-          "Pause if facts are weak.",
-          "If documentation, comparators, or protected-risk signals are unclear, involve HR."
-        ];
-      }
-
-      return [
-        "No mandatory stop sign based on current inputs.",
-        "Still pause if new facts, medical issues, complaints, or consistency concerns appear."
-      ];
-    }
-
-    function getManagerGuidance(recommendation) {
       const outcome = getOutcomeKey(recommendation.title);
 
+      if (outcome === "termination") return "Move to termination review with HR";
+      if (outcome === "final_warning") return "Move to final warning review";
+      if (outcome === "written_warning") return "Issue a written warning";
+      if (outcome === "coaching") return "Have a coaching conversation now";
+      if (outcome === "investigation") return "Pause and investigate with HR";
+      if (outcome === "hr_review" || outcome === "immediate_review") return "Stop — escalate for review now";
+      return recommendation.title;
+    }
+
+    function getWhyLine(recommendation) {
       if (state.issueType === "protected" || state.issueType === "complaint" || state.legal === "yes") {
-        return {
-          title: "Manager guidance",
-          items: [
-            "Do not promise outcomes or move straight to discipline before HR review.",
-            "Stick to facts, dates, observations, and business impact only.",
-            "Use a calm, neutral tone and route the matter to HR before taking action."
-          ]
-        };
+        return "Because this may involve a protected issue, complaint, leave, medical issue, or retaliation risk.";
       }
 
       if (state.issueType === "attendance") {
-        if (outcome === "coaching") {
-          return {
-            title: "Manager guidance",
-            items: [
-              "Be direct about the attendance expectation and why it matters operationally.",
-              "Reference dates and facts, not assumptions about effort or attitude.",
-              "End the conversation with a clear expectation for immediate improvement."
-            ]
-          };
-        }
-        if (outcome === "written_warning") {
-          return {
-            title: "Manager guidance",
-            items: [
-              "Walk through the attendance pattern with specific dates and prior conversations.",
-              "State that this has moved beyond informal correction and now requires formal documentation.",
-              "Be clear about the next step if attendance does not improve."
-            ]
-          };
-        }
-        if (outcome === "final_warning") {
-          return {
-            title: "Manager guidance",
-            items: [
-              "Keep the tone serious and clear — this is no longer an early-stage issue.",
-              "Explain that continued attendance problems may result in termination review.",
-              "Make sure the employee understands exactly what must change immediately."
-            ]
-          };
-        }
+        if (getOutcomeKey(recommendation.title) === "coaching") return "Because this looks like an early attendance issue, not yet a final-stage discipline case.";
+        if (getOutcomeKey(recommendation.title) === "written_warning") return "Because the attendance problem appears repeated or already coached.";
+        if (getOutcomeKey(recommendation.title) === "final_warning") return "Because the attendance pattern looks serious enough for stronger formal discipline.";
+        return "Because the attendance issue looks serious, repeated, or close to termination-level review.";
       }
 
       if (state.issueType === "performance") {
-        if (outcome === "coaching") {
-          return {
-            title: "Manager guidance",
-            items: [
-              "Focus on measurable gaps, not vague labels.",
-              "Clarify what success looks like going forward.",
-              "Set a specific follow-up point so the conversation feels actionable."
-            ]
-          };
-        }
-        if (outcome === "written_warning") {
-          return {
-            title: "Manager guidance",
-            items: [
-              "Use examples, dates, and missed expectations to keep the message objective.",
-              "Make clear that prior coaching did not fully resolve the issue.",
-              "Give a concrete performance standard and follow-up timeline."
-            ]
-          };
-        }
-        if (outcome === "final_warning" || outcome === "termination") {
-          return {
-            title: "Manager guidance",
-            items: [
-              "Keep the conversation factual, serious, and tightly tied to documented expectations.",
-              "Avoid emotional language or broad statements like 'not a fit.'",
-              "Coordinate closely with HR before communicating any final-level action."
-            ]
-          };
-        }
+        if (getOutcomeKey(recommendation.title) === "coaching") return "Because the performance issue appears early enough to correct through clear feedback first.";
+        if (getOutcomeKey(recommendation.title) === "written_warning") return "Because expectations appear to have already been discussed and the issue continued.";
+        if (getOutcomeKey(recommendation.title) === "final_warning") return "Because the performance problem looks beyond simple coaching.";
+        return "Because the performance issue looks serious, repeated, or already at a late-stage discipline point.";
       }
 
       if (state.issueType === "conduct") {
-        if (outcome === "coaching") {
-          return {
-            title: "Manager guidance",
-            items: [
-              "Address the conduct directly and explain why it was not acceptable.",
-              "Focus on the specific behavior, not personality.",
-              "Set a clear expectation for how the employee should handle similar situations going forward."
-            ]
-          };
-        }
-        if (outcome === "written_warning") {
-          return {
-            title: "Manager guidance",
-            items: [
-              "Describe exactly what was said or done, with dates and impact.",
-              "Keep your language objective and avoid loaded wording.",
-              "Be clear that repeated conduct issues may move quickly to stronger discipline."
-            ]
-          };
-        }
-        if (outcome === "final_warning") {
-          return {
-            title: "Manager guidance",
-            items: [
-              "Communicate that the behavior is now at a serious corrective-action stage.",
-              "State clearly what must stop immediately.",
-              "Do not improvise — use documentation and HR alignment."
-            ]
-          };
-        }
-        if (outcome === "termination" || outcome === "immediate_review") {
-          return {
-            title: "Manager guidance",
-            items: [
-              "Do not treat this like a routine write-up conversation.",
-              "Preserve facts, witnesses, and evidence before communicating next steps.",
-              "Pause and coordinate the final approach with HR."
-            ]
-          };
-        }
+        if (state.detail === "insubordination_pushback") return "Because this looks more like pushback or poor professionalism than a clean refusal.";
+        if (state.detail === "insubordination_argumentative") return "Because the employee may have complied, but the way they handled it still needs correction.";
+        if (state.detail === "insubordination_refusal") return "Because direct refusal is usually treated more seriously than ordinary pushback.";
+        if (state.detail === "insubordination_public") return "Because public refusal or disruption raises the seriousness fast.";
+        if (state.detail === "sleeping") return "Because sleeping on duty is usually treated as serious misconduct.";
+        if (state.detail === "dishonesty") return "Because honesty and trust issues often move faster than normal discipline.";
+        return "Because this behavior appears serious enough to require corrective action, not just a casual talk.";
       }
 
       if (state.issueType === "safety") {
-        return {
-          title: "Manager guidance",
-          items: [
-            "Address immediate safety first before worrying about discipline language.",
-            "Document what occurred, who saw it, and what risk was created.",
-            "Treat safety conversations with a serious, controlled tone and involve HR quickly."
-          ]
-        };
+        return "Because safety issues can create liability fast if the response is too casual, too slow, or poorly documented.";
       }
 
-      return {
-        title: "Manager guidance",
-        items: [
-          "Approach the conversation professionally and objectively.",
-          "Focus on behavior, facts, and expectations — not personality.",
-          "Be clear, direct, and consistent in your message."
-        ]
-      };
+      return recommendation.summary;
     }
 
-    function getImportantNote(recommendation) {
+    function getBeforeActingItems(recommendation) {
       if (state.issueType === "protected" || state.issueType === "complaint" || state.legal === "yes") {
         return [
-          "This situation may involve protected or legal risk.",
-          "Do not proceed with discipline until HR has reviewed the case.",
-          "Company policy, past practice, and location-specific laws may change the right outcome."
-        ];
-      }
-
-      if (recommendation.hrReview === "Yes" || recommendation.hrReview === "Recommended") {
-        return [
-          "This recommendation is based on the inputs provided.",
-          "Company policy, past practice, and manager consistency may affect the right next step.",
-          "If you are close to final warning or termination, involve HR before moving forward."
-        ];
-      }
-
-      return [
-        "This recommendation is based on the inputs provided.",
-        "Managers should still follow company policy and document the situation consistently.",
-        "Escalate to HR if additional risk or protected issues appear."
-      ];
-    }
-
-    function getTeachingContent() {
-      const detail = state.detail;
-
-      if (state.issueType === "protected" || state.issueType === "complaint" || state.legal === "yes") {
-        return {
-          riskTitle: "Real-world risk",
-          risk: [
-            "This may involve protected activity, a complaint, leave, accommodation, medical privacy, pregnancy, or another legal stop-sign issue.",
-            "Discipline too close to a complaint, leave request, accommodation request, safety concern, or similar issue can look retaliatory.",
-            "Even where the employee may still have performance or conduct issues, moving too fast can create a bigger HR problem than the original issue."
-          ],
-          hrTitle: "How HR thinks about this",
-          hr: [
-            "HR will focus on timing, consistency, past practice, documentation, and whether the employee engaged in protected activity.",
-            "The question is not just 'what happened' — it is 'what risk is created if we act now?'",
-            "HR will want facts first and conclusions later."
-          ],
-          mistakesTitle: "Common manager mistakes",
-          mistakes: [
-            "Moving to discipline before HR review.",
-            "Treating the issue like ordinary insubordination, attendance, or performance without checking for protected overlap.",
-            "Making promises, taking sides, or trying to quietly solve it alone."
-          ],
-          lessonTitle: "Quick teaching moment",
-          lesson: [
-            "A manager can be directionally right about the behavior and still create risk by handling the timing badly.",
-            "Protected activity and bad behavior can overlap — that is exactly why HR should review first.",
-            "When you see complaint, leave, accommodation, retaliation, or safety signals, slow down."
-          ]
-        };
-      }
-
-      if (state.issueType === "attendance") {
-        return {
-          riskTitle: "Real-world risk",
-          risk: [
-            "Attendance cases often look simple, but they can overlap with medical issues, protected leave, accommodation requests, pregnancy, workers’ compensation, or retaliation concerns.",
-            "Managers create risk when they discipline attendance without checking whether there is a protected reason underneath the pattern.",
-            "Inconsistent handling of similar attendance cases weakens the company’s position fast."
-          ],
-          hrTitle: "How HR thinks about this",
-          hr: [
-            "HR looks for pattern, documentation, operational impact, and consistency across employees.",
-            "HR also wants to know whether the employee gave notice, referenced a medical issue, or raised a concern that changes the risk level.",
-            "Attendance is usually progressive, but only after protected-risk issues are ruled out."
-          ],
-          mistakesTitle: "Common manager mistakes",
-          mistakes: [
-            "Jumping to termination too quickly.",
-            "Ignoring possible medical, leave, or accommodation signals.",
-            "Treating a messy record like a clean pattern when the dates and facts are weak."
-          ],
-          lessonTitle: "Quick teaching moment",
-          lesson: [
-            "Attendance is one of the easiest categories to discipline and one of the easiest categories to mishandle.",
-            "If the facts are not clean, the pattern is not really clean either.",
-            "Managers should learn that consistency and documentation matter just as much as the missed shift."
-          ]
-        };
-      }
-
-      if (state.issueType === "performance") {
-        return {
-          riskTitle: "Real-world risk",
-          risk: [
-            "Performance cases often fail because expectations were vague, documentation was weak, or the manager changed the reason later.",
-            "An employee may claim the process was unfair, inconsistent, or a cover for retaliation or discrimination.",
-            "The risk usually increases when the feedback history is unclear or the employee was never given a real chance to improve."
-          ],
-          hrTitle: "How HR thinks about this",
-          hr: [
-            "HR looks for clear expectations, objective examples, support provided, prior coaching, and follow-up timing.",
-            "HR wants measurable gaps, not labels like 'bad attitude' or 'not a fit.'",
-            "A strong performance case usually shows the employee knew the standard and had an opportunity to improve."
-          ],
-          mistakesTitle: "Common manager mistakes",
-          mistakes: [
-            "Using vague language instead of facts and examples.",
-            "Writing someone up after failing to clearly set expectations.",
-            "Giving inconsistent messages — positive one day and discipline the next."
-          ],
-          lessonTitle: "Quick teaching moment",
-          lesson: [
-            "Managers often think the issue is poor performance; HR is often looking at whether the manager set the employee up clearly and fairly.",
-            "The cleaner the expectations, the stronger the case.",
-            "Performance discipline should teach accountability, not surprise the employee."
-          ]
-        };
-      }
-
-      if (state.issueType === "conduct") {
-        let risk = [
-          "Not all disagreement, pushback, or refusal should automatically be labeled insubordination.",
-          "Some workplace complaints about pay, scheduling, staffing, safety, or working conditions can overlap with protected activity.",
-          "Mislabeling the issue creates risk, especially when the manager is frustrated and moves too fast."
-        ];
-
-        let hr = [
-          "HR separates behavior, intent, context, and impact.",
-          "HR asks whether the employee truly refused, only pushed back, raised a group concern, or reacted poorly while discussing a workplace issue.",
-          "HR also compares how similar conduct cases were handled before."
-        ];
-
-        let mistakes = [
-          "Calling everything insubordination.",
-          "Letting emotion drive the response.",
-          "Documenting conclusions instead of the actual words, behavior, witnesses, and impact."
-        ];
-
-        let lesson = [
-          "Conduct issues move faster than attendance or performance, but they still require precision.",
-          "Managers should learn the difference between disrespect, pushback, refusal, protected complaint activity, and serious misconduct.",
-          "The label matters because the consequence path changes with it."
-        ];
-
-        if (detail === "insubordination_pushback") {
-          lesson = [
-            "Questioning direction is not the same thing as refusing direction.",
-            "Managers should not escalate every challenge to authority into insubordination.",
-            "This is where coaching and clarity often matter more than punishment."
-          ];
-        }
-
-        if (detail === "insubordination_argumentative") {
-          lesson = [
-            "Argumentative behavior may still justify discipline even if the employee ultimately complied.",
-            "Document the conduct, not exaggerate it into refusal if it was not refusal.",
-            "Managers should focus on professionalism, disruption, and impact."
-          ];
-        }
-
-        if (detail === "insubordination_refusal" || detail === "insubordination_public") {
-          lesson = [
-            "Direct refusal is a much more serious category than ordinary pushback.",
-            "Even then, confirm the instruction was lawful, clear, job-related, and not tied to a protected issue.",
-            "Public refusal usually raises the seriousness because of disruption and operational impact."
-          ];
-        }
-
-        if (detail === "sleeping") {
-          lesson = [
-            "Sleeping on duty is often treated as serious misconduct, especially in safety-sensitive or customer-facing roles.",
-            "Managers should still document what was observed, by whom, and what the business or safety impact was.",
-            "Weak facts create unnecessary arguments later."
-          ];
-        }
-
-        if (detail === "dishonesty") {
-          lesson = [
-            "Dishonesty and timecard issues are often treated as higher-level conduct because trust is central to employment.",
-            "Managers should preserve records and avoid guessing — facts matter more than suspicion.",
-            "A sloppy dishonesty case can be worse than no dishonesty case at all."
-          ];
-        }
-
-        if (detail === "disrespect") {
-          lesson = [
-            "Managers often overuse words like 'attitude' or 'unprofessional.'",
-            "The stronger approach is to describe what was said or done and why it mattered.",
-            "The goal is to teach standards of conduct, not punish personality."
-          ];
-        }
-
-        return {
-          riskTitle: "Real-world risk",
-          risk,
-          hrTitle: "How HR thinks about this",
-          hr,
-          mistakesTitle: "Common manager mistakes",
-          mistakes,
-          lessonTitle: "Quick teaching moment",
-          lesson
-        };
-      }
-
-      if (state.issueType === "safety") {
-        let lesson = [
-          "Safety issues are rarely just routine discipline issues.",
-          "Managers need to separate unsafe behavior from employees raising safety concerns in good faith.",
-          "Immediate risk control comes first; discipline language comes second."
-        ];
-
-        if (detail === "unsafe") {
-          lesson = [
-            "Unsafe practice can justify high-level review even if no injury occurred.",
-            "The teaching point is that risk prevention matters before waiting for actual harm.",
-            "Managers should ask whether the employee violated a rule or was actually refusing unsafe work."
-          ];
-        }
-
-        if (detail === "violence" || detail === "weapons" || detail === "substance") {
-          lesson = [
-            "Threats, violence, weapons, and impairment issues usually require immediate escalation, not a normal write-up conversation.",
-            "Evidence preservation, witness information, and controlled response matter most here.",
-            "Delay can become its own failure."
-          ];
-        }
-
-        return {
-          riskTitle: "Real-world risk",
-          risk: [
-            "Safety complaints and safety-related refusals can create retaliation risk if a manager treats them as attitude or disobedience without first evaluating the context.",
-            "Ignoring or downplaying a safety issue can create bigger liability if something happens later.",
-            "Managers create avoidable risk when they do not escalate or document safety concerns promptly."
-          ],
-          hrTitle: "How HR thinks about this",
-          hr: [
-            "HR focuses first on immediate safety, then facts, then whether the employee was reporting a hazard, refusing unsafe work, or violating a safety rule.",
-            "HR will usually want quick escalation, witness details, evidence, and policy alignment.",
-            "Safety cases are often about risk control as much as discipline."
-          ],
-          mistakesTitle: "Common manager mistakes",
-          mistakes: [
-            "Treating a safety concern like a personality issue.",
-            "Failing to escalate quickly.",
-            "Not documenting what the hazard was, who observed it, and what action was taken."
-          ],
-          lessonTitle: "Quick teaching moment",
-          lesson
-        };
-      }
-
-      return {
-        riskTitle: "Real-world risk",
-        risk: [
-          "Most HR problems get harder when facts are unclear, documentation is weak, or discipline is inconsistent.",
-          "Managers can create risk by moving too fast, using vague labels, or treating similar situations differently.",
-          "Even lower-risk issues should be handled consistently and professionally."
-        ],
-        hrTitle: "How HR thinks about this",
-        hr: [
-          "HR usually starts with facts, pattern, consistency, and business impact.",
-          "They want to know whether expectations were clear and whether similar cases were handled the same way.",
-          "A technically correct outcome can still be weakened by poor process."
-        ],
-        mistakesTitle: "Common manager mistakes",
-        mistakes: [
-          "Acting on frustration instead of facts.",
-          "Skipping documentation.",
-          "Failing to think ahead about consistency and business impact."
-        ],
-        lessonTitle: "Quick teaching moment",
-        lesson: [
-          "A good manager decision is not only about being right — it is about being fair, consistent, and defensible.",
-          "The tool should teach judgment, not just discipline levels.",
-          "Strong process protects both the manager and the organization."
-        ]
-      };
-    }
-
-    function getConsequenceSnapshot(recommendation) {
-      if (state.issueType === "protected" || state.issueType === "complaint" || state.legal === "yes") {
-        return [
-          "May trigger retaliation or complaint review.",
-          "May require formal HR investigation.",
-          "Poor timing or comments can create a bigger issue than the original event."
+          "Do not issue discipline yet.",
+          "Send this to HR before making promises or conclusions.",
+          "Stick to facts only: what happened, when, and who was involved."
         ];
       }
 
       if (state.issueType === "safety") {
         return [
-          "May trigger safety escalation or formal internal review.",
-          "Poor handling can increase liability if another incident happens later.",
-          "Failure to act promptly can become part of the problem."
+          "Handle the safety issue first.",
+          "Get the basic facts: what happened, who saw it, and whether anyone is at risk right now.",
+          "If this is severe, loop in HR or leadership before you start talking discipline."
         ];
       }
 
       if (recommendation.hrReview === "Yes") {
         return [
-          "May lead to termination-level review or senior HR involvement.",
-          "Weak documentation can slow or block the decision.",
-          "Inconsistent handling may undermine the case."
+          "Do not make a final call alone.",
+          "Pull together the facts and prior documentation first.",
+          "Bring HR in before final warning, suspension, or termination steps."
         ];
       }
 
       if (recommendation.hrReview === "Recommended") {
         return [
-          "Can escalate quickly if improvement does not happen.",
-          "Poor wording or uneven treatment may weaken the company’s position.",
-          "Manager inconsistency can turn a clean case into a messy one."
+          "Make sure your facts are clean before you meet with the employee.",
+          "Have prior coaching or documentation ready.",
+          "If this feels close to final warning or termination, run it by HR."
         ];
       }
 
       return [
-        "The likely consequence is corrective action escalation if the issue continues.",
-        "Weak documentation now can create problems later.",
-        "Handled well, this stays a manageable manager issue."
+        "Confirm what happened and the dates involved.",
+        "Have your examples ready before the conversation.",
+        "Be clear about the expectation and next step."
       ];
     }
 
-    function getNuanceAlert() {
-      if (state.issueType === "conduct" && (
-        state.detail === "insubordination_pushback" ||
-        state.detail === "insubordination_argumentative" ||
-        state.detail === "insubordination_refusal"
-      )) {
+    function getManagerSummarySteps(recommendation) {
+      if (state.issueType === "protected" || state.issueType === "complaint" || state.legal === "yes") {
         return [
-          "Nuance alert: not all pushback is the same.",
-          "This could be misconduct, poor professionalism, or overlap with a workplace complaint depending on context."
+          "Pause normal discipline.",
+          "Escalate to HR.",
+          "Document facts only — no opinions, no promises, no conclusions."
+        ];
+      }
+
+      return recommendation.managerSteps;
+    }
+
+    function getWhyThisMatters(recommendation) {
+      if (state.issueType === "protected" || state.issueType === "complaint" || state.legal === "yes") {
+        return [
+          "If you move too fast, this can look retaliatory.",
+          "If you say too much too early, you can make the case worse.",
+          "HR needs to review timing, facts, and policy before action."
         ];
       }
 
       if (state.issueType === "safety") {
         return [
-          "Nuance alert: this may involve both rule enforcement and protected safety concerns.",
-          "Do not assume every refusal or report is simple misconduct."
+          "If you downplay this and something else happens later, that hurts the company and you.",
+          "If you rush discipline before understanding the facts, you can create liability.",
+          "If you do not document what happened, it becomes harder to defend your decision later."
         ];
       }
 
       if (state.issueType === "attendance") {
         return [
-          "Nuance alert: attendance cases can hide leave, medical, accommodation, or injury-related issues.",
-          "A seemingly simple attendance pattern may not be simple."
+          "If you skip steps, the employee may say discipline was unfair or inconsistent.",
+          "If you miss a leave or medical angle, the problem gets bigger fast.",
+          "If you do not document the pattern, stronger discipline later gets weaker."
         ];
       }
 
-      if (state.issueType === "performance" && state.legal === "yes") {
+      if (state.issueType === "performance") {
         return [
-          "Nuance alert: performance and protected activity may overlap.",
-          "The request, complaint, or protected issue may be separate from the performance issue, but timing still matters."
+          "If your expectations were unclear, the employee can push back later.",
+          "If you use vague language, the write-up loses strength.",
+          "If you do not show prior coaching or examples, final action gets harder."
         ];
       }
 
-      if (state.issueType === "complaint") {
+      if (state.issueType === "conduct") {
         return [
-          "Nuance alert: a complaint does not mean you have all the facts yet.",
-          "The manager’s job is not to decide who is right on the spot — it is to escalate appropriately."
+          "If you exaggerate what happened, your credibility drops.",
+          "If you use the wrong label, like calling pushback 'insubordination' when it was not, you weaken the case.",
+          "If you fail to document the exact behavior, stronger discipline later gets harder."
         ];
       }
 
       return [
-        "Nuance alert: context matters.",
-        "If facts, comparators, or protected-risk signals change, the recommendation can change too."
+        "If you move too fast, you can make the issue worse.",
+        "If you do not document facts, your next step gets weaker.",
+        "If similar employees are treated differently, that creates risk."
+      ];
+    }
+
+    function getHrPlainEnglish(recommendation) {
+      if (state.issueType === "protected" || state.issueType === "complaint" || state.legal === "yes") {
+        return [
+          "HR is trying to prevent a retaliation, leave, medical, or complaint issue from turning into a bigger legal problem.",
+          "That is why HR will want the facts first and the discipline decision second.",
+          "The goal is not to protect bad behavior — it is to handle the timing and process correctly."
+        ];
+      }
+
+      if (state.issueType === "safety") {
+        return [
+          "HR cares because safety issues can create liability very quickly.",
+          "They will want to know whether this was unsafe behavior, a safety complaint, or both.",
+          "The goal is to avoid a sloppy response that makes the company look careless or inconsistent."
+        ];
+      }
+
+      if (state.issueType === "attendance") {
+        return [
+          "HR wants attendance cases handled consistently so one manager is not overly harsh while another ignores the same issue.",
+          "They also want to make sure a leave, medical, or accommodation issue is not hiding underneath the attendance problem.",
+          "That is what makes the difference between a clean write-up and a messy one."
+        ];
+      }
+
+      if (state.issueType === "performance") {
+        return [
+          "HR wants proof the employee knew the expectation and had a fair chance to improve.",
+          "That lowers the risk of claims that the discipline was random, personal, or unfair.",
+          "Clear examples and follow-up timing are what make performance cases stronger."
+        ];
+      }
+
+      if (state.issueType === "conduct") {
+        return [
+          "HR wants the label and the facts to match.",
+          "That prevents managers from overreacting and calling everything insubordination or bad attitude.",
+          "Good conduct documentation protects the company if the issue keeps happening."
+        ];
+      }
+
+      return [
+        "HR is trying to make sure the response is fair, consistent, and defensible.",
+        "That is what lowers risk later if the employee pushes back.",
+        "Clean facts now make the next step easier later."
       ];
     }
 
     function getDocumentationItems() {
       const base = [
-        "Dates and times",
-        "Exact behavior, words, or actions observed",
-        "Who observed it or who was present",
-        "Business, team, customer, or safety impact"
+        "Date and time",
+        "What the employee did or said",
+        "Who saw it or was involved",
+        "What impact it had on work, customers, team, or safety"
       ];
 
       if (state.issueType === "attendance") {
         return [
           ...base,
-          "Call-in timing and whether notice was provided",
-          "Prior coaching or warning history",
-          "Whether the employee referenced any medical, leave, or personal reason"
+          "Whether notice was given",
+          "Prior coaching or warnings",
+          "Any mention of medical, leave, or emergency reasons"
         ];
       }
 
       if (state.issueType === "performance") {
         return [
           ...base,
-          "Examples of missed expectations or quality gaps",
-          "The standard that was expected",
-          "Prior coaching, deadlines, and follow-up conversations"
+          "Specific work errors or missed expectations",
+          "What the correct expectation was",
+          "Prior coaching and follow-up timing"
         ];
       }
 
       if (state.issueType === "conduct") {
         return [
           ...base,
-          "The instruction given, if relevant",
-          "Whether the employee complied, partially complied, or refused",
-          "Witnesses, records, screenshots, or timekeeping data if available"
+          "The instruction given, if any",
+          "Whether the employee complied or refused",
+          "Any witnesses, screenshots, time records, or other proof"
         ];
       }
 
       if (state.issueType === "safety") {
         return [
           ...base,
-          "What specific hazard, threat, or unsafe act occurred",
-          "Immediate action taken to control risk",
-          "Evidence preserved, such as witness statements or photos if applicable"
+          "What hazard or unsafe act occurred",
+          "What immediate action was taken",
+          "Any witness statements, photos, or evidence"
         ];
       }
 
       if (state.issueType === "complaint" || state.issueType === "protected" || state.legal === "yes") {
         return [
           ...base,
-          "What the employee reported or requested",
-          "When management first became aware",
-          "Any immediate next step taken to escalate to HR"
+          "What was reported or requested",
+          "When management became aware",
+          "When HR was notified"
         ];
       }
 
       return base;
     }
 
-    function getPatternCheck(recommendation) {
-      if (state.issueType === "protected" || state.issueType === "complaint" || state.legal === "yes") {
-        return [
-          "Pattern check matters less than stop-sign review here.",
-          "The bigger question is timing, protected activity, and escalation — not just prior discipline."
-        ];
-      }
-
-      if (recommendation.hrReview === "Yes" || recommendation.hrReview === "Recommended") {
-        return [
-          "This decision becomes stronger if the pattern is clearly documented and similar employees were treated consistently.",
-          "If the pattern is weak or comparators are messy, slow down."
-        ];
-      }
-
-      return [
-        "This decision is strongest when it fits a clean pattern, not a one-off assumption.",
-        "Managers should ask: have we seen this before, documented it, and handled similar situations the same way?"
-      ];
-    }
-
     function getManagerScript(recommendation) {
       const outcome = getOutcomeKey(recommendation.title);
 
       if (state.issueType === "protected" || state.issueType === "complaint" || state.legal === "yes") {
-        return `Thank you for bringing this forward.
+        return `Thanks for bringing this up.
 
-We take issues like this seriously, and I’m going to make sure HR reviews it appropriately.
+I’m not going to make a snap decision on it.
 
-I’m not going to make promises or conclusions right now, but we will route this through the proper process and follow up with you.`;
+I’m going to send this to HR so it can be reviewed the right way, and we’ll follow up.`;
       }
 
       if (state.issueType === "attendance") {
         if (outcome === "coaching") {
-          return `I want to talk with you about your attendance.
+          return `Hey, I need to talk with you about your attendance.
 
-I’ve noticed recent issues with your schedule and I need to be clear about the expectation going forward.
+We’ve had an issue with [dates/examples], and I need this to improve right away.
 
-You need to report to work on time and follow the call-in process consistently.
-
-If something comes up, communicate as early as possible. We need immediate improvement moving forward.`;
+Going forward, I need you here on time and following the call-in process if something comes up.`;
         }
 
         if (outcome === "written_warning") {
-          return `We’ve already addressed this issue, and I need to be clear that it is now moving to formal corrective action.
+          return `I need to talk with you about your attendance.
 
-The concern is your attendance pattern, including specific recent examples.
+We’ve already discussed this before, and because it continued, this is now a written warning.
 
-The expectation going forward is full compliance with your schedule and call-in requirements.
-
-If this does not improve, it may lead to further corrective action.`;
+Going forward, I need full compliance with your schedule and call-in expectations.`;
         }
 
         if (outcome === "final_warning") {
-          return `This is a serious conversation.
+          return `This is a serious attendance conversation.
 
-Your attendance issue has continued after prior correction, and this is now at a final warning stage.
+The issue has continued after prior correction, and this is now at a final warning level.
 
-The expectation is immediate and sustained improvement.
-
-If the issue continues, it may result in termination review.`;
+You need immediate improvement, or the next step may be termination review.`;
         }
 
-        return `We are reviewing the attendance situation and next steps.
+        return `We’re reviewing the attendance situation and next steps.
 
-I’m not making a final decision in this conversation.
+I’m not making a final decision in this meeting.
 
 HR will be involved before any final action is taken.`;
       }
 
       if (state.issueType === "performance") {
         if (outcome === "coaching") {
-          return `I want to talk about your performance expectations.
+          return `I want to talk with you about your performance in [area].
 
-The issue is not personal — it is about specific work expectations that are not being met consistently.
+Right now the issue is [example], and I need to see improvement.
 
-Going forward, the expectation is [insert clear standard].
-
-We will follow up and I need to see improvement.`;
+Going forward, the expectation is [clear standard], and we’ll follow up on it.`;
         }
 
         if (outcome === "written_warning") {
-          return `We’ve talked about this before, and I need to be clear that this is now moving to a written warning.
+          return `I need to talk with you about your performance.
 
-The issue is [insert specific example].
+We’ve already talked about this before, and because the issue continued, this is now a written warning.
 
-The expectation going forward is [insert standard], and improvement needs to happen within the expected timeframe.
-
-If this does not improve, it may lead to additional corrective action.`;
+The expectation going forward is [clear standard], and improvement needs to happen now.`;
         }
 
         if (outcome === "final_warning") {
-          return `This conversation is a final warning regarding performance.
+          return `This is a serious performance conversation.
 
-We have already addressed the issue, and the needed improvement has not happened at the level expected.
+We’ve already addressed the issue, and the needed improvement has not happened.
 
-The expectation is immediate and sustained improvement.
-
-If the issue continues, it may move to termination review.`;
+At this point, this is a final warning, and the next step may be termination review if it continues.`;
         }
 
-        return `We are reviewing the performance situation and next steps.
+        return `We are reviewing the performance issue and next steps.
 
 I’m not making a final decision in this conversation.
 
@@ -1818,162 +1455,179 @@ HR will be involved before any final action is taken.`;
 
       if (state.issueType === "conduct") {
         if (state.detail === "insubordination_pushback") {
-          return `It is okay to ask questions, but once direction is clear, the expectation is that it is followed professionally.
+          return `I want to address how that conversation went.
 
-The concern here is how the situation was handled.
+You can ask questions, but once direction is clear, I need you to respond professionally and follow it.
 
-Going forward, I expect professional communication and follow-through.`;
+Going forward, I expect that to be handled better.`;
         }
 
         if (state.detail === "insubordination_argumentative") {
-          return `The issue here is not that you asked questions — it is how the conversation was handled.
+          return `I need to address how you handled that conversation.
 
-Your communication became argumentative/disrespectful, and that is not acceptable.
+The issue is not that you asked questions — it is that the conversation became argumentative and unprofessional.
 
 Going forward, I expect professional communication even when you disagree.`;
         }
 
         if (state.detail === "insubordination_refusal") {
-          return `The concern here is that a work direction was given and it was not followed.
+          return `I need to address what happened.
 
-Unless there is a valid reason we need to discuss, the expectation is that lawful job-related directions are followed.
+A work direction was given, and you did not follow it.
 
-This is a serious issue and cannot continue.`;
+Unless there is something I’m missing that needs review, that is a serious issue and it cannot continue.`;
         }
 
         if (state.detail === "insubordination_public") {
-          return `The concern here is not only the refusal, but that it happened in a way that disrupted the workplace.
+          return `I need to address what happened in front of others.
 
-That is serious and affects operations and leadership expectations.
+The issue is not just disagreement — it is that the refusal/disruption happened publicly and affected the workplace.
 
-We are treating this as a significant conduct issue.`;
+That is being treated seriously.`;
         }
 
         if (state.detail === "sleeping") {
-          return `The concern is that you were observed asleep during work time.
+          return `I need to talk with you about what was observed.
 
-That is a serious conduct issue, especially because of the impact it can have on work expectations and operations.
+You were observed asleep during work time, and that is a serious issue.
 
-We are treating this matter seriously and documenting it accordingly.`;
+We’re treating this seriously and reviewing next steps.`;
         }
 
         if (state.detail === "dishonesty") {
-          return `The concern is honesty and trust related to this situation.
+          return `I need to address a serious concern.
 
-Because accuracy and honesty are essential to employment, this is being treated seriously.
+The issue here is honesty and accuracy, and that affects trust.
 
-We are reviewing the facts carefully and taking the issue at a higher level.`;
+We’re reviewing the facts carefully before the final next step is decided.`;
         }
 
         if (outcome === "coaching") {
-          return `I need to address a conduct issue with you.
+          return `I need to talk with you about your conduct.
 
-The concern is the specific behavior that occurred, not your personality.
+What happened was not acceptable, and I need it handled differently going forward.
 
-Going forward, I expect professional conduct and better judgment in similar situations.`;
+The expectation is professional behavior from here on out.`;
         }
 
         if (outcome === "written_warning") {
-          return `We need to talk about your conduct.
+          return `I need to talk with you about your conduct.
 
-This issue has moved beyond informal correction and is now at a written warning stage.
+Because this issue continued or was serious enough, this is now a written warning.
 
-The expectation is immediate improvement in behavior and professionalism.`;
+The expectation is immediate improvement in how you handle yourself at work.`;
         }
 
         if (outcome === "final_warning") {
           return `This is a serious conduct conversation.
 
-The issue has continued or is significant enough that this is now at a final warning level.
+The issue is now at a final warning level.
 
-The expectation is immediate correction, and any further issue may result in additional action.`;
+You need immediate correction, or the next step may be termination review.`;
         }
 
-        return `We are reviewing this conduct matter and next steps.
+        return `We’re reviewing this conduct issue and next steps.
 
-I’m not making a final decision in this conversation.
+I’m not making a final decision right now.
 
 HR will be involved before any final action is taken.`;
       }
 
       if (state.issueType === "safety") {
-        return `The first priority here is safety.
+        return `I need to talk with you about what happened.
 
-We need to address what happened, make sure immediate risk is controlled, and document the facts carefully.
+Right now my focus is making sure the situation is safe and understanding the facts.
 
-This matter is being escalated for review before any final action is taken.`;
+We’re going to review this before making any final decisions.`;
       }
 
-      return `I want to address the issue clearly and professionally.
+      return `I need to talk with you about the issue that came up.
 
-The concern is the behavior or performance involved, and I want to make sure expectations are understood going forward.
+I want to be clear about the concern and the expectation going forward.
 
-We’ll document this and follow up appropriately.`;
+We’ll document this and follow up as needed.`;
     }
 
     function getAvoidSaying(recommendation) {
-      const common = [
-        "Do not say: 'HR made me do this.'",
-        "Do not say: 'You always...' or 'You never...'",
-        "Do not say: 'Everyone knows this about you.'"
-      ];
-
       if (state.issueType === "protected" || state.issueType === "complaint" || state.legal === "yes") {
         return [
-          ...common,
-          "Do not say: 'This is probably nothing.'",
+          "Do not say: 'I already know what happened.'",
           "Do not say: 'Don’t go to HR.'",
-          "Do not say: 'I already know who’s right.'"
-        ];
-      }
-
-      if (getOutcomeKey(recommendation.title) === "termination") {
-        return [
-          ...common,
-          "Do not say: 'You’re fired' before the process is finalized.",
-          "Do not say: 'This is your last chance' unless approved and documented.",
-          "Do not promise the final outcome before HR review is complete."
-        ];
-      }
-
-      if (state.issueType === "performance") {
-        return [
-          ...common,
-          "Do not say: 'You’re just not a fit.'",
-          "Do not say: 'Your attitude is the problem' without facts.",
-          "Do not use vague labels instead of examples."
-        ];
-      }
-
-      if (state.issueType === "conduct") {
-        return [
-          ...common,
-          "Do not call it insubordination unless the facts actually support refusal.",
-          "Do not exaggerate the event because you are frustrated.",
-          "Do not argue emotionally during the conversation."
-        ];
-      }
-
-      if (state.issueType === "attendance") {
-        return [
-          ...common,
-          "Do not assume the reason behind the absence or tardy.",
-          "Do not say: 'I don’t care what was going on' if there may be a protected issue.",
-          "Do not threaten termination casually."
+          "Do not say: 'This probably isn’t a big deal.'"
         ];
       }
 
       if (state.issueType === "safety") {
         return [
-          ...common,
-          "Do not say: 'It’s not a big deal' if there is a safety risk.",
-          "Do not dismiss a report before facts are reviewed.",
-          "Do not turn a safety discussion into a power struggle."
+          "Do not say: 'It’s not a big deal.'",
+          "Do not say: 'Just don’t do it again.'",
+          "Do not say: 'You’re overreacting.'"
         ];
       }
 
-      return common;
+      if (state.issueType === "attendance") {
+        return [
+          "Do not say: 'I don’t care what was going on.'",
+          "Do not say: 'You’re always late.'",
+          "Do not threaten termination casually if that is not the approved next step."
+        ];
+      }
+
+      if (state.issueType === "performance") {
+        return [
+          "Do not say: 'You’re just not a fit.'",
+          "Do not say: 'Your attitude is the problem' without facts.",
+          "Do not keep it vague — use examples instead."
+        ];
+      }
+
+      if (state.issueType === "conduct") {
+        if (state.detail === "insubordination_pushback" || state.detail === "insubordination_argumentative") {
+          return [
+            "Do not jump straight to 'insubordination' if the employee questioned you but still complied.",
+            "Do not argue back emotionally.",
+            "Do not use labels like 'bad attitude' when you can describe the exact behavior instead."
+          ];
+        }
+
+        if (state.detail === "insubordination_refusal" || state.detail === "insubordination_public") {
+          return [
+            "Do not argue in the moment.",
+            "Do not exaggerate what happened beyond the facts.",
+            "Do not promise the final outcome before HR review if the case is serious."
+          ];
+        }
+
+        if (state.detail === "sleeping") {
+          return [
+            "Do not joke about it.",
+            "Do not downplay it if the role is safety-sensitive or customer-facing.",
+            "Do not skip documentation."
+          ];
+        }
+
+        if (state.detail === "dishonesty") {
+          return [
+            "Do not accuse without facts.",
+            "Do not guess at motive.",
+            "Do not treat a trust issue casually."
+          ];
+        }
+
+        return [
+          "Do not turn it into a personal fight.",
+          "Do not exaggerate because you are frustrated.",
+          "Do not use vague labels when you can describe the exact conduct."
+        ];
+      }
+
+      return [
+        "Do not say: 'HR made me do this.'",
+        "Do not say: 'You always...' or 'You never...'.",
+        "Do not use broad statements when you can use facts."
+      ];
     }
+
 
     function start() {
       state.history = ["start"];
@@ -2265,60 +1919,40 @@ We’ll document this and follow up appropriately.`;
     }
 
 
+
     function showResult() {
       const recommendation = getRecommendation();
       const detailMeta = getDetailMeta(state.issueType, state.detail);
-      const guidance = getManagerGuidance(recommendation);
-      const importantNote = getImportantNote(recommendation);
-      const teaching = getTeachingContent();
-      const confidence = getConfidenceLevel(recommendation);
-      const stopSign = getStopSignContent(recommendation);
-      const consequences = getConsequenceSnapshot(recommendation);
-      const nuance = getNuanceAlert();
+      const risk = getRiskLevel(recommendation);
+      const actionLine = getActionLine(recommendation);
+      const whyLine = getWhyLine(recommendation);
+      const beforeActing = getBeforeActingItems(recommendation);
+      const managerSummarySteps = getManagerSummarySteps(recommendation);
+      const whyThisMatters = getWhyThisMatters(recommendation);
+      const hrPlainEnglish = getHrPlainEnglish(recommendation);
       const documentation = getDocumentationItems();
-      const patternCheck = getPatternCheck(recommendation);
       const script = getManagerScript(recommendation);
       const avoidSaying = getAvoidSaying(recommendation);
 
       const premiumHtml = ownerUnlocked ? `
-          <div class="panel panel-red">
-            <h4>${teaching.riskTitle}</h4>
-            <ul>${teaching.risk.map(item => `<li>${item}</li>`).join("")}</ul>
-          </div>
-
           <div class="panel panel-blue">
-            <h4>${teaching.hrTitle}</h4>
-            <ul>${teaching.hr.map(item => `<li>${item}</li>`).join("")}</ul>
-          </div>
-
-          <div class="panel panel-orange">
-            <h4>${teaching.mistakesTitle}</h4>
-            <ul>${teaching.mistakes.map(item => `<li>${item}</li>`).join("")}</ul>
+            <h4>Why this matters to you</h4>
+            <ul>${whyThisMatters.map(item => `<li>${item}</li>`).join("")}</ul>
           </div>
 
           <div class="panel panel-purple">
-            <h4>${teaching.lessonTitle}</h4>
-            <ul>${teaching.lesson.map(item => `<li>${item}</li>`).join("")}</ul>
-          </div>
-
-          <div class="panel panel-red">
-            <h4>Real-world consequence snapshot</h4>
-            <ul>${consequences.map(item => `<li>${item}</li>`).join("")}</ul>
+            <h4>Why HR would care</h4>
+            <ul>${hrPlainEnglish.map(item => `<li>${item}</li>`).join("")}</ul>
           </div>
 
           <div class="panel panel-orange">
-            <h4>Nuance alert</h4>
-            <ul>${nuance.map(item => `<li>${item}</li>`).join("")}</ul>
+            <h4>Do not say this in this situation</h4>
+            <ul>${avoidSaying.map(item => `<li>${item}</li>`).join("")}</ul>
           </div>
 
-          <div class="panel panel-blue">
+          <div class="panel panel-red">
             <h4>What to document</h4>
             <ul>${documentation.map(item => `<li>${item}</li>`).join("")}</ul>
-          </div>
-
-          <div class="panel panel-purple">
-            <h4>Pattern check</h4>
-            <ul>${patternCheck.map(item => `<li>${item}</li>`).join("")}</ul>
           </div>
 
           <div class="panel">
@@ -2328,25 +1962,37 @@ We’ll document this and follow up appropriately.`;
               <button class="btn btn-light" onclick='copyText(${JSON.stringify(script)})'>Copy Script</button>
             </div>
           </div>
-
-          <div class="panel panel-orange">
-            <h4>Avoid saying</h4>
-            <ul>${avoidSaying.map(item => `<li>${item}</li>`).join("")}</ul>
-          </div>
       ` : `
+          <div class="panel panel-blue">
+            <h4>Why this matters</h4>
+            <ul>
+              <li>This can create risk if handled incorrectly.</li>
+              <li>Consistency and documentation matter.</li>
+            </ul>
+          </div>
+
           <div class="premium-callout">
-            <h4>Demo result shown. Unlock Full Access for the deeper manager-protection layer.</h4>
+            <h4>Most managers mess up the conversation here</h4>
             <p class="premium-note" style="margin-top:0;">
-              This $9.99/month version is positioned as low-cost protection against manager mistakes that can waste HR time,
-              create expensive employee-relations problems, and increase legal risk.
+              The decision is only part of it. The bigger risk is what a manager says next, what they should avoid saying, and what needs to be documented.
             </p>
 
-            <div class="premium-teaser">
+            <div class="panel" style="margin-top:14px;">
+              <h4>What to say</h4>
+              <div class="script-box" style="filter: blur(5px); user-select:none;">
+                Full conversation script available in Full Access.
+              </div>
+              <div class="copy-row">
+                <button class="btn btn-primary" onclick="scrollToFullAccess()">Unlock Script</button>
+              </div>
+            </div>
+
+            <div class="premium-teaser" style="margin-top:16px;">
               <ul>
-                <li>Exact scripts managers can use in difficult conversations</li>
-                <li>What not to say when risk is high</li>
-                <li>Real-world risk and consequence snapshots</li>
-                <li>Documentation guidance and nuance alerts</li>
+                <li>Exact script for this situation</li>
+                <li>What not to say in this scenario</li>
+                <li>What to document before the next step</li>
+                <li>Why HR would care if this goes sideways</li>
               </ul>
             </div>
 
@@ -2355,9 +2001,9 @@ We’ll document this and follow up appropriately.`;
             </div>
 
             <div class="panel panel-purple" style="margin-top:16px;">
-              <h4>Not ready yet? Leave your email for updates and sample guidance.</h4>
+              <h4>Need this for your managers?</h4>
               <p class="premium-note" style="margin-top:0;">
-                Use this if you want updates or want me to follow up later. The demo result above is still visible without giving your email.
+                Use full access for the script, risk guidance, and documentation help. Or leave your email if you want updates or a company demo.
               </p>
               ${leadFormHtml("demo")}
             </div>
@@ -2373,74 +2019,41 @@ We’ll document this and follow up appropriately.`;
               <span class="badge badge-blue">${getIssueLabel(state.issueType)}</span>
               <span class="badge badge-purple">${detailMeta[1]}</span>
             </div>
-            <h3>${recommendation.title}</h3>
-            <p>${recommendation.summary}</p>
+            <h3>Action: ${actionLine}</h3>
+            <p>${whyLine}</p>
 
             <div class="confidence-wrap">
-              <span class="badge ${confidence.colorClass}">${confidence.label}</span>
-              <span class="badge badge-gray">${confidence.text}</span>
+              <span class="badge ${risk.colorClass}">${risk.label}</span>
+              <span class="badge badge-gray">${risk.text}</span>
             </div>
           </div>
 
-          <div class="panel panel-red">
-            <h4>Stop here before acting</h4>
-            <ul>${stopSign.map(item => `<li>${item}</li>`).join("")}</ul>
+          <div class="panel panel-orange">
+            <h4>What you should do now</h4>
+            <ul>${managerSummarySteps.map(s => `<li>${s}</li>`).join("")}</ul>
           </div>
 
-          <div class="panel panel-blue">
-            <h4>How HR views this</h4>
-            <ul>
-              <li>${recommendation.primaryAction}</li>
-              <li>Policy area potentially involved: <strong>${recommendation.policyArea}</strong></li>
-              <li>HR review needed: <strong>${recommendation.hrReview}</strong></li>
-            </ul>
+          <div class="panel panel-red">
+            <h4>Before you do anything, check this</h4>
+            <ul>${beforeActing.map(item => `<li>${item}</li>`).join("")}</ul>
           </div>
 
           ${recommendation.flags.length ? `
-            <div class="panel panel-red">
-              <h4>Why this matters</h4>
+            <div class="panel panel-purple">
+              <h4>What could make this riskier</h4>
               <ul>${recommendation.flags.map(f => `<li>${f}</li>`).join("")}</ul>
             </div>
           ` : ""}
 
-          <div class="panel panel-orange">
-            <h4>What the manager should do</h4>
-            <ul>${recommendation.managerSteps.map(s => `<li>${s}</li>`).join("")}</ul>
-          </div>
-
-          <div class="panel panel-purple">
-            <h4>${guidance.title}</h4>
-            <ul>${guidance.items.map(item => `<li>${item}</li>`).join("")}</ul>
-          </div>
-
           ${premiumHtml}
 
-          <div class="panel panel-red">
-            <h4>Important note</h4>
-            <ul>${importantNote.map(item => `<li>${item}</li>`).join("")}</ul>
+          <div class="panel">
+            <h4>Tool actions</h4>
+            <div class="result-actions">
+              <button class="btn btn-light" onclick="window.print()">Print / Save as PDF</button>
+              ${ownerUnlocked ? `` : `<button class="btn btn-secondary" onclick="showLeadCaptureOnly()">Request Company Demo</button>`}
+            </div>
           </div>
-
-          ${ownerUnlocked ? `
-            <div class="panel">
-              <h4>Tool actions</h4>
-              <div class="result-actions">
-                <button class="btn btn-light" onclick="window.print()">Print / Save as PDF</button>
-              </div>
-            </div>
-          ` : `
-            <div class="panel">
-              <h4>Want this for your managers?</h4>
-              <p class="small-note" style="margin-top:0;">
-                Use the paid full-access version for individual use, or request a company demo if you want broader team rollout.
-              </p>
-
-              <div class="result-actions">
-                <button class="btn btn-light" onclick="window.print()">Print / Save as PDF</button>
-                <button class="btn btn-primary" onclick="scrollToFullAccess()">See Full Access Pricing</button>
-                <button class="btn btn-secondary" onclick="showLeadCaptureOnly()">Request Company Demo</button>
-              </div>
-            </div>
-          `}
 
           <div class="nav-row">
             <button class="btn btn-primary" onclick="restart()">Run Another Scenario</button>
@@ -2453,6 +2066,7 @@ We’ll document this and follow up appropriately.`;
       scrollToToolTop();
       renderPayPalButtons();
     }
+
 
     function recommendationBase({
       title,
