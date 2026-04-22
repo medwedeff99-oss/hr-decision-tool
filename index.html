@@ -608,18 +608,54 @@
       background: #fff;
     }
 
-    .owner-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.78rem;
-      font-weight: 800;
-      color: #065f46;
-      background: #ecfdf5;
-      border: 1px solid #a7f3d0;
-      padding: 8px 10px;
-      border-radius: 999px;
-      margin-bottom: 12px;
+    .legal-card {
+      margin-top: 18px;
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid #e5e7eb;
+      background: #f8fafc;
+    }
+
+    .legal-card h4 {
+      margin: 0 0 8px;
+      font-size: 0.98rem;
+      color: #111827;
+    }
+
+    .legal-card p {
+      margin: 0;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: #475569;
+    }
+
+    body.unlocked-mode {
+      background:
+        radial-gradient(circle at top left, rgba(124,58,237,0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(6,182,212,0.18), transparent 24%),
+        linear-gradient(160deg, var(--bg-1), var(--bg-2));
+      color: #edf2ff;
+    }
+
+    body.unlocked-mode .shell {
+      max-width: 980px;
+    }
+
+    body.unlocked-mode .tool-shell {
+      grid-template-columns: 1fr;
+    }
+
+    body.unlocked-mode .tool-card {
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    body.unlocked-mode .tool-top {
+      background: #ffffff;
+    }
+
+    body.unlocked-mode .footer {
+      color: #64748b;
+      text-align: left;
     }
 
     @media print {
@@ -825,10 +861,6 @@
       </aside>
     </section>
 
-    <div class="footer">
-      This tool provides general HR guidance based on common practices. It does not replace your company’s policies, HR review, or legal counsel.
-      Final employment decisions should always be reviewed through the appropriate internal HR, leadership, and legal process.
-    </div>
   </div>
 
   <script>
@@ -853,6 +885,33 @@
     const googleFormDirectUrl = "https://docs.google.com/forms/d/e/1FAIpQLScLJvO8W5KZ14_GoWXgK6otWdNMSebymZLu52qyvtpnmQRL7A/viewform";
 
     const ownerUnlocked = window.location.search.includes("unlock=true");
+
+    function legalDisclaimerHtml() {
+      return `
+        <div class="legal-card">
+          <h4>Legal disclaimer</h4>
+          <p>
+            This tool provides general HR guidance based on common practices. It does not replace your company’s policies,
+            HR review, or legal counsel. Final employment decisions should always be reviewed through the appropriate internal
+            HR, leadership, and legal process.
+          </p>
+        </div>
+      `;
+    }
+
+    function applyUnlockedMode() {
+      if (!ownerUnlocked) return;
+
+      document.body.classList.add("unlocked-mode");
+
+      const hero = document.querySelector(".hero");
+      const valueSection = document.querySelector(".value-section");
+      const sidebar = document.querySelector(".sidebar");
+
+      if (hero) hero.remove();
+      if (valueSection) valueSection.remove();
+      if (sidebar) sidebar.remove();
+    }
 
     const issueDetails = {
       attendance: [
@@ -1936,6 +1995,7 @@ We’ll document this and follow up appropriately.`;
         </div>
 
         ${navRow(false)}
+        ${legalDisclaimerHtml()}
       `);
     }
 
@@ -1970,6 +2030,7 @@ We’ll document this and follow up appropriately.`;
         </div>
 
         ${navRow(true)}
+        ${legalDisclaimerHtml()}
       `);
     }
 
@@ -2004,6 +2065,7 @@ We’ll document this and follow up appropriately.`;
         </div>
 
         ${navRow(true)}
+        ${legalDisclaimerHtml()}
       `);
     }
 
@@ -2043,6 +2105,7 @@ We’ll document this and follow up appropriately.`;
         </div>
 
         ${navRow(true)}
+        ${legalDisclaimerHtml()}
       `);
     }
 
@@ -2072,6 +2135,7 @@ We’ll document this and follow up appropriately.`;
         </div>
 
         ${navRow(true)}
+        ${legalDisclaimerHtml()}
       `);
     }
 
@@ -2097,10 +2161,17 @@ We’ll document this and follow up appropriately.`;
           <button class="btn btn-primary" onclick="showResult()">View Recommendation</button>
           <button class="nav-btn" onclick="restart()">Start Over</button>
         </div>
+
+        ${legalDisclaimerHtml()}
       `);
     }
 
     function showLeadCaptureOnly() {
+      if (ownerUnlocked) {
+        restart();
+        return;
+      }
+
       updateProgress(5);
       state.history = ["showLeadCaptureOnly"];
       setView(`
@@ -2112,6 +2183,7 @@ We’ll document this and follow up appropriately.`;
 
         ${leadFormHtml("demo")}
         ${navRow(false)}
+        ${legalDisclaimerHtml()}
       `);
     }
 
@@ -2209,8 +2281,6 @@ We’ll document this and follow up appropriately.`;
       const avoidSaying = getAvoidSaying(recommendation);
 
       const premiumHtml = ownerUnlocked ? `
-          <div class="owner-badge">Owner preview / full-access view enabled</div>
-
           <div class="panel panel-red">
             <h4>${teaching.riskTitle}</h4>
             <ul>${teaching.risk.map(item => `<li>${item}</li>`).join("")}</ul>
@@ -2298,7 +2368,7 @@ We’ll document this and follow up appropriately.`;
         <div class="result-card">
           <div class="result-head">
             <div class="badge-row">
-              <span class="badge badge-gray">Demo Result</span>
+              <span class="badge badge-gray">${ownerUnlocked ? "Full Access View" : "Demo Result"}</span>
               ${recommendation.levelBadge}
               <span class="badge badge-blue">${getIssueLabel(state.issueType)}</span>
               <span class="badge badge-purple">${detailMeta[1]}</span>
@@ -2350,22 +2420,33 @@ We’ll document this and follow up appropriately.`;
             <ul>${importantNote.map(item => `<li>${item}</li>`).join("")}</ul>
           </div>
 
-          <div class="panel">
-            <h4>Want this for your managers?</h4>
-            <p class="small-note" style="margin-top:0;">
-              Use the paid full-access version for individual use, or request a company demo if you want broader team rollout.
-            </p>
-
-            <div class="result-actions">
-              <button class="btn btn-light" onclick="window.print()">Print / Save as PDF</button>
-              <button class="btn btn-primary" onclick="scrollToFullAccess()">See Full Access Pricing</button>
-              <button class="btn btn-secondary" onclick="showLeadCaptureOnly()">Request Company Demo</button>
+          ${ownerUnlocked ? `
+            <div class="panel">
+              <h4>Tool actions</h4>
+              <div class="result-actions">
+                <button class="btn btn-light" onclick="window.print()">Print / Save as PDF</button>
+              </div>
             </div>
-          </div>
+          ` : `
+            <div class="panel">
+              <h4>Want this for your managers?</h4>
+              <p class="small-note" style="margin-top:0;">
+                Use the paid full-access version for individual use, or request a company demo if you want broader team rollout.
+              </p>
+
+              <div class="result-actions">
+                <button class="btn btn-light" onclick="window.print()">Print / Save as PDF</button>
+                <button class="btn btn-primary" onclick="scrollToFullAccess()">See Full Access Pricing</button>
+                <button class="btn btn-secondary" onclick="showLeadCaptureOnly()">Request Company Demo</button>
+              </div>
+            </div>
+          `}
 
           <div class="nav-row">
             <button class="btn btn-primary" onclick="restart()">Run Another Scenario</button>
           </div>
+
+          ${legalDisclaimerHtml()}
         </div>
       `);
 
@@ -3026,6 +3107,7 @@ We’ll document this and follow up appropriately.`;
       return map[state.issueType] || "General policy review";
     }
 
+    applyUnlockedMode();
     start();
     renderPayPalButtons();
   </script>
