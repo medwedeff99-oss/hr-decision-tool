@@ -1277,24 +1277,24 @@
     function getHrPlainEnglish(recommendation) {
       if (state.issueType === "protected" || state.issueType === "complaint" || state.legal === "yes") {
         return [
-          "HR is trying to prevent a retaliation, leave, medical, or complaint issue from turning into a bigger legal problem.",
-          "That is why HR will want the facts first and the discipline decision second.",
-          "The goal is not to protect bad behavior — it is to handle the timing and process correctly."
+          "HR is trying to prevent a leave, complaint, medical, accommodation, pregnancy, or retaliation issue from turning into a bigger employment problem.",
+          "That is why HR wants the timing, the facts, and the process checked before a manager disciplines too fast.",
+          "The goal is not to excuse bad behavior. The goal is to avoid creating a second problem on top of the first one."
         ];
       }
 
       if (state.issueType === "safety") {
         return [
-          "HR cares because safety issues can create liability very quickly.",
-          "They will want to know whether this was unsafe behavior, a safety complaint, or both.",
-          "The goal is to avoid a sloppy response that makes the company look careless or inconsistent."
+          "HR cares because safety issues can affect whether people go home unhurt and whether the company responded responsibly.",
+          "They will want to know whether this was unsafe behavior, a safety complaint, or both, because those are handled differently.",
+          "A rushed or casual response can make the company look careless, inconsistent, or retaliatory."
         ];
       }
 
       if (state.issueType === "attendance") {
         return [
-          "HR wants attendance cases handled consistently so one manager is not overly harsh while another ignores the same issue.",
-          "They also want to make sure a leave, medical, or accommodation issue is not hiding underneath the attendance problem.",
+          "HR wants attendance cases handled the same way across employees so one manager is not overly harsh while another ignores the same pattern.",
+          "They also want to make sure a leave, medical, pregnancy, accommodation, or injury issue is not hiding underneath the attendance problem.",
           "That is what makes the difference between a clean write-up and a messy one."
         ];
       }
@@ -1302,16 +1302,16 @@
       if (state.issueType === "performance") {
         return [
           "HR wants proof the employee knew the expectation and had a fair chance to improve.",
-          "That lowers the risk of claims that the discipline was random, personal, or unfair.",
-          "Clear examples and follow-up timing are what make performance cases stronger."
+          "That lowers the risk of claims that the discipline was random, personal, or just bad management.",
+          "Clear examples and follow-up timing are what make performance cases stronger if the issue continues."
         ];
       }
 
       if (state.issueType === "conduct") {
         return [
           "HR wants the label and the facts to match.",
-          "That prevents managers from overreacting and calling everything insubordination or bad attitude.",
-          "Good conduct documentation protects the company if the issue keeps happening."
+          "That prevents managers from overreacting and calling everything insubordination, dishonesty, or attitude when the facts are more specific.",
+          "Good conduct documentation protects the company if the issue repeats or later turns into a challenge."
         ];
       }
 
@@ -1320,6 +1320,133 @@
         "That is what lowers risk later if the employee pushes back.",
         "Clean facts now make the next step easier later."
       ];
+    }
+
+    function getRealWorldRisk(recommendation) {
+      if (state.issueType === "safety") {
+        if (state.detail === "unsafe") {
+          return [
+            "You treat this like a small issue, someone gets hurt later, and your first response suddenly matters a lot more.",
+            "You rush to discipline without understanding whether the employee was reporting a hazard, and now HR has to sort out a bigger problem.",
+            "You do not document what was unsafe, and later you cannot explain why you acted the way you did."
+          ];
+        }
+
+        if (state.detail === "violence" || state.detail === "weapons" || state.detail === "substance") {
+          return [
+            "You treat this too casually, and now you own part of the risk if something bigger happens next.",
+            "You argue in the moment instead of stabilizing the situation, and the conflict gets worse fast.",
+            "You skip documentation or escalation, and leadership is left reconstructing a serious event after the fact."
+          ];
+        }
+
+        return [
+          "You handle the safety issue too slowly, and a preventable problem becomes a bigger one.",
+          "You rush discipline before understanding the facts, and now it looks careless or retaliatory.",
+          "You fail to document clearly, and you cannot defend your response later."
+        ];
+      }
+
+      if (state.issueType === "protected" || state.issueType === "complaint" || state.legal === "yes") {
+        return [
+          "You move too fast, and what felt like ordinary discipline now looks retaliatory because of timing.",
+          "You miss a leave, medical, accommodation, pregnancy, or complaint angle, and HR has to unwind your action later.",
+          "You say too much too early, and your own words become part of the problem instead of the solution."
+        ];
+      }
+
+      if (state.issueType === "attendance") {
+        return [
+          "You skip steps, and the employee argues the discipline was unfair or inconsistent.",
+          "You miss a possible leave, injury, pregnancy, or medical reason, and the issue escalates beyond attendance.",
+          "You do not document the pattern clearly, and stronger action later becomes much harder to support."
+        ];
+      }
+
+      if (state.issueType === "performance") {
+        return [
+          "You stay vague, and the employee pushes back that they were never clearly told what had to improve.",
+          "You do not show examples, and the write-up feels personal instead of job-related.",
+          "You skip follow-up, and the same issue keeps repeating while your documentation stays weak."
+        ];
+      }
+
+      if (state.issueType === "conduct") {
+        if (state.detail === "insubordination_pushback") {
+          return [
+            "You call this insubordination when it was really pushback or poor tone, and your case immediately gets weaker.",
+            "You react personally, and the conversation turns into a power struggle instead of correction.",
+            "You document conclusions instead of facts, and later no one can tell what really happened."
+          ];
+        }
+
+        if (state.detail === "insubordination_argumentative") {
+          return [
+            "You overstate the issue as a refusal when the employee actually complied, and your write-up loses credibility.",
+            "You argue back, and the situation escalates instead of cooling down.",
+            "You fail to document the exact words and behavior, and later the case becomes fuzzy."
+          ];
+        }
+
+        if (state.detail === "insubordination_refusal" || state.detail === "insubordination_public") {
+          return [
+            "You underreact, and the message to the team becomes that direct refusal is tolerated.",
+            "You overreact without checking the facts, and now HR has to clean up a rushed decision.",
+            "You do not document the instruction, refusal, and impact clearly, and stronger action later gets harder to defend."
+          ];
+        }
+
+        if (state.detail === "sleeping") {
+          return [
+            "You joke it off, and then people question why a serious work-time issue was not treated seriously.",
+            "You skip facts like who observed it and for how long, and the case weakens fast.",
+            "If the role affects safety, service, or students/customers, a casual response looks much worse later."
+          ];
+        }
+
+        if (state.detail === "dishonesty") {
+          return [
+            "You accuse without proof, and now the focus shifts from the employee’s conduct to your process.",
+            "You ignore a trust issue, and it grows into a bigger operations or payroll problem later.",
+            "You fail to preserve records, and a serious conduct case turns into a he-said-she-said argument."
+          ];
+        }
+
+        return [
+          "You over-label the issue, and your case weakens because the facts do not match the label.",
+          "You react emotionally, and the situation escalates instead of resolving.",
+          "You do not document specifics, and stronger action later becomes harder to support."
+        ];
+      }
+
+      return [
+        "Handled poorly, this can escalate quickly.",
+        "Lack of documentation weakens your position.",
+        "Inconsistent handling creates risk."
+      ];
+    }
+
+    function getHumanImpact() {
+      if (state.issueType === "safety") {
+        if (state.detail === "unsafe" || state.detail === "violence" || state.detail === "weapons" || state.detail === "substance") {
+          return "Safety issues do not just affect a shift or a department. They can affect whether someone goes home safe to their family.";
+        }
+        return "Safety issues do not just affect operations. They can affect someone’s health, security, and whether people feel safe at work.";
+      }
+
+      if (state.issueType === "protected") {
+        return "These situations often involve health, recovery, pregnancy, disability, or family needs. Mishandling them can feel both unfair and deeply personal to the employee.";
+      }
+
+      if (state.issueType === "complaint") {
+        return "How a manager responds here can shape whether the employee feels heard, whether coworkers trust leadership, and whether the issue gets bigger.";
+      }
+
+      if (state.issueType === "attendance" && state.legal === "yes") {
+        return "Sometimes what looks like an attendance issue is really a medical, family, or protected leave issue underneath.";
+      }
+
+      return "";
     }
 
     function getDocumentationItems() {
@@ -1378,177 +1505,611 @@
       return base;
     }
 
-    function getManagerScript(recommendation) {
+    
+function getConversationGuide(recommendation) {
       const outcome = getOutcomeKey(recommendation.title);
 
+      const base = {
+        openerLabel: "Say this first (use this wording)",
+        openerHelp: "Use this to start the conversation with the employee.",
+        script: `I need to talk with you about what happened.
+
+I want to be clear about the concern and the expectation going forward.
+
+We’ll document this and follow up as needed.`,
+        tone: [
+          "Stay calm, direct, and professional.",
+          "Do not sound sarcastic, angry, or embarrassed in front of others.",
+          "Pause after each point so the employee can process what you said."
+        ],
+        goals: [
+          "Explain the concern clearly.",
+          "Set the expectation going forward.",
+          "Keep the conversation from turning into an argument."
+        ],
+        pushbackLabel: "If the employee pushes back, say this",
+        pushback: `I understand you may not agree, but I need to be clear about the expectation going forward.`,
+        empathyLabel: "",
+        empathy: ""
+      };
+
       if (state.issueType === "protected" || state.issueType === "complaint" || state.legal === "yes") {
-        return `Thanks for bringing this up.
+        return {
+          openerLabel: "Say this first (use this wording)",
+          openerHelp: "Use this to open the conversation without making promises or jumping to conclusions.",
+          script: `Thanks for bringing this up.
 
 I’m not going to make a snap decision on it.
 
-I’m going to send this to HR so it can be reviewed the right way, and we’ll follow up.`;
+I’m going to send this to HR so it can be reviewed the right way, and we’ll follow up.`,
+          tone: [
+            "Be calm, neutral, and respectful.",
+            "Do not sound defensive or like you already picked a side.",
+            "Keep your voice steady and stick to facts."
+          ],
+          goals: [
+            "Show the employee the concern is being taken seriously.",
+            "Avoid saying anything that sounds retaliatory or dismissive.",
+            "Route the issue to HR without escalating the conversation."
+          ],
+          pushbackLabel: "If the employee gets emotional or asks for an answer right now, say this",
+          pushback: `I understand this feels important, and I don’t want to rush it.
+
+I need HR to review it so we handle it correctly.`,
+          empathyLabel: "Empathy line you can use",
+          empathy: `I’m not ignoring what you’re saying, and I’m not making assumptions either.
+
+I want to make sure this is handled the right way.`
+        };
       }
 
       if (state.issueType === "attendance") {
         if (outcome === "coaching") {
-          return `Hey, I need to talk with you about your attendance.
+          return {
+            openerLabel: "Say this first (use this wording)",
+            openerHelp: "Use this to address the issue early without overdoing it.",
+            script: `I need to talk with you about your attendance.
 
 We’ve had an issue with [dates/examples], and I need this to improve right away.
 
-Going forward, I need you here on time and following the call-in process if something comes up.`;
+Going forward, I need you here on time and following the call-in process if something comes up.`,
+            tone: [
+              "Be direct, but not shaming.",
+              "Sound matter-of-fact, not emotional.",
+              "Leave space for the employee to respond before you restate the expectation."
+            ],
+            goals: [
+              "Address the attendance issue early.",
+              "Make the expectation clear.",
+              "Prevent a repeat issue from becoming formal discipline."
+            ],
+            pushbackLabel: "If the employee gives excuses or says it was not a big deal, say this",
+            pushback: `I understand things come up, but I still need you to follow the attendance and call-in expectations going forward.`,
+            empathyLabel: "Empathy line you can use",
+            empathy: `If there is something I need to know that affects this situation, tell me now so we handle it correctly.`
+          };
         }
 
         if (outcome === "written_warning") {
-          return `I need to talk with you about your attendance.
+          return {
+            openerLabel: "Say this first (use this wording)",
+            openerHelp: "Use this when the issue has already been addressed and now needs formal correction.",
+            script: `I need to talk with you about your attendance.
 
 We’ve already discussed this before, and because it continued, this is now a written warning.
 
-Going forward, I need full compliance with your schedule and call-in expectations.`;
+Going forward, I need full compliance with your schedule and call-in expectations.`,
+            tone: [
+              "Be firm and clear.",
+              "Do not sound surprised, apologetic, or angry.",
+              "Let the seriousness come from the wording, not your tone."
+            ],
+            goals: [
+              "Make clear this moved beyond informal coaching.",
+              "Tie the warning to repeated behavior, not personality.",
+              "Set the next expectation clearly."
+            ],
+            pushbackLabel: "If the employee argues about fairness, say this",
+            pushback: `I’m focused on the attendance pattern and the prior conversations we’ve already had.
+
+What I need now is immediate improvement.`,
+            empathyLabel: "Empathy line you can use",
+            empathy: `If there is a medical, leave, or emergency issue affecting this, tell me now before we go further.`
+          };
         }
 
         if (outcome === "final_warning") {
-          return `This is a serious attendance conversation.
+          return {
+            openerLabel: "Say this first (use this wording)",
+            openerHelp: "Use this when the issue is now serious and the manager needs to sound firm without becoming threatening.",
+            script: `This is a serious attendance conversation.
 
 The issue has continued after prior correction, and this is now at a final warning level.
 
-You need immediate improvement, or the next step may be termination review.`;
+You need immediate improvement, or the next step may be termination review.`,
+            tone: [
+              "Be serious, controlled, and brief.",
+              "Do not lecture or pile on.",
+              "Let the employee feel the seriousness from the structure of the conversation."
+            ],
+            goals: [
+              "Communicate that this is a late-stage attendance issue.",
+              "Make the immediate expectation unmistakable.",
+              "Avoid casual threats while still being clear about the next step."
+            ],
+            pushbackLabel: "If the employee says you are overreacting, say this",
+            pushback: `This is not based on one moment.
+
+It is based on the attendance pattern and the prior correction that has already happened.`,
+            empathyLabel: "Empathy line you can use",
+            empathy: `If there is something serious affecting your ability to work that I need to know, raise it now so it can be reviewed correctly.`
+          };
         }
 
-        return `We’re reviewing the attendance situation and next steps.
+        return {
+          openerLabel: "Say this first (use this wording)",
+          openerHelp: "Use this when the issue may be close to termination review and HR needs to be involved.",
+          script: `We’re reviewing the attendance situation and next steps.
 
 I’m not making a final decision in this meeting.
 
-HR will be involved before any final action is taken.`;
+HR will be involved before any final action is taken.`,
+          tone: [
+            "Be calm and controlled.",
+            "Do not overtalk the decision.",
+            "Do not say more than you know."
+          ],
+          goals: [
+            "Keep the conversation contained.",
+            "Avoid promising or implying a final outcome too early.",
+            "Move the matter into proper review."
+          ],
+          pushbackLabel: "If the employee demands an answer right now, say this",
+          pushback: `I understand you want an answer, but I’m not going to rush a final decision before the review is complete.`,
+          empathyLabel: "",
+          empathy: ""
+        };
       }
 
       if (state.issueType === "performance") {
         if (outcome === "coaching") {
-          return `I want to talk with you about your performance in [area].
+          return {
+            openerLabel: "Say this first (use this wording)",
+            openerHelp: "Use this to coach early while staying specific.",
+            script: `I want to talk with you about your performance in [area].
 
 Right now the issue is [example], and I need to see improvement.
 
-Going forward, the expectation is [clear standard], and we’ll follow up on it.`;
+Going forward, the expectation is [clear standard], and we’ll follow up on it.`,
+            tone: [
+              "Be calm, clear, and specific.",
+              "Do not ramble or soften the message so much that the expectation gets lost.",
+              "Focus on work output, not personality."
+            ],
+            goals: [
+              "Make the performance gap clear.",
+              "Explain what improvement looks like.",
+              "Set up the next follow-up conversation."
+            ],
+            pushbackLabel: "If the employee says they are trying their best, say this",
+            pushback: `I hear that, and I still need the work to meet the expected standard going forward.`,
+            empathyLabel: "Empathy line you can use",
+            empathy: `If something is blocking your ability to meet the expectation, tell me now so we can address the right issue.`
+          };
         }
 
         if (outcome === "written_warning") {
-          return `I need to talk with you about your performance.
+          return {
+            openerLabel: "Say this first (use this wording)",
+            openerHelp: "Use this when coaching already happened and the issue continued.",
+            script: `I need to talk with you about your performance.
 
 We’ve already talked about this before, and because the issue continued, this is now a written warning.
 
-The expectation going forward is [clear standard], and improvement needs to happen now.`;
+The expectation going forward is [clear standard], and improvement needs to happen now.`,
+            tone: [
+              "Be firm and professional.",
+              "Do not turn the conversation into a long debate over every example.",
+              "Stay focused on the repeated issue and the expectation."
+            ],
+            goals: [
+              "Make clear this is now formal corrective action.",
+              "Tie the warning to repeated performance gaps.",
+              "Set a clear improvement expectation."
+            ],
+            pushbackLabel: "If the employee disputes every example, say this",
+            pushback: `We can note your response, but I need to stay focused on the performance issue and the expectation going forward.`,
+            empathyLabel: "Empathy line you can use",
+            empathy: `I’m addressing the work issue directly, not attacking you personally.`
+          };
         }
 
         if (outcome === "final_warning") {
-          return `This is a serious performance conversation.
+          return {
+            openerLabel: "Say this first (use this wording)",
+            openerHelp: "Use this when performance is now at a late corrective-action stage.",
+            script: `This is a serious performance conversation.
 
 We’ve already addressed the issue, and the needed improvement has not happened.
 
-At this point, this is a final warning, and the next step may be termination review if it continues.`;
+At this point, this is a final warning, and the next step may be termination review if it continues.`,
+            tone: [
+              "Be serious, not dramatic.",
+              "Do not over-explain or sound unsure.",
+              "Keep the message clean and controlled."
+            ],
+            goals: [
+              "Communicate that time for informal correction has passed.",
+              "Make the employee understand the seriousness.",
+              "Avoid creating false hope or confusion."
+            ],
+            pushbackLabel: "If the employee says they did not know it was this serious, say this",
+            pushback: `That’s why I’m being very clear now: this is at a final warning stage, and immediate improvement is required.`,
+            empathyLabel: "",
+            empathy: ""
+          };
         }
 
-        return `We are reviewing the performance issue and next steps.
+        return {
+          openerLabel: "Say this first (use this wording)",
+          openerHelp: "Use this when HR review may be needed before any final step.",
+          script: `We are reviewing the performance issue and next steps.
 
 I’m not making a final decision in this conversation.
 
-HR will be involved before any final action is taken.`;
+HR will be involved before any final action is taken.`,
+          tone: [
+            "Stay calm and neutral.",
+            "Do not suggest the final answer before review is complete.",
+            "Keep the meeting professional and short."
+          ],
+          goals: [
+            "Control the conversation.",
+            "Avoid making promises or casual comments about the outcome.",
+            "Move the issue into proper review."
+          ],
+          pushbackLabel: "If the employee asks if they are being fired, say this",
+          pushback: `I’m not making a final decision in this conversation.
+
+The next step is review, not a rushed answer.`,
+          empathyLabel: "",
+          empathy: ""
+        };
       }
 
       if (state.issueType === "conduct") {
         if (state.detail === "insubordination_pushback") {
-          return `I want to address how that conversation went.
+          return {
+            openerLabel: "Say this first (use this wording)",
+            openerHelp: "Use this when the employee questioned direction but still complied.",
+            script: `I want to talk about how that situation was handled.
 
-You can ask questions, but once direction is clear, I need you to respond professionally and follow it.
+If something isn’t clear, it’s okay to ask questions—but once direction is given, I need it to be followed.
 
-Going forward, I expect that to be handled better.`;
+Going forward, I need to see that handled more professionally.`,
+            tone: [
+              "Be steady and respectful.",
+              "Do not sound personally offended.",
+              "Correct the behavior without turning it into a power struggle."
+            ],
+            goals: [
+              "Reset expectations on professionalism.",
+              "Distinguish questions from resistance.",
+              "Prevent future pushback from escalating."
+            ],
+            pushbackLabel: "If the employee says they were just asking questions, say this",
+            pushback: `You can ask questions. The issue is how it was handled once direction was clear.`,
+            empathyLabel: "Empathy line you can use",
+            empathy: `I’m not trying to make this bigger than it needs to be—I’m trying to be clear about expectations.`
+          };
         }
 
         if (state.detail === "insubordination_argumentative") {
-          return `I need to address how you handled that conversation.
+          return {
+            openerLabel: "Say this first (use this wording)",
+            openerHelp: "Use this when the employee complied, but the conversation became argumentative or disrespectful.",
+            script: `I need to talk with you about how that conversation went.
 
-The issue is not that you asked questions — it is that the conversation became argumentative and unprofessional.
+The issue is not that you asked questions—it’s that the conversation became argumentative and unprofessional.
 
-Going forward, I expect professional communication even when you disagree.`;
+Going forward, I need you to raise concerns without handling it that way.`,
+            tone: [
+              "Be firm, not angry.",
+              "Do not mirror the employee’s attitude.",
+              "Keep the focus on behavior, not personality."
+            ],
+            goals: [
+              "Correct the tone and conduct problem.",
+              "Keep the label tied to the actual behavior.",
+              "Prevent the same communication style from repeating."
+            ],
+            pushbackLabel: "If the employee says you are being too sensitive, say this",
+            pushback: `This is not about me being offended.
+
+It’s about the way the conversation was handled and the expectation going forward.`,
+            empathyLabel: "Empathy line you can use",
+            empathy: `If you were frustrated, say that directly next time instead of letting the conversation turn into an argument.`
+          };
         }
 
         if (state.detail === "insubordination_refusal") {
-          return `I need to address what happened.
+          return {
+            openerLabel: "Say this first (use this wording)",
+            openerHelp: "Use this when there was a direct refusal of a lawful work direction.",
+            script: `I need to address what happened.
 
 A work direction was given, and you did not follow it.
 
-Unless there is something I’m missing that needs review, that is a serious issue and it cannot continue.`;
+Unless there is something I’m missing that needs review, that is a serious issue and it cannot continue.`,
+            tone: [
+              "Be serious, direct, and controlled.",
+              "Do not argue or bait the employee into a fight.",
+              "Let the seriousness come from the wording, not your volume."
+            ],
+            goals: [
+              "Address the refusal directly.",
+              "Leave room for any important missing context.",
+              "Set a clear line that this cannot continue."
+            ],
+            pushbackLabel: "If the employee tries to relitigate the whole moment, say this",
+            pushback: `I’ll note your response, but I still need to address the fact that the direction was not followed.`,
+            empathyLabel: "Empathy line you can use",
+            empathy: `If there is a safety, medical, or other serious reason behind what happened, tell me now so it can be reviewed properly.`
+          };
         }
 
         if (state.detail === "insubordination_public") {
-          return `I need to address what happened in front of others.
+          return {
+            openerLabel: "Say this first (use this wording)",
+            openerHelp: "Use this when the refusal or disruption happened in front of others.",
+            script: `I need to address what happened in front of others.
 
-The issue is not just disagreement — it is that the refusal/disruption happened publicly and affected the workplace.
+The issue is not just disagreement—it’s that the refusal or disruption happened publicly and affected the workplace.
 
-That is being treated seriously.`;
+That is being treated seriously.`,
+            tone: [
+              "Be serious and concise.",
+              "Do not try to embarrass the employee back.",
+              "Keep the meeting private and controlled."
+            ],
+            goals: [
+              "Address both the refusal and the public disruption.",
+              "Keep the conversation from becoming another scene.",
+              "Make the seriousness clear."
+            ],
+            pushbackLabel: "If the employee says everyone saw it anyway, say this",
+            pushback: `That is part of why it’s serious.
+
+The way it was handled affected more than just you and me.`,
+            empathyLabel: "",
+            empathy: ""
+          };
         }
 
         if (state.detail === "sleeping") {
-          return `I need to talk with you about what was observed.
+          return {
+            openerLabel: "Say this first (use this wording)",
+            openerHelp: "Use this when sleeping on duty needs to be addressed seriously.",
+            script: `I need to talk with you about what was observed.
 
 You were observed asleep during work time, and that is a serious issue.
 
-We’re treating this seriously and reviewing next steps.`;
+We’re treating this seriously and reviewing next steps.`,
+            tone: [
+              "Be serious and factual.",
+              "Do not joke about it or soften it into something casual.",
+              "Stick to what was observed."
+            ],
+            goals: [
+              "Address the seriousness clearly.",
+              "Keep the conversation factual.",
+              "Avoid guessing before the review is complete."
+            ],
+            pushbackLabel: "If the employee denies it immediately, say this",
+            pushback: `I’m documenting what was observed and we’ll include your response as part of the review.`,
+            empathyLabel: "Empathy line you can use",
+            empathy: `If there is a medical or serious issue I need to know about, raise it now so it can be handled correctly.`
+          };
         }
 
         if (state.detail === "dishonesty") {
-          return `I need to address a serious concern.
+          return {
+            openerLabel: "Say this first (use this wording)",
+            openerHelp: "Use this when the issue involves honesty, trust, or possible falsification.",
+            script: `I need to address a serious concern.
 
 The issue here is honesty and accuracy, and that affects trust.
 
-We’re reviewing the facts carefully before the final next step is decided.`;
+We’re reviewing the facts carefully before the final next step is decided.`,
+            tone: [
+              "Be calm and serious.",
+              "Do not accuse beyond the facts you actually have.",
+              "Do not sound emotional or personal."
+            ],
+            goals: [
+              "Signal that this is serious.",
+              "Protect the fact review process.",
+              "Avoid saying more than the evidence supports."
+            ],
+            pushbackLabel: "If the employee gets defensive or says you are accusing them, say this",
+            pushback: `I’m addressing the concern and reviewing the facts carefully.
+
+I’m not going beyond what we can actually support.`,
+            empathyLabel: "",
+            empathy: ""
+          };
         }
 
         if (outcome === "coaching") {
-          return `I need to talk with you about your conduct.
+          return {
+            openerLabel: "Say this first (use this wording)",
+            openerHelp: "Use this to correct conduct early before it turns into stronger discipline.",
+            script: `I need to talk with you about your conduct.
 
 What happened was not acceptable, and I need it handled differently going forward.
 
-The expectation is professional behavior from here on out.`;
+The expectation is professional behavior from here on out.`,
+            tone: [
+              "Be direct and professional.",
+              "Do not sound embarrassed to address it.",
+              "Keep the message short so the expectation is clear."
+            ],
+            goals: [
+              "Correct the behavior early.",
+              "Set a professional expectation.",
+              "Prevent the issue from growing."
+            ],
+            pushbackLabel: "If the employee says it was not a big deal, say this",
+            pushback: `It is a big enough deal that I’m addressing it now so it does not become a bigger issue later.`,
+            empathyLabel: "",
+            empathy: ""
+          };
         }
 
         if (outcome === "written_warning") {
-          return `I need to talk with you about your conduct.
+          return {
+            openerLabel: "Say this first (use this wording)",
+            openerHelp: "Use this when conduct has moved into formal corrective action.",
+            script: `I need to talk with you about your conduct.
 
 Because this issue continued or was serious enough, this is now a written warning.
 
-The expectation is immediate improvement in how you handle yourself at work.`;
+The expectation is immediate improvement in how you handle yourself at work.`,
+            tone: [
+              "Be firm and measured.",
+              "Do not turn the meeting into a fight over labels.",
+              "Stay focused on behavior and expectation."
+            ],
+            goals: [
+              "Make clear that this is formal discipline.",
+              "Keep the focus on conduct, not character.",
+              "Set the immediate expectation."
+            ],
+            pushbackLabel: "If the employee says this is too harsh, say this",
+            pushback: `This is based on the conduct issue and the pattern we’ve already discussed.
+
+What I need now is immediate improvement.`,
+            empathyLabel: "",
+            empathy: ""
+          };
         }
 
         if (outcome === "final_warning") {
-          return `This is a serious conduct conversation.
+          return {
+            openerLabel: "Say this first (use this wording)",
+            openerHelp: "Use this when conduct is now at a final-warning stage.",
+            script: `This is a serious conduct conversation.
 
 The issue is now at a final warning level.
 
-You need immediate correction, or the next step may be termination review.`;
+You need immediate correction, or the next step may be termination review.`,
+            tone: [
+              "Be serious and controlled.",
+              "Do not overtalk or fill silence out of discomfort.",
+              "Let the employee feel the seriousness without you sounding threatening."
+            ],
+            goals: [
+              "Communicate that the issue is now at a late stage.",
+              "Set immediate expectations clearly.",
+              "Avoid unnecessary escalation in the room."
+            ],
+            pushbackLabel: "If the employee says you are making this too big, say this",
+            pushback: `This is at a final warning level because of the seriousness or the pattern involved.
+
+I need to be very clear about that.`,
+            empathyLabel: "",
+            empathy: ""
+          };
         }
 
-        return `We’re reviewing this conduct issue and next steps.
+        return {
+          openerLabel: "Say this first (use this wording)",
+          openerHelp: "Use this when the conduct issue needs HR review before a final decision.",
+          script: `We’re reviewing this conduct issue and next steps.
 
 I’m not making a final decision right now.
 
-HR will be involved before any final action is taken.`;
+HR will be involved before any final action is taken.`,
+          tone: [
+            "Be calm and careful.",
+            "Do not speak like the outcome is already final.",
+            "Keep the conversation controlled."
+          ],
+          goals: [
+            "Contain the meeting.",
+            "Avoid premature promises or threats.",
+            "Move the matter into proper review."
+          ],
+          pushbackLabel: "If the employee demands a final answer right now, say this",
+          pushback: `I’m not going to rush a final decision before the review is complete.`,
+          empathyLabel: "",
+          empathy: ""
+        };
       }
 
       if (state.issueType === "safety") {
-        return `I need to talk with you about what happened.
+        return {
+          openerLabel: "Say this first (use this wording)",
+          openerHelp: "Use this to address the issue without sounding cold, careless, or overly aggressive.",
+          script: `I need to talk with you about what happened.
 
 Right now my focus is making sure the situation is safe and understanding the facts.
 
-We’re going to review this before making any final decisions.`;
+We’re going to review this before making any final decisions.`,
+          tone: [
+            "Sound calm, serious, and steady.",
+            "Do not sound accusing, sarcastic, or dismissive.",
+            "Show concern first, then control the conversation."
+          ],
+          goals: [
+            "Address safety first.",
+            "Understand what happened.",
+            "Keep the situation from escalating while facts are being reviewed."
+          ],
+          pushbackLabel: "If the employee gets defensive or says it was no big deal, say this",
+          pushback: `I’m not treating this casually because safety issues can become serious very quickly.
+
+I need to make sure we understand exactly what happened first.`,
+          empathyLabel: "Empathy line you can use",
+          empathy: `I’m not jumping to conclusions—I want to make sure everyone is okay and that we handle this the right way.`
+        };
       }
 
-      return `I need to talk with you about the issue that came up.
-
-I want to be clear about the concern and the expectation going forward.
-
-We’ll document this and follow up as needed.`;
+      return base;
     }
 
-    function getAvoidSaying(recommendation) {
+    function getManagerScript(recommendation) {
+      return getConversationGuide(recommendation).script;
+    }
+
+    function getConversationOpenerHelp(recommendation) {
+      return getConversationGuide(recommendation).openerHelp;
+    }
+
+    function getHowToSayIt(recommendation) {
+      return getConversationGuide(recommendation).tone;
+    }
+
+    function getConversationGoals(recommendation) {
+      return getConversationGuide(recommendation).goals;
+    }
+
+    function getPushbackLabel(recommendation) {
+      return getConversationGuide(recommendation).pushbackLabel;
+    }
+
+    function getPushbackScript(recommendation) {
+      return getConversationGuide(recommendation).pushback;
+    }
+
+    function getEmpathyLabel(recommendation) {
+      return getConversationGuide(recommendation).empathyLabel;
+    }
+
+    function getEmpathyScript(recommendation) {
+      return getConversationGuide(recommendation).empathy;
+    }
+function getAvoidSaying(recommendation) {
       if (state.issueType === "protected" || state.issueType === "complaint" || state.legal === "yes") {
         return [
           "Do not say: 'I already know what happened.'",
@@ -1930,8 +2491,17 @@ We’ll document this and follow up as needed.`;
       const managerSummarySteps = getManagerSummarySteps(recommendation);
       const whyThisMatters = getWhyThisMatters(recommendation);
       const hrPlainEnglish = getHrPlainEnglish(recommendation);
+      const riskReal = getRealWorldRisk(recommendation);
+      const humanImpact = getHumanImpact();
       const documentation = getDocumentationItems();
       const script = getManagerScript(recommendation);
+      const scriptHelp = getConversationOpenerHelp(recommendation);
+      const howToSayIt = getHowToSayIt(recommendation);
+      const conversationGoals = getConversationGoals(recommendation);
+      const pushbackLabel = getPushbackLabel(recommendation);
+      const pushbackScript = getPushbackScript(recommendation);
+      const empathyLabel = getEmpathyLabel(recommendation);
+      const empathyScript = getEmpathyScript(recommendation);
       const avoidSaying = getAvoidSaying(recommendation);
 
       const premiumHtml = ownerUnlocked ? `
@@ -1940,10 +2510,48 @@ We’ll document this and follow up as needed.`;
             <ul>${whyThisMatters.map(item => `<li>${item}</li>`).join("")}</ul>
           </div>
 
-          <div class="panel panel-purple">
-            <h4>Why HR would care</h4>
-            <ul>${hrPlainEnglish.map(item => `<li>${item}</li>`).join("")}</ul>
+          <div class="panel panel-orange">
+            <h4>How this goes wrong in real life</h4>
+            <ul>${riskReal.map(item => `<li>${item}</li>`).join("")}</ul>
+            ${humanImpact ? `<div class="small-note" style="margin-top:10px;">${humanImpact}</div>` : ``}
           </div>
+
+          <div class="panel">
+            <h4>Say this to the employee (use this wording)</h4>
+            <p class="small-note" style="margin-top:0;">${scriptHelp}</p>
+            <div class="script-box">${script}</div>
+            <div class="copy-row">
+              <button class="btn btn-light" onclick='copyText(${JSON.stringify(script)})'>Copy Script</button>
+            </div>
+          </div>
+
+          <div class="panel panel-blue">
+            <h4>How to say it</h4>
+            <ul>${howToSayIt.map(item => `<li>${item}</li>`).join("")}</ul>
+          </div>
+
+          <div class="panel panel-purple">
+            <h4>What your goal is in this conversation</h4>
+            <ul>${conversationGoals.map(item => `<li>${item}</li>`).join("")}</ul>
+          </div>
+
+          <div class="panel">
+            <h4>${pushbackLabel}</h4>
+            <div class="script-box">${pushbackScript}</div>
+            <div class="copy-row">
+              <button class="btn btn-light" onclick='copyText(${JSON.stringify(pushbackScript)})'>Copy Response</button>
+            </div>
+          </div>
+
+          ${empathyScript ? `
+            <div class="panel panel-purple">
+              <h4>${empathyLabel}</h4>
+              <div class="script-box">${empathyScript}</div>
+              <div class="copy-row">
+                <button class="btn btn-light" onclick='copyText(${JSON.stringify(empathyScript)})'>Copy Empathy Line</button>
+              </div>
+            </div>
+          ` : ``}
 
           <div class="panel panel-orange">
             <h4>Do not say this in this situation</h4>
@@ -1951,16 +2559,13 @@ We’ll document this and follow up as needed.`;
           </div>
 
           <div class="panel panel-red">
-            <h4>What to document</h4>
+            <h4>After the conversation, document this</h4>
             <ul>${documentation.map(item => `<li>${item}</li>`).join("")}</ul>
           </div>
 
-          <div class="panel">
-            <h4>What to say</h4>
-            <div class="script-box">${script}</div>
-            <div class="copy-row">
-              <button class="btn btn-light" onclick='copyText(${JSON.stringify(script)})'>Copy Script</button>
-            </div>
+          <div class="panel panel-purple">
+            <h4>Why HR would care</h4>
+            <ul>${hrPlainEnglish.map(item => `<li>${item}</li>`).join("")}</ul>
           </div>
       ` : `
           <div class="panel panel-blue">
@@ -1972,27 +2577,34 @@ We’ll document this and follow up as needed.`;
           </div>
 
           <div class="premium-callout">
-            <h4>Most managers mess up the conversation here</h4>
+            <h4>⚠️ Most managers mess this up in the conversation</h4>
             <p class="premium-note" style="margin-top:0;">
-              The decision is only part of it. The bigger risk is what a manager says next, what they should avoid saying, and what needs to be documented.
+              The biggest risk is usually not the issue itself — it is what the manager says next.
+            </p>
+            <button class="btn btn-primary" onclick="scrollToFullAccess()">
+              Unlock manager conversation coaching
+            </button>
+          </div>
+
+          <div class="panel">
+            <h4>Say this to the employee (paid)</h4>
+            <div class="script-box" style="filter: blur(5px); user-select:none;">
+              Full conversation wording, tone guidance, pushback response, and empathy lines are available in Full Access.
+            </div>
+          </div>
+
+          <div class="premium-callout">
+            <h4>Unlock Full Access for the manager-protection layer</h4>
+            <p class="premium-note" style="margin-top:0;">
+              Full access shows managers what to say, how to say it, what to do if the employee pushes back, what not to say, and what to document after the conversation.
             </p>
 
-            <div class="panel" style="margin-top:14px;">
-              <h4>What to say</h4>
-              <div class="script-box" style="filter: blur(5px); user-select:none;">
-                Full conversation script available in Full Access.
-              </div>
-              <div class="copy-row">
-                <button class="btn btn-primary" onclick="scrollToFullAccess()">Unlock Script</button>
-              </div>
-            </div>
-
-            <div class="premium-teaser" style="margin-top:16px;">
+            <div class="premium-teaser">
               <ul>
-                <li>Exact script for this situation</li>
-                <li>What not to say in this scenario</li>
-                <li>What to document before the next step</li>
-                <li>Why HR would care if this goes sideways</li>
+                <li>Exact wording to open the conversation</li>
+                <li>How to sound calm, clear, and professional</li>
+                <li>What to say if the employee pushes back</li>
+                <li>What to document after the meeting</li>
               </ul>
             </div>
 
@@ -2001,9 +2613,9 @@ We’ll document this and follow up as needed.`;
             </div>
 
             <div class="panel panel-purple" style="margin-top:16px;">
-              <h4>Need this for your managers?</h4>
+              <h4>Not ready yet? Leave your email for updates and sample guidance.</h4>
               <p class="premium-note" style="margin-top:0;">
-                Use full access for the script, risk guidance, and documentation help. Or leave your email if you want updates or a company demo.
+                Use this if you want updates or want me to follow up later. The demo result above is still visible without giving your email.
               </p>
               ${leadFormHtml("demo")}
             </div>
