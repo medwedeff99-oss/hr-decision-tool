@@ -2638,164 +2638,258 @@ function getAvoidSaying(recommendation) {
 
 
     /* FINAL MODE + CONVERSATION ENGINE OVERRIDES
-       This block intentionally overrides earlier generic helper functions.
-       It keeps the same UI/decision tree, but changes the result brain so the tool
-       decides whether the manager should run a process, stop for safety, escalate to HR,
-       or have a real conversation. */
+       Rewritten to match the real manager process Brad described:
+       - manager-led, not HR-as-hero
+       - HR/legal/payroll behind the scenes when required
+       - realistic scripts, process steps, documents, and reaction handling
+       - works for locked demo and unlocked full-access modes */
 
     function getScenarioMode(recommendation) {
       const outcome = getOutcomeKey(recommendation.title);
+
       if (state.issueType === "protected" || state.issueType === "complaint" || state.legal === "yes") return "escalate";
-      if (state.issueType === "safety") return "action";
+      if (state.issueType === "safety") return "safety_action";
+
       if (state.issueType === "attendance" && state.detail === "no_call") {
-        if (outcome === "termination" || state.severity === "severe" || state.prior === "final") return "termination";
-        if (state.prior === "none" && (state.severity === "minor" || state.severity === "repeated")) return "process";
-        return "process_or_conversation";
+        if (outcome === "termination" || state.severity === "severe" || state.prior === "final") return "job_abandonment_review";
+        if (state.prior === "none" && (state.severity === "minor" || state.severity === "repeated")) return "ncns_outreach";
+        return "ncns_return_or_continue";
       }
+
+      if (outcome === "termination") return "termination_protocol";
       return "conversation";
+    }
+
+    function isTerminationLike(recommendation) {
+      const mode = getScenarioMode(recommendation);
+      const outcome = getOutcomeKey(recommendation.title);
+      return mode === "termination_protocol" || mode === "job_abandonment_review" || outcome === "termination";
     }
 
     function getActionLine(recommendation) {
       const mode = getScenarioMode(recommendation);
       const outcome = getOutcomeKey(recommendation.title);
-      if (mode === "process") return "Attempt contact and document — do not run a discipline conversation yet";
-      if (mode === "process_or_conversation") return "Hear them out first, then decide the next attendance step";
-      if (mode === "termination") return "Move to job-abandonment / termination review";
-      if (mode === "action") return "Stop the unsafe issue first, then address it";
-      if (mode === "escalate") return "Pause — route this to HR before discipline";
-      if (outcome === "termination") return "Move to termination review with HR";
-      if (outcome === "final_warning") return "Move to final warning review";
+
+      if (mode === "ncns_outreach") return "Call and document outreach — this is not discipline yet";
+      if (mode === "ncns_return_or_continue") return "If absent, keep outreach; if returned, hear them out first";
+      if (mode === "job_abandonment_review") return "Move to job-abandonment review";
+      if (mode === "safety_action") return "Control the safety issue first";
+      if (mode === "escalate") return "Pause normal discipline and route the issue for review";
+      if (mode === "termination_protocol") return "Use termination protocol — prepare documents, pay, and controlled meeting";
+
+      if (outcome === "final_warning") return "Move to final-warning-level conversation";
       if (outcome === "written_warning") return "Issue a written warning";
-      if (outcome === "coaching") return "Have a coaching conversation";
+      if (outcome === "coaching") return "Have a manager coaching conversation";
+      if (outcome === "investigation") return "Pause and review the facts first";
       return recommendation.title;
     }
 
     function getWhyLine(recommendation) {
       const mode = getScenarioMode(recommendation);
       const outcome = getOutcomeKey(recommendation.title);
-      if (mode === "process") return "Because a no-call/no-show is handled through contact attempts and documentation before there is any employee conversation.";
-      if (mode === "process_or_conversation") return "Because the employee either needs to be contacted or, if they returned, you need to hear the reason before deciding discipline.";
-      if (mode === "termination") return "Because repeated no-call/no-show can become job abandonment when contact attempts are documented and the employee has not responded.";
-      if (mode === "action") return "Because safety is handled in this order: stop the risk, understand what happened, then decide discipline.";
-      if (mode === "escalate") return "Because a complaint, leave, medical, retaliation, or other protected-risk issue can turn a normal discipline conversation into an HR matter.";
-      if (state.issueType === "attendance") {
-        if (outcome === "coaching") return "Because this is an attendance issue that should be corrected early before it becomes a pattern.";
-        if (outcome === "written_warning") return "Because the attendance issue appears repeated or already addressed, so the expectation needs to be formal now.";
-        if (outcome === "final_warning") return "Because the pattern is moving beyond early correction and needs a serious final-warning-level review.";
-        return "Because attendance discipline depends on pattern, prior coaching, and whether anything protected is involved.";
+
+      if (mode === "ncns_outreach") {
+        return "Because there is no employee conversation yet. The manager’s job is to call, leave a short voicemail, and document each attempt.";
       }
-      if (state.issueType === "performance") return "Because performance issues are strongest when the manager uses clear examples, sets a measurable expectation, and gives a fair chance to improve.";
-      if (state.issueType === "conduct") return "Because conduct issues can escalate quickly when managers label behavior too fast or react emotionally instead of staying specific.";
+      if (mode === "ncns_return_or_continue") {
+        return "Because the next step depends on whether the employee is still missing or came back with an explanation that changes the risk.";
+      }
+      if (mode === "job_abandonment_review") {
+        return "Because repeated no-call/no-show can become job abandonment only after documented outreach and policy review.";
+      }
+      if (mode === "termination_protocol") {
+        return "Because termination is not just a script. It requires a policy-based reason, final pay timing, written notice, benefits/COBRA handling, property return, and a safe meeting setup.";
+      }
+      if (mode === "safety_action") {
+        return "Because safety issues are handled in this order: stop the risk, stabilize the room, understand the facts, then decide discipline.";
+      }
+      if (mode === "escalate") {
+        return "Because this may involve leave, medical, accommodation, pregnancy, complaint, retaliation, wage/hour, safety reporting, or another protected-risk issue.";
+      }
+
+      if (state.issueType === "attendance") {
+        if (outcome === "coaching") return "Because this is early enough to correct directly before it becomes a documented pattern.";
+        if (outcome === "written_warning") return "Because the attendance problem appears repeated or previously coached.";
+        if (outcome === "final_warning") return "Because the attendance pattern is now serious enough that the next step must be clearly understood.";
+        return "Because attendance decisions depend on pattern, policy, prior coaching, and whether a protected reason is involved.";
+      }
+
+      if (state.issueType === "performance") {
+        if (outcome === "coaching") return "Because performance has two tracks: normal development/review conversations and immediate work-correction conversations. This appears coachable if handled clearly.";
+        if (outcome === "written_warning") return "Because the expectation has likely already been discussed and the issue continued.";
+        if (outcome === "final_warning") return "Because the performance issue is now beyond simple coaching and needs a final-warning-level reset.";
+        return "Because performance decisions are strongest when tied to specific tasks, standards, examples, and follow-up.";
+      }
+
+      if (state.issueType === "conduct") {
+        if (state.detail === "insubordination_pushback") return "Because pushback is not the same thing as refusal. Correct the tone and process without over-labeling it.";
+        if (state.detail === "insubordination_argumentative") return "Because the employee may have complied, but argumentative conduct still needs correction.";
+        if (state.detail === "insubordination_refusal") return "Because direct refusal of a clear work direction is serious and should be reviewed carefully.";
+        if (state.detail === "sleeping") return "Because sleeping on duty is serious, but the manager should observe, ask what happened, and not assume the reason.";
+        if (state.detail === "dishonesty") return "Because trust issues can move faster than normal coaching, but accusations must stay fact-based.";
+        return "Because conduct conversations can go sideways fast if the manager reacts emotionally or uses labels instead of facts.";
+      }
+
       return recommendation.summary;
     }
 
     function getManagerSummarySteps(recommendation) {
       const mode = getScenarioMode(recommendation);
       const outcome = getOutcomeKey(recommendation.title);
-      if (mode === "process") {
+
+      if (mode === "ncns_outreach") {
         return [
-          "Call the employee 30–60 minutes after the missed shift starts.",
-          "If no answer, send one short neutral text and/or leave a short voicemail.",
-          "Document the date, time, and method of each contact attempt.",
-          "Repeat the same clean process if there is still no response on Day 2."
+          "Call first; do not lead with discipline.",
+          "Leave a short voicemail if there is no answer.",
+          "Document each attempt with date, time, and method.",
+          "Follow your company’s job-abandonment policy before treating the employee as resigned."
         ];
       }
-      if (mode === "process_or_conversation") {
+
+      if (mode === "ncns_return_or_continue") {
         return [
-          "If the employee is still absent, keep documenting contact attempts.",
-          "If the employee returns, hear the explanation before deciding discipline.",
-          "If the reason involves something extreme like arrest, hospitalization, injury, or possible leave, involve HR before deciding.",
-          "If there is no valid reason, decide whether to continue employment or move to stronger action based on policy, consistency, and work history."
+          "If the employee is still absent, keep following the outreach/job-abandonment process.",
+          "If the employee returns or calls back, start with: “What happened?”",
+          "If the explanation is normal or weak, move into the attendance step that fits the record.",
+          "If the explanation is extreme, such as hospitalization, arrest, injury, or possible leave, pause before deciding anything final."
         ];
       }
-      if (mode === "termination") {
+
+      if (mode === "job_abandonment_review") {
         return [
-          "Confirm the employee missed the required number of consecutive scheduled workdays without contact.",
-          "Confirm call/text/voicemail attempts were documented.",
+          "Confirm the employee missed the policy-required number of scheduled workdays without proper contact.",
+          "Confirm all call/voicemail/outreach attempts were documented.",
           "Coordinate with HR/payroll before final processing.",
-          "Treat late-breaking extreme facts, such as hospitalization or arrest, as HR review items before reversing or finalizing anything."
+          "If new extreme facts come in later, review before reversing or finalizing the status."
         ];
       }
-      if (mode === "action") {
+
+      if (mode === "termination_protocol") {
         return [
-          "Stop or correct the unsafe behavior immediately.",
-          "Make sure the area, employee, customer, or team is safe before discussing discipline.",
-          "Ask what happened without assuming motive.",
-          "Escalate quickly if there was serious risk, injury, threat, impairment, or weapon concern."
+          "Confirm the decision is tied to company policy and documented facts.",
+          "Prepare the termination letter and request signature acknowledging receipt.",
+          "Prepare final pay according to your state law before the meeting.",
+          "Set the room: private, calm, two company reps when possible, and safety planned if risk exists.",
+          "Keep the meeting short, empathetic, and focused on next steps."
         ];
       }
+
+      if (mode === "safety_action") {
+        return [
+          "Stop the unsafe behavior or control the risk first.",
+          "Keep people safe before discussing discipline.",
+          "Ask what happened without assuming motive.",
+          "Escalate immediately if there is violence, weapon concern, impairment, injury, or active danger."
+        ];
+      }
+
       if (mode === "escalate") {
         return [
-          "Pause the discipline conversation.",
-          "Listen and capture the basic facts without investigating on your own.",
-          "Do not promise an outcome or challenge the employee’s concern in the moment.",
-          "Bring HR in before taking the next step."
+          "Pause normal discipline.",
+          "Listen and capture basic facts only.",
+          "Do not ask detailed medical, pregnancy, disability, or personal questions.",
+          "Move the issue into the proper review process before taking action."
         ];
       }
-      if (state.issueType === "attendance") {
-        return recommendation.managerSteps;
-      }
+
       if (state.issueType === "performance") {
         return [
-          "Use specific work examples, not general labels.",
-          "State the expected standard clearly.",
-          "Give the employee a chance to respond or explain obstacles.",
-          "Set the next check-in or consequence clearly."
+          "Decide whether this is development/review feedback or an immediate work-correction issue.",
+          "Use specific examples, not general labels.",
+          "State the standard and what needs to change.",
+          "Let the employee respond, then set the follow-up expectation."
         ];
       }
+
       if (state.issueType === "conduct") {
         return [
-          "Describe exactly what was said or done.",
-          "Avoid labels like bad attitude unless you can support them with facts.",
-          "State the expected conduct going forward.",
-          "Do not argue; redirect back to the behavior and expectation."
+          "Describe exactly what was said, done, or observed.",
+          "Separate attitude, argument, and true refusal — they are not the same.",
+          "Use empathy to keep the room calm, then reset the expectation.",
+          "Do not argue; redirect back to conduct and next steps."
         ];
       }
+
       return recommendation.managerSteps;
     }
 
     function getBeforeActingItems(recommendation) {
       const mode = getScenarioMode(recommendation);
-      if (mode === "process") return [
-        "Do not write a long text or sound angry.",
-        "Do not assume they quit, got arrested, or had a medical issue on Day 1.",
-        "Do not create a discipline script until the employee either responds or returns."
-      ];
-      if (mode === "process_or_conversation") return [
-        "Do not decide before you hear the explanation if the employee returned.",
-        "Do not ask probing medical questions; let HR handle protected or sensitive issues.",
-        "Do not ignore your normal attendance/job-abandonment policy or past practice."
-      ];
-      if (mode === "termination") return [
-        "Do not finalize without confirming documented contact attempts.",
-        "Do not call it misconduct if your policy treats it as voluntary job abandonment.",
-        "Do not reverse or rehire without HR review if extreme facts come in later."
-      ];
-      if (mode === "action") return [
-        "Do not wait to correct an active safety risk.",
-        "Do not shame the employee in front of others unless immediate direction is needed to protect safety.",
-        "Do not confuse a safety complaint with simple misconduct."
-      ];
-      if (mode === "escalate") return [
-        "Do not continue discipline if the employee raises harassment, retaliation, medical, leave, pregnancy, disability, or safety-reporting concerns.",
-        "Do not ask detailed personal or medical questions.",
-        "Do not say anything that sounds like punishment for raising the concern."
-      ];
+
+      if (mode === "ncns_outreach") {
+        return [
+          "Do not text angry messages.",
+          "Do not say they are fired on Day 1.",
+          "Do not assume the reason for the absence.",
+          "Check the company call-in and job-abandonment policy."
+        ];
+      }
+
+      if (mode === "ncns_return_or_continue") {
+        return [
+          "Do not decide before you hear what happened.",
+          "Do not ask probing medical questions.",
+          "Do not ignore extreme explanations like hospitalization, arrest, injury, or emergency.",
+          "Do not skip your normal attendance or points policy."
+        ];
+      }
+
+      if (mode === "job_abandonment_review") {
+        return [
+          "Do not finalize without checking the documented outreach attempts.",
+          "Do not call it misconduct if your policy treats it as voluntary job abandonment.",
+          "Do not reverse or reinstate on the spot if the employee later appears with a serious explanation.",
+          "Confirm final pay and separation paperwork before closing the case."
+        ];
+      }
+
+      if (mode === "termination_protocol") {
+        return [
+          "Do not terminate without policy tie-in and documentation.",
+          "Do not start the meeting unless final pay timing is ready for your state.",
+          "Do not debate the decision in the meeting.",
+          "Do not make HR the villain or say, “HR made this decision.”",
+          "Do not ignore safety planning if the employee may become volatile."
+        ];
+      }
+
+      if (mode === "safety_action") {
+        return [
+          "Do not keep talking if there is active danger.",
+          "Do not treat threats, weapons, impairment, or violence like ordinary coaching.",
+          "Do not shame someone publicly unless immediate safety requires direct instruction.",
+          "Follow company safety/workplace violence policy."
+        ];
+      }
+
+      if (mode === "escalate") {
+        return [
+          "Do not continue ordinary discipline after a protected concern is raised.",
+          "Do not ask for diagnosis, medical details, pregnancy details, or private personal information.",
+          "Do not say anything that sounds like punishment for raising the concern.",
+          "Do not promise an outcome before review."
+        ];
+      }
+
       return [
-        "Know the specific examples before the conversation.",
-        "Start neutral, then move to the expectation.",
-        "Keep the conversation private, calm, and brief."
+        "Know your examples before the conversation.",
+        "Start with what happened, not a label.",
+        "Keep the room calm using empathy, not argument.",
+        "End with the expectation and next step."
       ];
     }
 
     function getConversationOpenerHelp(recommendation) {
       const mode = getScenarioMode(recommendation);
-      if (mode === "process") return "Use this only for voicemail/text outreach. There is no employee conversation yet because the employee did not show up.";
-      if (mode === "process_or_conversation") return "Use the outreach wording if the employee is still absent. Use the return-to-work conversation only if the employee comes back or responds.";
-      if (mode === "termination") return "This is not a coaching conversation. Use HR/payroll processing language after job abandonment is confirmed.";
-      if (mode === "action") return "Use this at the moment of the unsafe act. Correct the safety issue first, then ask what happened.";
-      if (mode === "escalate") return "Use this to slow the conversation down and route the matter to HR without making promises or asking unsafe questions.";
-      return "Use this as the manager’s natural conversation flow: start neutral, state the behavior, set the expectation, then pause for the employee response.";
+
+      if (mode === "ncns_outreach") return "Use this only for call/voicemail outreach. There is no discipline conversation yet because the employee has not shown up.";
+      if (mode === "ncns_return_or_continue") return "Use the outreach wording if still absent. Use the return conversation only if the employee calls back or walks in.";
+      if (mode === "job_abandonment_review") return "This is a job-abandonment process, not a coaching conversation.";
+      if (mode === "termination_protocol") return "Use this for the termination meeting. Keep it short, controlled, empathetic, and focused on next steps.";
+      if (mode === "safety_action") return "Use this to stop the risk first. Conversation comes after safety is controlled.";
+      if (mode === "escalate") return "Use this to slow the conversation down and move the issue to review without making promises or asking unsafe questions.";
+      if (state.issueType === "performance") return "Use the version that matches the situation: development/review feedback or immediate work-correction feedback.";
+      return "Use this as a natural manager conversation: observe, ask what happened, listen, reset expectation, and close with next steps.";
     }
 
     function getManagerScript(recommendation) {
@@ -2803,166 +2897,787 @@ function getAvoidSaying(recommendation) {
       const outcome = getOutcomeKey(recommendation.title);
       const d = state.detail;
 
-      if (mode === "process") {
-        return `VOICEMAIL / TEXT:\nHey, you were scheduled today and haven’t checked in. Give me a call back when you get this.\n\nMANAGER NOTE:\nKeep it short. This is outreach, not discipline. Document the attempt.`;
+      if (mode === "ncns_outreach") {
+        return `DAY 1 VOICEMAIL:
+Hi [Employee Name], this is [Manager Name].
+
+I’m calling to check in. You were scheduled for your shift today and we haven’t heard from you.
+
+I hope you’re okay. Please give me a call back when you get this.
+
+
+DAY 2 VOICEMAIL:
+Hi [Employee Name], this is [Manager Name] following up again.
+
+You were scheduled again and we still have not heard from you.
+
+Please call me back as soon as possible so we know what is going on.
+
+
+DAY 3 FINAL OUTREACH:
+Hi [Employee Name], this is [Manager Name].
+
+I’m calling again because we still have not heard from you after your missed shifts.
+
+I hope you’re okay, but if we do not hear from you by the end of the day, we will treat this under our job-abandonment policy.
+
+Please call me back as soon as possible.
+
+
+MANAGER NOTE:
+Call and leave voicemail. Avoid long texts unless company practice allows it.
+Document each attempt.
+Follow the company policy. Some policies use a points system; others use progressive discipline or job-abandonment language.`;
       }
-      if (mode === "process_or_conversation") {
-        return `IF THEY ARE STILL ABSENT:\nHey, you were scheduled and we still have not heard from you. Please contact me as soon as possible.\n\nIF THEY RETURN OR CALL BACK:\nWalk me through what happened and why you were not able to call in.\n\nI’m going to listen first, then we’ll decide the next step based on what happened, our policy, and the attendance record.\n\nIf this involves something serious that HR needs to review, we’ll pause before making a final decision.`;
+
+      if (mode === "ncns_return_or_continue") {
+        return `IF EMPLOYEE IS STILL ABSENT:
+Hi [Employee Name], this is [Manager Name].
+
+You were scheduled and we still have not heard from you.
+
+Please call me back as soon as possible.
+
+
+IF EMPLOYEE RETURNS OR CALLS BACK:
+Hey [Employee Name], what happened?
+
+We were concerned. You missed your shift and we did not hear anything from you.
+
+Let me understand what happened first.
+
+
+IF THE EXPLANATION IS NORMAL / WEAK:
+I hear you.
+
+The issue is we did not hear from you at all. No call, no heads up, nothing.
+
+That puts us in a tough spot, and it cannot continue.
+
+We need to address this as an attendance issue and talk through the next step.
+
+
+IF THE EXPLANATION IS EXTREME:
+Okay, I hear you.
+
+I’m not going to make a final call right this second.
+
+We had already started reviewing this under the job-abandonment process because there was no communication.
+
+Let me review this before we confirm the next step.`;
       }
-      if (mode === "termination") {
-        return `This has moved out of a coaching conversation.\n\nThe employee has not reported to work or made contact after documented outreach attempts.\n\nCoordinate with HR/payroll and process this as job abandonment according to policy and past practice.`;
+
+      if (mode === "job_abandonment_review") {
+        return `JOB-ABANDONMENT / TERMINATION REVIEW:
+This has moved out of a coaching conversation.
+
+The employee has not reported to work or made contact after documented outreach attempts.
+
+Before finalizing:
+- Confirm the policy threshold was met
+- Confirm all outreach attempts were documented
+- Confirm final pay and separation paperwork
+- Review any late explanation before reversing or finalizing status
+
+If the employee appears after the process started:
+I hear you.
+
+Because we had no communication, we started reviewing this under our job-abandonment process.
+
+I’m not going to decide this on the spot. We will review what you shared and follow up on the final status.`;
       }
-      if (mode === "action") {
-        if (d === "unsafe") return `I need to stop you for a second.\n\nWhat just happened was not safe, and we need to correct it now.\n\nWalk me through what happened so I understand whether this was a mistake, a shortcut, or a concern you were trying to raise.\n\nGoing forward, this procedure needs to be followed every time.`;
-        if (d === "violence") return `I need everyone to step back for safety right now.\n\nWe are not going to continue this conversation in the heat of the moment.\n\nI’m going to get HR/leadership involved and make sure this is handled safely and correctly.`;
-        if (d === "substance") return `I need to pause work for safety reasons.\n\nI’m not going to argue or make assumptions right now.\n\nWe’re going to follow the company process and involve HR/leadership before next steps are decided.`;
-        if (d === "weapons") return `I need to stop this immediately and make sure everyone is safe.\n\nThis is not a normal coaching conversation.\n\nHR/leadership needs to be involved right now before anything else happens.`;
-        return `I need to stop you for a second.\n\nWhat happened creates a safety concern, and we need to address it now.\n\nWalk me through what happened, then we’ll decide the next step.`;
+
+      if (mode === "termination_protocol") {
+        return `TERMINATION MEETING SCRIPT:
+[Employee Name], we are ending your employment effective today.
+
+This decision is based on [brief policy-based reason].
+
+I know this is difficult. I’m going to walk through the next steps with you now.
+
+
+HAND THE EMPLOYEE THE LETTER:
+This letter confirms the separation and the effective date.
+
+Please sign here to acknowledge that you received it. Your signature does not have to mean you agree with the decision.
+
+
+FINAL PAY / DOCUMENTS:
+Here is your final pay information.
+
+We will also provide the benefits and continuation information that applies, and we’ll coordinate return of company property.
+
+
+IF THE EMPLOYEE CRIES:
+I understand this is a lot.
+
+Take a moment if you need to. We can go through the next steps when you’re ready.
+
+
+IF THE EMPLOYEE ARGUES:
+I hear you.
+
+I know you do not agree with the decision.
+
+The decision has been made, so right now I want to focus on making sure you have the information and next steps you need.
+
+
+IF THE EMPLOYEE GETS HEATED:
+I understand this is frustrating.
+
+Let’s take a second. We’re going to keep this calm and focused on next steps.
+
+
+MANAGER NOTE:
+Do not debate the decision.
+Do not over-explain.
+Do not blame HR.
+If behavior becomes unsafe, end the meeting and follow safety/workplace violence protocol.`;
       }
+
+      if (mode === "safety_action") {
+        if (d === "unsafe") return `IN THE MOMENT:
+I need to stop you for a second.
+
+That was not safe, and we need to correct it now.
+
+Walk me through what happened.
+
+
+AFTER THEY RESPOND:
+I hear you.
+
+The issue is that someone could have been hurt.
+
+Going forward, this procedure needs to be followed every time. We are not going to shortcut safety.`;
+        if (d === "violence") return `IN THE MOMENT:
+We’re going to stop this right now.
+
+Everyone needs to step back and calm down.
+
+This is now a safety issue, and we are going to follow the company safety process.
+
+
+IF THEY KEEP ESCALATING:
+This conversation is over for now.
+
+We are going to focus on safety and follow the proper process.`;
+        if (d === "substance") return `IN THE MOMENT:
+I need to pause work for safety reasons.
+
+I’m not going to argue or make assumptions right now.
+
+We are going to follow the company process before any next step is decided.`;
+        if (d === "weapons") return `IN THE MOMENT:
+We need to stop this immediately.
+
+This is a safety issue, not a normal coaching conversation.
+
+We are going to follow the workplace safety process right now.`;
+        return `IN THE MOMENT:
+I need to stop you for a second.
+
+What happened creates a safety concern.
+
+Walk me through what happened, then we’ll decide the next step.`;
+      }
+
       if (mode === "escalate") {
-        if (state.issueType === "complaint") return `I want to understand what you’re raising.\n\nWalk me through what happened, who was involved, and when it happened.\n\nI’m not going to make a decision or take sides right now. I’m going to get HR involved so this is handled the right way.`;
-        if (state.issueType === "protected") return `I want to slow this down and make sure we handle it correctly.\n\nI’m not going to ask for personal details or make a decision right now.\n\nI’m going to involve HR so they can review the right next step with you.`;
-        return `Before we go further, I want to slow this down.\n\nThere may be something here HR needs to review.\n\nI’m not making a final decision in this conversation.`;
+        if (state.issueType === "complaint") return `I want to understand what you’re raising.
+
+Walk me through what happened, who was involved, and when it happened.
+
+I’m not going to take sides or make a decision in this moment.
+
+We are going to make sure this is reviewed the right way.`;
+        if (state.issueType === "protected") return `I want to slow this down and make sure we handle it correctly.
+
+I’m not going to ask you for private details or make a decision right now.
+
+We are going to review the right next step before anything else happens.`;
+        return `Before we go further, I want to slow this down.
+
+There may be something here that needs review before this is treated like a normal discipline issue.
+
+I’m not making a final decision in this conversation.`;
       }
 
       if (state.issueType === "attendance") {
-        if (outcome === "coaching") return `I want to talk with you about your attendance.\n\nOn [date], you were [late / absent / left early], and I need to make sure expectations are clear.\n\nGoing forward, I need you here on time and following the call-in process if something comes up.\n\nIf something is affecting your ability to meet that expectation, tell me enough so I know whether HR needs to be involved. Otherwise, this needs to improve now.`;
-        if (outcome === "written_warning") return `I want to talk with you about your attendance.\n\nWe already addressed this on [prior date], and it continued on [recent dates]. Because it continued, this is now moving to a written warning.\n\nGoing forward, I need you here on time and following the call-in process every time.\n\nIf there is something affecting your ability to meet that expectation, tell me enough so we know whether HR needs to review it. Otherwise, I need immediate improvement.`;
-        if (outcome === "final_warning") return `This is a serious attendance conversation.\n\nWe have already addressed this, and the attendance issue continued on [recent dates]. This is now at a final-warning level.\n\nGoing forward, I need immediate and sustained improvement. If this continues, the next step may be termination review.\n\nI’m not here to argue the whole history, but I do need to be clear about the expectation from this point forward.`;
-        return `We’re reviewing the attendance situation and next steps.\n\nI’m not making a final decision in this conversation.\n\nHR will be involved before any final action is taken.`;
+        if (outcome === "coaching") return `Hey [Employee Name], I want to talk with you about attendance.
+
+I noticed you were late more than just a few minutes, and we already talked about this recently.
+
+What’s going on?
+
+
+IF THEY GIVE AN EXCUSE:
+I hear you. Things happen.
+
+But at the end of the day, I need you here on time. That part is your responsibility.
+
+If something is really getting in the way, tell me enough so we handle it correctly. Otherwise, this needs to be fixed moving forward.`;
+        if (outcome === "written_warning") return `Hey [Employee Name], I need to talk with you about attendance.
+
+We talked about this already, and it is still happening.
+
+At this point, it is becoming a pattern, so this is moving to a written warning.
+
+I need you here on time and following the call-in process every time.`;
+        if (outcome === "final_warning") return `This is a serious attendance conversation.
+
+We have already talked about this, and the issue is still continuing.
+
+At this point, this is at a final-warning level.
+
+I need immediate and sustained improvement. If this continues, the next step may be termination review.`;
+        return `We are reviewing the attendance situation and next steps.
+
+I’m not making a final decision in this conversation.
+
+We will review the record, policy, and any information you provide before final action.`;
       }
 
       if (state.issueType === "performance") {
-        if (outcome === "coaching") return `I want to go over your recent work in [area].\n\nThe expectation is [standard], and the issue I’m seeing is [specific example].\n\nI want to understand what’s getting in the way, but going forward I need [specific improvement].\n\nLet’s agree on what needs to change before our next check-in.`;
-        if (outcome === "written_warning") return `I want to talk about the performance issue we’ve already discussed.\n\nWe talked about [expectation] on [date], and the same issue continued with [specific example]. Because it continued, this is now a written warning.\n\nGoing forward, I need [specific standard] by [timeline].\n\nIf there is something preventing you from meeting that expectation, tell me now so we can address it appropriately.`;
-        if (outcome === "final_warning") return `This is a serious performance conversation.\n\nWe have already discussed the expectation and the improvement needed, but the issue has continued.\n\nAt this point, this is at a final-warning level. I need immediate and sustained improvement in [specific area].\n\nIf it does not improve, the next step may be termination review.`;
-        return `We’re reviewing the performance issue and next steps.\n\nI’m not making a final decision in this conversation.\n\nHR will be involved before any final action is taken.`;
+        if (outcome === "coaching") {
+          if (d === "quality") return `REVIEW / DEVELOPMENT STYLE:
+One area I want you to keep developing is the quality and consistency of your work.
+
+You are doing good things in [strength], and I want to keep building on that.
+
+At the same time, I’m seeing [specific quality issue], and I need that tightened up going forward.
+
+
+IMMEDIATE WORK-CORRECTION STYLE:
+I need to talk through this work product with you.
+
+This has to be corrected now because [impact].
+
+Walk me through what happened, then we’ll agree on what needs to be fixed and by when.`;
+          if (d === "productivity") return `REVIEW / DEVELOPMENT STYLE:
+One area I want you to keep growing in is staying on pace with the workload.
+
+You have strengths in [strength], and I want to keep building on those.
+
+At the same time, I need to see more consistency in completing work on time.
+
+
+IMMEDIATE WORK-CORRECTION STYLE:
+I need to talk with you about the assignments that are not getting completed.
+
+This is affecting [team/workflow/customer/student/deadline], so it needs to improve now.
+
+What is getting in the way?`;
+          if (d === "followthrough") return `REVIEW / DEVELOPMENT STYLE:
+One area I want you to keep developing is follow-through.
+
+When something is assigned, I need confidence it will either get completed or you will update me early if there is a problem.
+
+
+IMMEDIATE WORK-CORRECTION STYLE:
+I need to talk about the follow-through on [task/project].
+
+This was assigned, and it was not completed the way it needed to be.
+
+Walk me through what happened, because going forward I need either completion or early communication before the deadline is missed.`;
+        }
+
+        if (outcome === "written_warning") return `I need to talk about the performance issue we already discussed.
+
+We talked about [expectation] before, and the same issue continued with [specific example].
+
+Because it continued, this is now a written warning.
+
+Going forward, I need [specific standard] by [timeline].
+
+If something is preventing you from meeting that expectation, tell me now so we can address the right issue.`;
+
+        if (outcome === "final_warning") return `This is a serious performance conversation.
+
+We have already discussed the expectation and the improvement needed, but the issue has continued.
+
+At this point, this is at a final-warning level.
+
+I need immediate and sustained improvement in [specific area]. If it does not improve, the next step may be termination review.`;
+
+        return `We are reviewing the performance issue and next steps.
+
+I’m not making a final decision in this conversation.
+
+We will review the facts, prior expectations, and documentation before final action.`;
       }
 
       if (state.issueType === "conduct") {
-        if (d === "insubordination_pushback") return `I want to talk about how that conversation went.\n\nIt is okay to ask questions when something is unclear. The issue is that the discussion became disruptive and slowed down the direction that needed to be followed.\n\nGoing forward, ask the question if needed, but once direction is clear, I need you to follow it professionally.`;
-        if (d === "insubordination_argumentative") return `I need to talk with you about how that conversation was handled.\n\nThe concern is not that you had a question or disagreed. The concern is that the tone became argumentative and unprofessional.\n\nGoing forward, I need you to raise concerns respectfully and follow direction without turning it into a conflict.`;
-        if (d === "insubordination_refusal") return `I need to talk with you about what happened.\n\nA work direction was given, and from what I understand, it was not followed.\n\nWalk me through your side, because I want to understand whether something was unclear or whether there was another concern.\n\nIf there was not a valid reason, this is a serious issue and cannot continue.`;
-        if (d === "insubordination_public") return `I need to talk about what happened in front of the team.\n\nThe concern is not just disagreement. The concern is that direction was refused or disrupted publicly, and that affects the workplace.\n\nWe need to review the facts and handle this seriously. Going forward, concerns need to be raised professionally, not in a way that disrupts the team.`;
-        if (d === "sleeping") return `I need to talk with you about what was observed.\n\nYou were observed asleep during work time on [date/time]. That is a serious concern because you were expected to be working and alert.\n\nWalk me through what happened.\n\nAfter I understand your response, we’ll determine the next step based on the facts, the role, safety impact, and prior history.`;
-        if (d === "dishonesty") return `I need to address a serious concern about accuracy and honesty.\n\nThe concern is [specific record / statement / time entry], and we need to understand exactly what happened.\n\nI’m not going to guess at motive. I want your explanation first, then we’ll review the facts and determine next steps.`;
-        if (d === "disrespect") return `I want to talk about how the interaction was handled.\n\nThe concern is [specific words/behavior], and the impact was [impact].\n\nGoing forward, I need concerns raised professionally, even when you disagree or feel frustrated.\n\nThis is about how we communicate at work, not about attacking you personally.`;
-        return `I want to talk about what happened.\n\nThe concern is [specific behavior], and I need to understand your side before we decide the next step.\n\nGoing forward, the expectation is professional conduct and clear follow-through.`;
+        if (d === "insubordination_pushback") return `I want to talk about how that conversation went.
+
+It is okay to ask questions when something is unclear.
+
+The issue is that once direction was clear, the back-and-forth kept going and it became disruptive.
+
+Going forward, ask the question if needed, but once the direction is clear, I need you to follow it professionally.`;
+        if (d === "insubordination_argumentative") return `I need to talk with you about how that conversation was handled.
+
+I understand you may have been frustrated.
+
+The issue is not that you had a question or disagreed. The issue is that the tone became argumentative and unprofessional.
+
+Going forward, I need concerns raised respectfully without turning it into a conflict.`;
+        if (d === "insubordination_refusal") return `I need to talk with you about what happened.
+
+A work direction was given, and from what I understand, it was not followed.
+
+Walk me through your side, because I want to understand whether something was unclear or whether there was another concern.
+
+If there was not a valid reason, this is a serious issue and cannot continue.`;
+        if (d === "insubordination_public") return `I need to talk about what happened in front of the team.
+
+The concern is not just disagreement.
+
+The concern is that direction was refused or disrupted publicly, and that affects the workplace.
+
+We need to review the facts and handle this seriously.`;
+        if (d === "sleeping") return `IN THE MOMENT:
+Hey [Employee Name] — wake up.
+
+What’s going on?
+
+
+AFTER THEY RESPOND:
+Okay, I hear you.
+
+But you cannot be sleeping during work. Come on.
+
+Let’s step aside and talk through what happened.
+
+
+AFTER THE CONVERSATION:
+I’m going to review this before we decide the next step.
+
+We’ll look at what happened, the role, safety impact, and prior history.`;
+        if (d === "dishonesty") return `I need to address a serious concern about accuracy and honesty.
+
+The concern is [specific record / statement / time entry], and we need to understand exactly what happened.
+
+I’m not going to guess at motive.
+
+I want your explanation first, then we’ll review the facts and determine next steps.`;
+        if (d === "disrespect") return `I want to talk about how the interaction was handled.
+
+I get that people get frustrated.
+
+But the way that came across was not okay, and it affected the conversation.
+
+Going forward, I need concerns raised professionally, even when you disagree or feel frustrated.`;
+        return `I want to talk about what happened.
+
+The concern is [specific behavior], and I want to understand your side before we decide the next step.
+
+Going forward, the expectation is professional conduct and clear follow-through.`;
       }
 
-      return `I want to talk about what happened.\n\nLet’s walk through the facts, then we’ll decide the right next step.`;
+      return `I want to talk about what happened.
+
+Walk me through the facts first, and then we’ll decide the right next step.`;
     }
 
     function getHowToSayIt(recommendation) {
       const mode = getScenarioMode(recommendation);
-      if (mode === "process") return ["Use a short neutral message.", "Do not sound angry or threatening.", "The goal is contact, not confrontation."];
-      if (mode === "termination") return ["Do not debate the decision casually.", "Keep it administrative and coordinated with HR/payroll.", "Do not over-explain or add opinions."];
-      if (mode === "action") return ["Be immediate and clear.", "Control the safety issue first.", "Do not shame or argue; get control and gather facts."];
-      if (mode === "escalate") return ["Sound calm and serious.", "Do not sound annoyed that HR needs to be involved.", "Ask for basic facts, not personal details."];
-      return ["Start neutral, then get specific.", "Use observed behavior and dates, not labels.", "Stay firm on the expectation without turning it into an argument."];
+
+      if (mode === "ncns_outreach") return [
+        "Call first and keep the voicemail short.",
+        "Sound concerned, not angry.",
+        "Do not turn a missing employee into a discipline conversation before they are even present."
+      ];
+      if (mode === "job_abandonment_review") return [
+        "Keep it process-based and documented.",
+        "Do not emotionally argue with the employee if they reappear.",
+        "Review late explanations before confirming final status."
+      ];
+      if (mode === "termination_protocol") return [
+        "Be calm, brief, and kind.",
+        "Use empathy to keep the room steady, but do not reopen the decision.",
+        "Move quickly from decision to logistics.",
+        "Do not blame HR or policy like they are the bad guy."
+      ];
+      if (mode === "safety_action") return [
+        "Be immediate and clear.",
+        "Lower the temperature instead of matching anger.",
+        "Control the safety issue first, then talk."
+      ];
+      if (mode === "escalate") return [
+        "Sound calm and responsible.",
+        "Ask only for basic facts.",
+        "Do not challenge the employee’s complaint, medical issue, or protected concern in the moment."
+      ];
+      if (state.issueType === "performance") return [
+        "Choose the right tone: development conversation or immediate correction.",
+        "Use examples and standards, not vague comments.",
+        "Be direct enough that the employee understands what must change."
+      ];
+      return [
+        "Start with what happened.",
+        "Use empathy to keep the room calm.",
+        "Stay firm on the expectation without arguing."
+      ];
     }
 
     function getConversationGoals(recommendation) {
       const mode = getScenarioMode(recommendation);
-      if (mode === "process") return ["Make a clean contact attempt.", "Avoid saying anything that creates risk.", "Create a clear record of outreach."];
-      if (mode === "termination") return ["Confirm job abandonment process was followed.", "Keep HR/payroll aligned.", "Avoid turning a completed process into an emotional conversation."];
-      if (mode === "action") return ["Stop the immediate risk.", "Understand what happened.", "Prevent a repeat safety issue."];
-      if (mode === "escalate") return ["Receive the concern professionally.", "Avoid retaliation or careless comments.", "Move the matter to HR review."];
-      return ["Make the concern clear.", "Let the employee respond without losing control of the conversation.", "End with a clear expectation and next step."];
+
+      if (mode === "ncns_outreach") return [
+        "Check on the employee.",
+        "Create a clean record of outreach.",
+        "Avoid saying anything that creates risk."
+      ];
+      if (mode === "job_abandonment_review") return [
+        "Confirm the policy process was followed.",
+        "Coordinate final status, pay, and paperwork.",
+        "Avoid making a snap decision if new serious facts appear."
+      ];
+      if (mode === "termination_protocol") return [
+        "Deliver the decision clearly.",
+        "Hand the employee the termination letter and final pay information.",
+        "Keep the room calm and safe.",
+        "Close with benefits, property return, and next steps."
+      ];
+      if (mode === "safety_action") return [
+        "Stop immediate risk.",
+        "Protect people.",
+        "Gather facts for review."
+      ];
+      if (mode === "escalate") return [
+        "Receive the concern professionally.",
+        "Avoid retaliation or careless comments.",
+        "Move the issue into proper review."
+      ];
+      return [
+        "Make the concern clear.",
+        "Let the employee respond without losing control of the room.",
+        "End with a clear expectation and next step."
+      ];
     }
 
     function getPushbackLabel(recommendation) {
       const mode = getScenarioMode(recommendation);
-      if (mode === "process") return "If the employee later says, 'I never got your message,' say this";
-      if (mode === "termination") return "If the employee later contacts you after job abandonment, say this";
-      if (mode === "action") return "If the employee says, 'It’s not a big deal,' say this";
+      if (mode === "termination_protocol") return "If the employee says, “This is not fair,” say this";
+      if (mode === "ncns_outreach") return "If the employee later says, “I never got your message,” say this";
+      if (mode === "job_abandonment_review") return "If the employee reappears after job abandonment started, say this";
+      if (mode === "safety_action") return "If the employee says, “It’s not a big deal,” say this";
       if (mode === "escalate") return "If the employee wants an immediate answer, say this";
-      if (state.issueType === "performance") return "If the employee says, 'No one trained me,' say this";
+      if (state.issueType === "performance") return "If the employee says, “No one trained me,” say this";
       if (state.issueType === "conduct") return "If the employee starts arguing, say this";
-      return "If the employee says, 'This is not fair,' say this";
+      return "If the employee says, “This is not fair,” say this";
     }
 
     function getPushbackScript(recommendation) {
       const mode = getScenarioMode(recommendation);
-      if (mode === "process") return `I understand. I documented the contact attempts we made and the times they were made. Let’s focus now on what happened and what the next step should be.`;
-      if (mode === "termination") return `I’m not going to make a decision on the spot. HR needs to review what happened, the contact attempts, and any new information you’re sharing.`;
-      if (mode === "action") return `I’m not treating safety casually. We need to correct it now, then we can talk through what happened.`;
-      if (mode === "escalate") return `I understand you want an answer quickly, but I’m not going to rush a decision before HR reviews it.`;
-      if (state.issueType === "performance") return `If training or resources are part of the issue, let’s identify that. But I still need to be clear about the work standard going forward.`;
-      if (state.issueType === "conduct") return `I’m not going to argue about this. I’m focusing on the specific behavior and what needs to happen going forward.`;
-      return `I understand you may not agree, but I’m focused on the facts, the prior expectations, and what needs to change moving forward.`;
+
+      if (mode === "termination_protocol") return `I hear you.
+
+I know you do not agree with the decision.
+
+The decision has been made, so right now I want to focus on making sure you have the information and next steps you need.`;
+      if (mode === "ncns_outreach") return `I understand.
+
+I documented the contact attempts we made and the times they were made.
+
+Let’s focus now on what happened and what the next step should be.`;
+      if (mode === "job_abandonment_review") return `I’m not going to decide this on the spot.
+
+We need to review what happened, the contact attempts, the policy, and the information you’re sharing now.`;
+      if (mode === "safety_action") return `I’m not treating safety casually.
+
+We need to correct the safety issue first, then we can talk through what happened.`;
+      if (mode === "escalate") return `I understand you want an answer quickly.
+
+I’m not going to rush a decision before this is reviewed correctly.`;
+      if (state.issueType === "performance") return `If training or resources are part of the issue, let’s identify that.
+
+But I still need to be clear about the work standard going forward.`;
+      if (state.issueType === "conduct") return `I’m not going to argue about this.
+
+I’m focusing on the specific behavior and what needs to happen going forward.`;
+      return `I understand you may not agree.
+
+I’m focused on the facts, the prior expectations, and what needs to change moving forward.`;
     }
 
     function getAvoidSaying(recommendation) {
       const mode = getScenarioMode(recommendation);
-      if (mode === "process") return [
-        "Do not text: 'Where are you? This is unacceptable.'",
-        "Do not text: 'If you don’t respond, you’re fired' on Day 1.",
+
+      if (mode === "ncns_outreach") return [
+        "Do not say: “Where are you? This is unacceptable.”",
+        "Do not say they are fired on Day 1.",
         "Do not speculate about why they are absent."
       ];
-      if (mode === "termination") return [
-        "Do not say termination is final if HR/payroll has not confirmed the process.",
-        "Do not call the person irresponsible or lazy.",
-        "Do not ignore new facts like hospitalization, arrest, or serious emergency."
+      if (mode === "job_abandonment_review") return [
+        "Do not say: “Too late, you’re already fired” if serious new facts are raised.",
+        "Do not ignore late information like hospitalization, arrest, or a serious emergency.",
+        "Do not skip final pay and separation paperwork."
       ];
-      if (mode === "action") return [
-        "Do not say: 'It’s not a big deal.'",
-        "Do not say: 'Stop complaining and just do it.'",
-        "Do not shame someone publicly unless immediate safety requires public direction."
+      if (mode === "termination_protocol") return [
+        "Do not say: “HR made this decision.”",
+        "Do not say: “This is hard for me too” and make it about yourself.",
+        "Do not debate every incident in the meeting.",
+        "Do not apologize so much that it sounds like the decision is wrong.",
+        "Do not promise references, unemployment outcomes, or benefits answers you are not sure about."
+      ];
+      if (mode === "safety_action") return [
+        "Do not say: “It’s not a big deal.”",
+        "Do not say: “Stop complaining and just do it.”",
+        "Do not keep arguing if the situation becomes unsafe."
       ];
       if (mode === "escalate") return [
-        "Do not say: 'You’re just being sensitive.'",
-        "Do not say: 'Don’t go to HR.'",
-        "Do not ask detailed medical, pregnancy, disability, or personal questions."
+        "Do not say: “You’re just being sensitive.”",
+        "Do not say: “Don’t go to HR.”",
+        "Do not ask detailed medical, pregnancy, disability, or personal questions.",
+        "Do not threaten discipline because they raised a concern."
       ];
       if (state.issueType === "attendance") return [
-        "Do not say: 'I don’t care what was going on.'",
-        "Do not say: 'You always do this.'",
+        "Do not say: “I don’t care what was going on.”",
+        "Do not say: “You always do this.”",
         "Do not threaten termination unless that is actually the approved next step."
       ];
       if (state.issueType === "performance") return [
-        "Do not say: 'You’re just not a fit.'",
-        "Do not say: 'Your attitude is the problem' when the issue is work output.",
+        "Do not say: “You’re just not a fit” when the issue is specific performance.",
+        "Do not say: “Your attitude is the problem” when the issue is work output.",
         "Do not stay vague; use examples."
       ];
       if (state.issueType === "conduct") return [
-        "Do not call it insubordination unless it was actually refusal of clear direction.",
+        "Do not call it insubordination unless it was actually refusal of a clear work direction.",
         "Do not argue emotionally or try to win the conversation.",
         "Do not use labels like bad attitude when you can describe the exact behavior."
       ];
-      return ["Do not over-talk.", "Do not use labels when facts are stronger.", "Do not make promises you cannot keep."];
+      return [
+        "Do not over-talk.",
+        "Do not use labels when facts are stronger.",
+        "Do not make promises you cannot keep."
+      ];
     }
 
     function getDocumentationItems() {
-      const mode = getScenarioMode(getRecommendation());
-      if (mode === "process" || mode === "termination") return [
-        "Scheduled shift date and start time",
-        "Time the employee failed to report",
-        "Each call, text, voicemail, or other contact attempt",
-        "Any response received from the employee",
-        "Date job abandonment/termination review was sent to HR/payroll"
+      const recommendation = getRecommendation();
+      const mode = getScenarioMode(recommendation);
+
+      if (mode === "ncns_outreach" || mode === "job_abandonment_review") return [
+        "Scheduled shift dates",
+        "Each missed shift",
+        "Each call, voicemail, text, or other contact attempt",
+        "Employee response, if any",
+        "Policy threshold used for job abandonment",
+        "Date final status was reviewed"
       ];
-      if (mode === "action") return [
+
+      if (mode === "termination_protocol") return [
+        "Policy reason for termination",
+        "Prior coaching/warnings or serious incident facts",
+        "Termination letter provided and whether employee signed receipt",
+        "Final paycheck provided according to state law",
+        "Benefits/COBRA or continuation documents provided or mailed",
+        "Company property collected",
+        "Who attended the meeting and how the employee responded"
+      ];
+
+      if (mode === "safety_action") return [
         "What unsafe act or condition occurred",
         "Who observed it",
-        "What was done immediately to correct or stop the risk",
+        "Immediate action taken to control risk",
         "Employee explanation, if given",
-        "Any injury, threat, damage, witness, photo, or evidence"
+        "Any injury, threat, damage, witness, photo, video, or other evidence"
       ];
+
       if (mode === "escalate") return [
         "What the employee reported or raised",
         "Date and time management became aware",
         "Who was involved or named",
         "Exact words used where possible",
-        "When HR was notified"
+        "When the issue was routed for review"
       ];
-      const base = ["Date and time", "Specific behavior or performance issue", "Examples used in the conversation", "Employee response", "Expectation set going forward"];
+
+      const base = [
+        "Date and time",
+        "Specific behavior or performance issue",
+        "Examples used in the conversation",
+        "Employee response",
+        "Expectation set going forward"
+      ];
+
       if (state.issueType === "attendance") return [...base, "Attendance dates/pattern", "Prior coaching or warnings", "Whether the employee gave a reason or notice"];
       if (state.issueType === "performance") return [...base, "Expected standard", "Examples of missed work/quality/deadline", "Support or training discussed", "Follow-up date"];
       if (state.issueType === "conduct") return [...base, "Exact words/actions if known", "Witnesses", "Instruction given and whether it was followed"];
       return base;
     }
 
+    function getTerminationPacketItems() {
+      return [
+        "Termination/separation letter",
+        "Final paycheck or final pay confirmation, based on state law",
+        "Final paycheck acknowledgment, if your company uses one",
+        "Benefits summary and COBRA/continuation notice, if applicable",
+        "State separation/change-in-relationship notice, if required",
+        "Company property return checklist",
+        "Life insurance conversion/portability information, if applicable",
+        "Exit interview only if appropriate and normally used"
+      ];
+    }
+
+    function getHrPlainEnglish(recommendation) {
+      const mode = getScenarioMode(recommendation);
+
+      if (mode === "termination_protocol") return [
+        "HR is not the hero of the meeting. The manager should still lead calmly and respectfully.",
+        "HR/payroll/legal support matters behind the scenes because final pay, benefits, policy tie-in, and documentation can create risk if handled wrong.",
+        "The goal is a clean, controlled process — not a long debate."
+      ];
+
+      if (mode === "job_abandonment_review") return [
+        "HR cares because job abandonment depends on policy, documented outreach, and timing.",
+        "If the employee later claims hospitalization, arrest, emergency, or leave, the record needs to show the company handled it carefully.",
+        "This is less about punishment and more about clean process."
+      ];
+
+      if (mode === "escalate") return [
+        "HR cares because the timing can make ordinary discipline look retaliatory or discriminatory.",
+        "That does not mean the employee gets a free pass. It means the facts must be reviewed before action.",
+        "The manager should stay calm, collect the basic facts, and avoid unsafe questions."
+      ];
+
+      if (mode === "safety_action") return [
+        "Safety issues can affect whether people go home safe.",
+        "They also create major company risk if leadership responds too casually or too slowly.",
+        "The manager should control the immediate risk first and document what happened."
+      ];
+
+      if (state.issueType === "attendance") return [
+        "Attendance cases need consistency because unfair handling is easy to challenge.",
+        "A points system may control the discipline level at some companies; progressive discipline may control it at others.",
+        "The conversation still matters even when points drive the outcome."
+      ];
+
+      if (state.issueType === "performance") return [
+        "Performance cases are strongest when the manager can show the expectation, the examples, and the chance to improve.",
+        "Some performance feedback belongs in a review or 30/60/90 conversation.",
+        "Other performance issues need immediate correction because the work is not getting done."
+      ];
+
+      if (state.issueType === "conduct") return [
+        "Conduct cases get messy when managers over-label the issue.",
+        "Pushback, attitude, argument, and refusal are different levels.",
+        "Good documentation describes what happened instead of just saying the employee had a bad attitude."
+      ];
+
+      return [
+        "HR cares about consistency, documentation, and risk.",
+        "The manager still owns the conversation.",
+        "The process protects both the company and the employee."
+      ];
+    }
+
+    function getWhyThisMatters(recommendation) {
+      const mode = getScenarioMode(recommendation);
+
+      if (mode === "termination_protocol") return [
+        "Termination is where mistakes cost the most.",
+        "The conversation is only one part — pay, documents, benefits, safety, and policy tie-in matter too.",
+        "A calm, empathetic manager can keep a painful meeting from becoming a bigger problem."
+      ];
+
+      if (mode === "ncns_outreach") return [
+        "A missing employee may be irresponsible, but they may also be in an emergency.",
+        "Short, documented outreach keeps the process clean.",
+        "Angry texts create risk and make the manager look careless."
+      ];
+
+      if (mode === "safety_action") return [
+        "Safety problems can become real injuries, not just HR issues.",
+        "Managers need to act quickly without escalating emotions.",
+        "Documentation matters if the issue repeats or someone is later harmed."
+      ];
+
+      if (mode === "escalate") return [
+        "Protected-risk issues are where managers accidentally create retaliation claims.",
+        "Slowing down protects the process.",
+        "The employee should feel heard without the manager promising an outcome."
+      ];
+
+      if (state.issueType === "performance") return [
+        "Employees need to know whether this is development feedback or immediate correction.",
+        "Vague performance feedback is hard to defend later.",
+        "Clear examples and follow-up make the next step stronger if the issue continues."
+      ];
+
+      if (state.issueType === "conduct") return [
+        "Managers often get emotional when conduct feels disrespectful.",
+        "Empathy can calm the room without removing accountability.",
+        "Correct labels matter: attitude is not always insubordination."
+      ];
+
+      return [
+        "If you move too fast, you can create risk.",
+        "If you do not document facts, the next step gets weaker.",
+        "If you handle similar employees differently, the case becomes harder to defend."
+      ];
+    }
+
+    function getRealWorldRisk(recommendation) {
+      const mode = getScenarioMode(recommendation);
+
+      if (mode === "termination_protocol") return [
+        "The employee argues, cries, or gets angry, and the manager starts debating instead of closing calmly.",
+        "Final pay is not ready when state law requires it, creating avoidable compliance risk.",
+        "The termination reason is not tied clearly to policy, so the employee later claims it was personal or unfair.",
+        "No one planned the room or safety setup, and a predictable emotional meeting becomes chaotic."
+      ];
+
+      if (mode === "job_abandonment_review") return [
+        "The manager says the person quit before the policy threshold is met.",
+        "No one documented call attempts, so job abandonment looks unsupported.",
+        "The employee later raises a hospital, jail, or emergency explanation and the company has to unwind a rushed decision."
+      ];
+
+      if (mode === "ncns_outreach") return [
+        "The manager sends an angry text and turns a missing-person issue into a discipline fight.",
+        "The company cannot show basic contact attempts later.",
+        "The employee had a serious emergency, and the manager’s message looks cold or careless."
+      ];
+
+      if (mode === "safety_action") return [
+        "The manager keeps arguing while the safety issue is still active.",
+        "The manager downplays a hazard and someone gets hurt later.",
+        "A safety complaint gets mistaken for misconduct, creating retaliation risk."
+      ];
+
+      if (mode === "escalate") return [
+        "The manager disciplines right after a complaint or leave issue and it looks retaliatory.",
+        "The manager asks medical questions they should not ask.",
+        "The employee’s concern gets dismissed and becomes a bigger formal complaint."
+      ];
+
+      if (state.issueType === "performance") return [
+        "The manager says “you’re not a fit” instead of explaining the actual work problem.",
+        "The employee says nobody trained them and the manager has no record of support or expectations.",
+        "The manager waits too long and then jumps straight to discipline without prior clarity."
+      ];
+
+      if (state.issueType === "conduct") return [
+        "The manager calls normal pushback insubordination and weakens the case.",
+        "The manager argues back and loses control of the room.",
+        "The write-up says “bad attitude” but gives no facts."
+      ];
+
+      return [
+        "Handled poorly, the issue can escalate quickly.",
+        "Weak documentation makes later action harder.",
+        "Inconsistent handling creates risk."
+      ];
+    }
+
+    function getHumanImpact() {
+      if (state.issueType === "safety") return "Safety issues are not just policy problems. They can affect whether someone goes home safe.";
+      if (state.issueType === "protected") return "These situations may involve health, recovery, pregnancy, disability, or family needs. The employee experience can feel deeply personal.";
+      if (state.issueType === "complaint") return "How a manager responds can decide whether the employee feels heard or whether the issue escalates.";
+      if (state.issueType === "attendance" && state.legal === "yes") return "Sometimes what looks like attendance is really leave, medical, family, or emergency-related.";
+      return "";
+    }
 
     function showResult() {
       const recommendation = getRecommendation();
