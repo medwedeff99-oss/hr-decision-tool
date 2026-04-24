@@ -658,6 +658,130 @@
       text-align: left;
     }
 
+
+
+    .beta-unlock-panel {
+      border-radius: 18px;
+      padding: 20px;
+      border: 1px solid #c084fc;
+      background: linear-gradient(180deg, #faf5ff, #ffffff);
+    }
+
+    .beta-unlock-panel h4 {
+      margin: 0 0 8px;
+      font-size: 1.12rem;
+    }
+
+    .beta-unlock-panel p {
+      margin: 0 0 12px;
+      color: #475569;
+      line-height: 1.6;
+    }
+
+    .beta-progress-note {
+      display: inline-flex;
+      border-radius: 999px;
+      background: #ecfeff;
+      color: #0e7490;
+      border: 1px solid #67e8f9;
+      padding: 8px 12px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .beta-locked-script {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .beta-locked-script::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(17,24,39,0.05), rgba(17,24,39,0.38));
+      pointer-events: none;
+    }
+
+    .beta-cta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .beta-cta-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      background: #ffffff;
+      padding: 16px;
+    }
+
+    .beta-cta-card h5 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+    }
+
+    .beta-cta-card p {
+      margin: 0 0 12px;
+      font-size: 0.92rem;
+      color: #475569;
+    }
+
+    .btn-form {
+      background: #111827;
+      color: #fff;
+      border: 1px solid #111827;
+    }
+
+    .btn-form:hover {
+      color: #fff;
+    }
+
+
+    .owner-test-panel {
+      display: none;
+      margin: 0 0 24px;
+      border: 1px solid rgba(125, 211, 252, 0.45);
+      background: rgba(14, 116, 144, 0.16);
+      backdrop-filter: blur(18px);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      color: var(--text);
+    }
+
+    .owner-test-panel h3 {
+      margin: 0 0 8px;
+      font-size: 1.05rem;
+    }
+
+    .owner-test-panel p {
+      margin: 0 0 12px;
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 0.92rem;
+    }
+
+    .owner-test-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .owner-test-links a, .owner-test-links button {
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-weight: 800;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+
     @media print {
       body {
         background: #fff;
@@ -752,7 +876,7 @@
         </p>
         <div class="hero-cta-row">
           <button class="btn btn-primary" onclick="jumpToTool()">Try the Demo</button>
-          <button class="btn btn-secondary" onclick="showLeadCaptureOnly()">Request Company Demo</button>
+          <button class="btn btn-secondary" onclick="openFeedbackForm()">Give Feedback</button>
           <button class="btn btn-secondary" onclick="scrollToFullAccess()">Why Full Access</button>
         </div>
       </div>
@@ -787,6 +911,17 @@
       </div>
     </section>
 
+    <section class="owner-test-panel" id="ownerTestPanel" aria-label="Owner test links">
+      <h3>Owner testing links</h3>
+      <p>Use these links to test the public demo, unlimited test mode, and paid/full-access view without changing code.</p>
+      <div class="owner-test-links">
+        <a id="ownerFreeLink" href="#">Free version — 3 previews</a>
+        <a id="ownerTestLink" href="#">Test version — unlimited</a>
+        <a id="ownerPaidLink" href="#">Paid version — full access</a>
+        <button type="button" onclick="resetPreviewCounter()">Reset preview count</button>
+      </div>
+    </section>
+
 
     <section class="value-section" id="fullAccessInfo">
       <div class="value-grid">
@@ -816,7 +951,7 @@
             <div id="paypal-container-top"></div>
           </div>
           <p class="premium-note">
-            Testing phase: simple self-serve payment now, deeper access automation later.
+            Simple self-serve access now; more manager scenarios and guidance will continue to improve over time.
           </p>
         </div>
       </div>
@@ -854,8 +989,8 @@
         </ul>
 
         <div style="margin-top:18px;">
-          <button class="btn btn-primary" style="width:100%;" onclick="showLeadCaptureOnly()">
-            Bring This to My Company
+          <button class="btn btn-primary" style="width:100%;" onclick="openFeedbackForm()">
+            Give Feedback
           </button>
         </div>
       </aside>
@@ -881,10 +1016,221 @@
       detail: ""
     };
 
-    const googleFormEmbedUrl = "https://docs.google.com/forms/d/e/1FAIpQLScLJvO8W5KZ14_GoWXgK6otWdNMSebymZLu52qyvtpnmQRL7A/viewform?embedded=true";
-    const googleFormDirectUrl = "https://docs.google.com/forms/d/e/1FAIpQLScLJvO8W5KZ14_GoWXgK6otWdNMSebymZLu52qyvtpnmQRL7A/viewform";
+    const googleFormEmbedUrl = "https://docs.google.com/forms/d/1tuRYc6mZDcIJ8NbU_r505I20x-iRsjDeg6wXduYnUAY/viewform?embedded=true";
+    const googleFormDirectUrl = "https://docs.google.com/forms/d/1tuRYc6mZDcIJ8NbU_r505I20x-iRsjDeg6wXduYnUAY/viewform";
 
-    const ownerUnlocked = window.location.search.includes("unlock=true");
+    const urlParams = new URLSearchParams(window.location.search);
+    const ownerUnlocked = urlParams.get("unlock") === "true";
+    const ownerTestMode = urlParams.get("test") === "true";
+    const showOwnerLinks = urlParams.get("owner") === "true" || window.location.protocol === "file:";
+
+
+    const FREE_SCENARIO_LIMIT = 3;
+    const FREE_VIEW_KEY = "hrdt_free_scenario_views_sales_ready_v1";
+    const FEEDBACK_UNLOCK_KEY = "hrdt_feedback_unlocks_sales_ready_v1";
+
+    function getStoredNumber(key) {
+      const raw = window.localStorage ? localStorage.getItem(key) : "0";
+      const parsed = parseInt(raw || "0", 10);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function setStoredNumber(key, value) {
+      if (!window.localStorage) return;
+      localStorage.setItem(key, String(value));
+    }
+
+    function getFreeScenarioViews() {
+      return getStoredNumber(FREE_VIEW_KEY);
+    }
+
+    function getFeedbackUnlocks() {
+      return getStoredNumber(FEEDBACK_UNLOCK_KEY);
+    }
+
+    function getAllowedFreeScenarioViews() {
+      // Final public demo flow: 3 full scenario previews, then paywall.
+      // Incognito/private windows start fresh because this uses localStorage.
+      return FREE_SCENARIO_LIMIT;
+    }
+
+    function hasFreeScenarioAvailable() {
+      if (ownerTestMode) return true;
+      return getFreeScenarioViews() < getAllowedFreeScenarioViews();
+    }
+
+    function markFreeScenarioViewed() {
+      if (ownerUnlocked || ownerTestMode) return;
+      const current = getFreeScenarioViews();
+      if (current < FREE_SCENARIO_LIMIT) {
+        setStoredNumber(FREE_VIEW_KEY, current + 1);
+      }
+    }
+
+    function openFeedbackForm() {
+      window.open(googleFormDirectUrl, "_blank", "noopener,noreferrer");
+    }
+
+    function feedbackUnlockAndOpenForm() {
+      const used = getFreeScenarioViews();
+      const unlocks = getFeedbackUnlocks();
+
+      if (used >= FREE_SCENARIO_LIMIT) {
+        scrollToFullAccess();
+        return;
+      }
+
+      if (unlocks < FREE_SCENARIO_LIMIT - 1) {
+        setStoredNumber(FEEDBACK_UNLOCK_KEY, unlocks + 1);
+      }
+
+      window.open(googleFormDirectUrl, "_blank", "noopener,noreferrer");
+      restart();
+      scrollToToolTop();
+    }
+
+    function unlockNextScenarioAfterFeedback() {
+      feedbackUnlockAndOpenForm();
+    }
+
+    function fullAccessCheckoutPanel() {
+      return `
+        <div class="premium-callout">
+          <h4>Unlock the full manager guidance library</h4>
+          <p class="premium-note" style="margin-top:0;">
+            Give managers instant access to every scenario: exact wording, pushback responses, what not to say,
+            documentation guidance, and HR risk flags before conversations go sideways.
+          </p>
+          <div class="paypal-wrap">
+            <div id="paypal-container-result"></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function betaFeedbackUnlockHtml() {
+      const used = Math.min(getFreeScenarioViews(), FREE_SCENARIO_LIMIT);
+      const remaining = Math.max(0, FREE_SCENARIO_LIMIT - used);
+      const canPreviewMore = used < FREE_SCENARIO_LIMIT;
+
+      if (!canPreviewMore) {
+        return `
+          <div class="beta-unlock-panel">
+            <span class="beta-progress-note">Preview complete</span>
+            <h4>You’ve seen how the tool guides real manager conversations.</h4>
+            <p>
+              Full access gives your managers the complete library: exact wording, pushback responses, what not to say,
+              documentation guidance, and HR risk flags across attendance, performance, conduct, safety, leave, and complaint scenarios.
+            </p>
+          </div>
+          ${fullAccessCheckoutPanel()}
+        `;
+      }
+
+      return `
+        <div class="beta-unlock-panel">
+          <span class="beta-progress-note">Full preview available — ${remaining} more scenario${remaining === 1 ? "" : "s"} left</span>
+          <h4>See how it handles another real HR situation.</h4>
+          <p>
+            Preview up to ${FREE_SCENARIO_LIMIT} full manager-guidance results, including exact wording, risk flags,
+            what not to say, and documentation points. If this would help your managers make cleaner calls, unlock full access below.
+          </p>
+          <div class="result-actions" style="margin-top:14px;">
+            <button class="btn btn-form" onclick="openFeedbackForm()">
+              Share Feedback
+            </button>
+            <button class="btn btn-primary" onclick="scrollToFullAccess()">
+              Unlock Full Access — $9.99
+            </button>
+          </div>
+          <div class="small-note">
+            Feedback is optional. Use “Run Another Scenario” below to preview another result before the limit is reached.
+          </div>
+        </div>
+      `;
+    }
+
+    function betaLockedPaywallHtml() {
+      return `
+        <div class="panel panel-blue">
+          <h4>Keep using the tool with full access</h4>
+          <ul>
+            <li>Give managers exact wording before they talk to the employee.</li>
+            <li>Show what not to say, what to document, and when the issue is higher risk.</li>
+            <li>Use every scenario without the preview limit for $9.99.</li>
+          </ul>
+        </div>
+
+        <div class="panel">
+          <h4>Conversation / process guide</h4>
+          <p class="small-note" style="margin-top:0;">Full manager wording is locked after the free preview limit.</p>
+          <div class="script-box beta-locked-script" style="filter: blur(5px); user-select:none; min-height:120px;">
+OPENING:
+Hey [Employee Name], I want to talk through what happened.
+
+GET THEIR SIDE:
+Walk me through your side first so I understand the facts.
+
+MANAGER NOTE:
+Full wording, pushback response, what not to say, and documentation guidance are available in full access.
+          </div>
+        </div>
+
+        ${fullAccessCheckoutPanel()}
+      `;
+    }
+
+    function betaFullAccessHtml(contentHtml) {
+      if (ownerUnlocked || ownerTestMode) return contentHtml;
+
+      const viewedBefore = getFreeScenarioViews();
+      const scenarioNumber = Math.min(viewedBefore + 1, FREE_SCENARIO_LIMIT);
+      markFreeScenarioViewed();
+
+      return `
+        <div class="beta-unlock-panel">
+          <span class="beta-progress-note">Full scenario preview ${scenarioNumber} of ${FREE_SCENARIO_LIMIT}</span>
+          <h4>Manager-ready guidance before the conversation escalates.</h4>
+          <p>
+            Review the exact wording, risk guidance, what not to say, and documentation points below.
+            Full access gives your managers this same practical guidance across every scenario.
+          </p>
+        </div>
+        ${contentHtml}
+        ${betaFeedbackUnlockHtml()}
+        ${getFreeScenarioViews() < FREE_SCENARIO_LIMIT ? fullAccessCheckoutPanel() : ``}
+      `;
+    }
+
+    function buildOwnerUrl(paramString = "") {
+      const base = window.location.origin && window.location.origin !== "null"
+        ? `${window.location.origin}${window.location.pathname}`
+        : window.location.pathname;
+      return `${base}${paramString}`;
+    }
+
+    function resetPreviewCounter() {
+      if (window.localStorage) {
+        localStorage.removeItem(FREE_VIEW_KEY);
+        localStorage.removeItem(FEEDBACK_UNLOCK_KEY);
+      }
+      window.location.href = buildOwnerUrl(window.location.search.includes("owner=true") ? "?owner=true" : "");
+    }
+
+    function setupOwnerTestLinks() {
+      const panel = document.getElementById("ownerTestPanel");
+      if (!panel || !showOwnerLinks) return;
+
+      panel.style.display = "block";
+
+      const freeLink = document.getElementById("ownerFreeLink");
+      const testLink = document.getElementById("ownerTestLink");
+      const paidLink = document.getElementById("ownerPaidLink");
+
+      if (freeLink) freeLink.href = buildOwnerUrl("?owner=true");
+      if (testLink) testLink.href = buildOwnerUrl("?test=true&owner=true");
+      if (paidLink) paidLink.href = buildOwnerUrl("?unlock=true&owner=true");
+    }
 
     function legalDisclaimerHtml() {
       return `
@@ -2545,7 +2891,7 @@ function getAvoidSaying(recommendation) {
       updateProgress(5);
       state.history = ["showLeadCaptureOnly"];
       setView(`
-        <div class="step-pill">Request Company Demo</div>
+        <div class="step-pill">Share Feedback / Get Updates</div>
         <h2 class="question">Bring this decision tool to your company</h2>
         <p class="helper">
           Submit the Google form below to request a demo, share feedback, or leave your contact information for follow-up.
@@ -3700,7 +4046,7 @@ I’m focused on the facts, the prior expectations, and what needs to change mov
       const pushbackScript = getPushbackScript(recommendation);
       const avoidSaying = getAvoidSaying(recommendation);
 
-      const premiumHtml = ownerUnlocked ? `
+      const fullScenarioHtml = `
           <div class="panel panel-blue">
             <h4>Why this matters to you</h4>
             <ul>${whyThisMatters.map(item => `<li>${item}</li>`).join("")}</ul>
@@ -3713,7 +4059,7 @@ I’m focused on the facts, the prior expectations, and what needs to change mov
           </div>
 
           <div class="panel">
-            <h4>${getScenarioMode(recommendation) === "process" ? "Outreach wording — use this instead of a discipline conversation" : getScenarioMode(recommendation) === "termination" ? "Process wording — do not coach this like a normal attendance issue" : getScenarioMode(recommendation) === "action" ? "Safety conversation flow — stop the risk first" : getScenarioMode(recommendation) === "escalate" ? "Careful conversation flow — slow down and route to HR" : "Conversation flow — use this with the employee"}</h4>
+            <h4>${getScenarioMode(recommendation) === "no_call_process" ? "Outreach wording — use this instead of a discipline conversation" : getScenarioMode(recommendation) === "job_abandonment_review" ? "Process wording — do not coach this like a normal attendance issue" : getScenarioMode(recommendation) === "safety_escalation" || getScenarioMode(recommendation) === "safety_conversation" ? "Safety conversation flow — stop the risk first" : getScenarioMode(recommendation) === "protected_escalation" ? "Careful conversation flow — slow down and route correctly" : "Conversation flow — use this with the employee"}</h4>
             <p class="small-note" style="margin-top:0;">${scriptHelp}</p>
             <div class="script-box">${script}</div>
             <div class="copy-row">
@@ -3745,7 +4091,7 @@ I’m focused on the facts, the prior expectations, and what needs to change mov
           </div>
 
           <div class="panel panel-red">
-            <h4>${getScenarioMode(recommendation) === "process" || getScenarioMode(recommendation) === "termination" ? "What to document" : "After this, document this"}</h4>
+            <h4>After this, document this</h4>
             <ul>${documentation.map(item => `<li>${item}</li>`).join("")}</ul>
           </div>
 
@@ -3753,47 +4099,11 @@ I’m focused on the facts, the prior expectations, and what needs to change mov
             <h4>Why HR would care</h4>
             <ul>${hrPlainEnglish.map(item => `<li>${item}</li>`).join("")}</ul>
           </div>
-      ` : `
-          <div class="panel panel-blue">
-            <h4>Why this matters</h4>
-            <ul>
-              <li>This can create risk if handled incorrectly.</li>
-              <li>The right next step depends on whether this is a process issue, conversation issue, safety issue, or HR escalation issue.</li>
-            </ul>
-          </div>
-
-          <div class="premium-callout">
-            <h4>⚠️ Unlock the manager conversation guide</h4>
-            <p class="premium-note" style="margin-top:0;">
-              Full Access shows whether to talk, stop, document, escalate, or process the issue — plus exact wording, pushback responses, what not to say, and what to document.
-            </p>
-            <button class="btn btn-primary" onclick="scrollToFullAccess()">
-              Unlock Full Access
-            </button>
-          </div>
-
-          <div class="panel">
-            <h4>Conversation / process guide (paid)</h4>
-            <div class="script-box" style="filter: blur(5px); user-select:none;">
-              Full manager wording available in Full Access.
-            </div>
-          </div>
-
-          <div class="premium-callout">
-            <h4>Why managers use this before they talk</h4>
-            <div class="premium-teaser">
-              <ul>
-                <li>Know when not to have a conversation yet, like no-call/no-show outreach</li>
-                <li>Use wording that sounds like a real manager, not a legal memo</li>
-                <li>Avoid phrases that create HR cleanup work later</li>
-                <li>Document the right facts after the conversation or process step</li>
-              </ul>
-            </div>
-            <div class="paypal-wrap">
-              <div id="paypal-container-result"></div>
-            </div>
-          </div>
       `;
+
+      const premiumHtml = (ownerUnlocked || hasFreeScenarioAvailable())
+        ? betaFullAccessHtml(fullScenarioHtml)
+        : betaLockedPaywallHtml();
 
       setView(`
         <div class="result-card">
@@ -3836,7 +4146,7 @@ I’m focused on the facts, the prior expectations, and what needs to change mov
             <h4>Tool actions</h4>
             <div class="result-actions">
               <button class="btn btn-light" onclick="window.print()">Print / Save as PDF</button>
-              ${ownerUnlocked ? `` : `<button class="btn btn-secondary" onclick="showLeadCaptureOnly()">Request Company Demo</button>`}
+              
             </div>
           </div>
 
@@ -6376,6 +6686,7 @@ Document the conversation and follow-up plan.`);
       return ["Date and time", "Facts", "Employee explanation", "Expectation set", "Next step"];
     }
 
+    setupOwnerTestLinks();
     applyUnlockedMode();
     start();
     renderPayPalButtons();
