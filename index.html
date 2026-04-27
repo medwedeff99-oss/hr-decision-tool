@@ -913,9 +913,13 @@
 
     <section class="owner-test-panel" id="ownerTestPanel" aria-label="Owner test links">
       <h3>Owner testing links</h3>
-      <p>Use these links to test the public demo, unlimited test mode, and paid/full-access view without changing code.</p>
+      <p>Use these links to test the public demo, the 1/2/3 preview countdown, the locked paywall, unlimited test mode, and paid/full-access view without changing code. Current saved preview count: <strong id="ownerCurrentCount">0</strong>.</p>
       <div class="owner-test-links">
-        <a id="ownerFreeLink" href="#">Free version — 3 previews</a>
+        <a id="ownerFreeLink" href="#">Free version — normal public flow</a>
+        <a id="ownerPreview1Link" href="#">Test preview 1 of 3</a>
+        <a id="ownerPreview2Link" href="#">Test preview 2 of 3</a>
+        <a id="ownerPreview3Link" href="#">Test preview 3 of 3</a>
+        <a id="ownerLockedLink" href="#">Test locked paywall</a>
         <a id="ownerTestLink" href="#">Test version — unlimited</a>
         <a id="ownerPaidLink" href="#">Paid version — full access</a>
         <button type="button" onclick="resetPreviewCounter()">Reset preview count</button>
@@ -1022,6 +1026,7 @@
     const urlParams = new URLSearchParams(window.location.search);
     const ownerUnlocked = urlParams.get("unlock") === "true";
     const ownerTestMode = urlParams.get("test") === "true";
+    const ownerPreviewCountParam = urlParams.get("previewCount");
     const showOwnerLinks = urlParams.get("owner") === "true" || window.location.protocol === "file:";
 
 
@@ -1209,6 +1214,17 @@ Full wording, pushback response, what not to say, and documentation guidance are
       return `${base}${paramString}`;
     }
 
+    function applyOwnerPreviewCountFromUrl() {
+      if (!showOwnerLinks || ownerUnlocked || ownerTestMode || ownerPreviewCountParam === null) return;
+
+      const previewCount = parseInt(ownerPreviewCountParam, 10);
+      if (!Number.isFinite(previewCount)) return;
+
+      const safeCount = Math.max(0, Math.min(FREE_SCENARIO_LIMIT, previewCount));
+      setStoredNumber(FREE_VIEW_KEY, safeCount);
+      setStoredNumber(FEEDBACK_UNLOCK_KEY, 0);
+    }
+
     function resetPreviewCounter() {
       if (window.localStorage) {
         localStorage.removeItem(FREE_VIEW_KEY);
@@ -1218,18 +1234,30 @@ Full wording, pushback response, what not to say, and documentation guidance are
     }
 
     function setupOwnerTestLinks() {
+      applyOwnerPreviewCountFromUrl();
+
       const panel = document.getElementById("ownerTestPanel");
       if (!panel || !showOwnerLinks) return;
 
       panel.style.display = "block";
 
       const freeLink = document.getElementById("ownerFreeLink");
+      const preview1Link = document.getElementById("ownerPreview1Link");
+      const preview2Link = document.getElementById("ownerPreview2Link");
+      const preview3Link = document.getElementById("ownerPreview3Link");
+      const lockedLink = document.getElementById("ownerLockedLink");
       const testLink = document.getElementById("ownerTestLink");
       const paidLink = document.getElementById("ownerPaidLink");
+      const currentCount = document.getElementById("ownerCurrentCount");
 
       if (freeLink) freeLink.href = buildOwnerUrl("?owner=true");
+      if (preview1Link) preview1Link.href = buildOwnerUrl("?owner=true&previewCount=0");
+      if (preview2Link) preview2Link.href = buildOwnerUrl("?owner=true&previewCount=1");
+      if (preview3Link) preview3Link.href = buildOwnerUrl("?owner=true&previewCount=2");
+      if (lockedLink) lockedLink.href = buildOwnerUrl("?owner=true&previewCount=3");
       if (testLink) testLink.href = buildOwnerUrl("?test=true&owner=true");
       if (paidLink) paidLink.href = buildOwnerUrl("?unlock=true&owner=true");
+      if (currentCount) currentCount.textContent = String(getFreeScenarioViews());
     }
 
     function legalDisclaimerHtml() {
