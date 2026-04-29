@@ -48,10 +48,11 @@ Provide:
       });
     }
 
-    const output =
-      data.output?.[0]?.content?.[0]?.text || "No response generated.";
+    // ✅ FIXED PARSING (this is the key)
+    const output = data.output_text || "No response generated.";
 
     return res.status(200).json({ result: output });
+
   } catch (err) {
     return res.status(500).json({
       error: "Server error",
