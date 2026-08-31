@@ -931,10 +931,9 @@
       <div class="value-grid">
         <div>
           <div class="eyebrow">Full Access</div>
-          <h2 style="margin:0 0 10px; font-size:clamp(1.8rem, 3vw, 2.6rem); line-height:1.1;">$9.99/month to help prevent manager mistakes that can cost far more later.</h2>
+          <h2 style="margin:0 0 10px; font-size:clamp(1.8rem, 3vw, 2.6rem); line-height:1.1;">Free HR guidance for common manager conversations.</h2>
           <p class="value-muted">
-            The demo shows the direction. Full access is positioned as low-cost protection against avoidable manager errors that can waste HR time,
-            create expensive employee-relations problems, and increase legal risk.
+            Use the decision tree freely whenever you need help preparing for a manager conversation. If it saves you time or helps you handle a situation more confidently, you can optionally support future improvements.
           </p>
           <ul class="value-list">
             <li>Exact scripts for what managers should say</li>
@@ -945,17 +944,15 @@
         </div>
 
         <div class="value-card">
-          <h3 style="margin:0 0 6px; font-size:1.25rem;">Unlock Full Access</h3>
-          <div class="value-price">$9.99<span style="font-size:1rem; font-weight:700;">/month</span></div>
+          <h3 style="margin:0 0 6px; font-size:1.25rem;">Support This Tool</h3>
+          <div class="value-price">Free</div>
           <p class="value-muted" style="margin:0 0 14px;">
             Most HR issues do not go bad because the initial concern was impossible to understand.
             They go bad because the manager handled the conversation poorly.
           </p>
-          <div class="paypal-wrap">
-            <div id="paypal-container-top"></div>
-          </div>
+          <a class="btn btn-primary" href="https://www.paypal.com/ncp/payment/4SA3ZBKHVF5Q6" target="_blank" rel="noopener noreferrer" style="width:100%; margin-top:16px;">❤️ Support What I’m Building</a>
           <p class="premium-note">
-            Simple self-serve access now; more manager scenarios and guidance will continue to improve over time.
+            Free to use. If this tool helps you, optional support helps me keep improving it and building new projects.
           </p>
         </div>
       </div>
@@ -1024,10 +1021,10 @@
     const googleFormDirectUrl = "https://docs.google.com/forms/d/1tuRYc6mZDcIJ8NbU_r505I20x-iRsjDeg6wXduYnUAY/viewform";
 
     const urlParams = new URLSearchParams(window.location.search);
-    const ownerUnlocked = urlParams.get("unlock") === "true";
-    const ownerTestMode = urlParams.get("test") === "true";
+    const ownerUnlocked = false;
+    const ownerTestMode = true; // Public version is now unlimited and free.
     const ownerPreviewCountParam = urlParams.get("previewCount");
-    const showOwnerLinks = urlParams.get("owner") === "true" || window.location.protocol === "file:";
+    const showOwnerLinks = false;
 
 
     const FREE_SCENARIO_LIMIT = 3;
