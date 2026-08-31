@@ -1,0 +1,93 @@
+name: One-time HR free support patch
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/one-time-free-support.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Make minimal HR tool changes
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          path = Path('index.html')
+          text = path.read_text(encoding='utf-8')
+
+          exact = [
+              (
+                  'const ownerUnlocked = urlParams.get("unlock") === "true";',
+                  'const ownerUnlocked = false;'
+              ),
+              (
+                  'const ownerTestMode = urlParams.get("test") === "true";',
+                  'const ownerTestMode = true; // Public version is now unlimited and free.'
+              ),
+              (
+                  'const showOwnerLinks = urlParams.get("owner") === "true" || window.location.protocol === "file:";',
+                  'const showOwnerLinks = false;'
+              ),
+              (
+                  '$9.99/month to help prevent manager mistakes that can cost far more later.',
+                  'Free HR guidance for common manager conversations.'
+              ),
+              (
+                  '<h3 style="margin:0 0 6px; font-size:1.25rem;">Unlock Full Access</h3>',
+                  '<h3 style="margin:0 0 6px; font-size:1.25rem;">Support This Tool</h3>'
+              ),
+              (
+                  '<div class="value-price">$9.99<span style="font-size:1rem; font-weight:700;">/month</span></div>',
+                  '<div class="value-price">Free</div>'
+              ),
+              (
+                  'Simple self-serve access now; more manager scenarios and guidance will continue to improve over time.',
+                  'Free to use. If this tool helps you, optional support helps me keep improving it and building new projects.'
+              ),
+          ]
+
+          for old, new in exact:
+              if old not in text:
+                  raise SystemExit(f'Expected text not found: {old[:80]}')
+              text = text.replace(old, new, 1)
+
+          text, n = re.subn(
+              r'<div class="paypal-wrap">\s*<div id="paypal-container-top"></div>\s*</div>',
+              '<a class="btn btn-primary" href="https://www.paypal.com/ncp/payment/4SA3ZBKHVF5Q6" target="_blank" rel="noopener noreferrer" style="width:100%; margin-top:16px;">❤️ Support What I’m Building</a>',
+              text,
+              count=1,
+          )
+          if n != 1:
+              raise SystemExit(f'Expected one top PayPal container, replaced {n}')
+
+          old_intro = (
+              'The demo shows the direction. Full access is positioned as low-cost protection against avoidable manager errors that can waste HR time,\n'
+              '            create expensive employee-relations problems, and increase legal risk.'
+          )
+          new_intro = (
+              'Use the decision tree freely whenever you need help preparing for a manager conversation. '\
+              'If it saves you time or helps you handle a situation more confidently, you can optionally support future improvements.'
+          )
+          if old_intro not in text:
+              raise SystemExit('Expected full-access intro text not found')
+          text = text.replace(old_intro, new_intro, 1)
+
+          path.write_text(text, encoding='utf-8')
+
+      - name: Commit the change
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet && exit 0
+          git commit -m "Make HR tool free and add optional support link"
+          git push
